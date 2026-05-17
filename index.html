@@ -785,29 +785,17 @@ let PRESETS=[
 // ════════════════════════════════════════════════════════
 
 /*
-  FIREBASE SECURITY RULES — paste in Firebase Console > Realtime Database > Rules:
+  FIREBASE SECURITY RULES — افتح Firebase Console > Realtime Database > Rules
+  وضع هذه القواعد بالضبط (تسمح للجميع بالقراءة والكتابة):
+
   {
     "rules": {
-      "sessions": {
-        "$sessionId": {
-          "models": {
-            ".read": true,
-            ".write": "auth == null"
-          },
-          "students": {
-            ".read": "auth == null",
-            "$studentId": {
-              ".write": "auth == null"
-            }
-          }
-        }
-      }
+      ".read": true,
+      ".write": true
     }
   }
 
-  NOTE: For maximum security with the password approach,
-  use Session ID as a secret path (already implemented via SESSION_ID).
-  Only someone with the URL can access the session data.
+  ⚠️ الأمان يعتمد على كلمة المرور الموجودة في الكود وليس على Firebase Rules.
 */
 const FB_CONFIG = {
   apiKey: "AIzaSyAGrIhpeD5K7berK-6i8AhtVJ-knQqZBSk",
@@ -1013,19 +1001,22 @@ function listenModels(){
 }
 
 // ── Session ID (teacher sets it, students join) ──
-const SESSION_ID = 'session_' + (()=>{
-  // Use a fixed session or from URL param
+// ════════════════════════════════════════════════════════
+// SESSION ID — ثابت لهذا الملف، مشترك بين جميع الأجهزة
+// ════════════════════════════════════════════════════════
+const FIXED_SESSION = 'alfa13_sofianypp'; // معرّف ثابت للجلسة — لا يتغيّر
+
+const SESSION_ID = (()=>{
+  // إذا جاء الطالب برابط يحتوي على ?s= فاستخدمه
   const p = new URLSearchParams(location.search).get('s');
-  if(p) return p;
-  // Teacher: generate and store
-  let id = localStorage.getItem('session_id');
-  if(!id){ id='s'+Date.now().toString(36); localStorage.setItem('session_id',id); }
-  return id;
+  if(p) return 'session_' + p;
+  // وإلا استخدم المعرّف الثابت (المعلم والطلاب على نفس الجهاز)
+  return 'session_' + FIXED_SESSION;
 })();
 
 function getStudentLink(){
   const base = location.href.split('?')[0];
-  return base + '?s=' + SESSION_ID.replace('session_','');
+  return base + '?s=' + FIXED_SESSION;
 }
 
 // ════════════════════════════════════════════════════════
