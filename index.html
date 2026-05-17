@@ -319,12 +319,58 @@ body.stu-fs #botPanel{border-radius:0;border-left:none;border-right:none}
 body.stu-fs #topPanel{flex:0 0 auto;overflow-y:auto;max-height:42vh}
 body.stu-fs #botPanel{flex:1 1 0;overflow-y:auto;min-height:0}
 body.stu-fs #fsBtn{background:rgba(239,68,68,.18);border-color:rgba(239,68,68,.4);color:#fca5a5}
-#fsBtn{position:fixed;bottom:14px;left:14px;z-index:400;
+
+/* ── MOBILE MODE ── */
+body.mob-mode .hdr,
+body.mob-mode #stuBar,
+body.mob-mode #modelBar{display:none!important}
+body.mob-mode{overflow:hidden!important}
+body.mob-mode #app{padding:0;max-width:100%;height:100vh;display:flex;flex-direction:column;gap:0}
+body.mob-mode #topPanel{
+  flex:0 0 60%;height:60vh;max-height:60vh;
+  overflow-y:auto;border-radius:0;border-left:none;border-right:none;margin:0}
+body.mob-mode #botPanel{
+  flex:0 0 40%;height:40vh;max-height:40vh;
+  overflow-y:auto;border-radius:0;border-left:none;border-right:none;margin:0}
+
+/* في وضع الجوال: صفوف المطلوبات تصبح رأسية (زوج واحد لكل صف) */
+body.mob-mode .col-hdr{display:none!important}
+body.mob-mode .trow{
+  display:flex !important;
+  flex-direction:column !important;
+  border-bottom:2px solid rgba(255,255,255,.08) !important;
+  padding-bottom:4px;margin-bottom:2px}
+body.mob-mode .trow .csep{display:none!important}
+body.mob-mode .trow .rdel{
+  display:flex;width:100%;height:28px;border-radius:0 0 7px 7px;
+  border-left:none;border-top:1px solid rgba(239,68,68,.2)}
+/* كل زوج (سؤال+دراج) يصبح صفاً أفقياً من خليتين */
+body.mob-mode .mob-pair{
+  display:flex !important;
+  flex-direction:row !important;
+  width:100%;min-height:44px}
+body.mob-mode .mob-pair .qlbl-wrap{
+  flex:0 0 42%;border-radius:0 !important}
+body.mob-mode .mob-pair .dz{
+  flex:1 1 0;border-radius:0 !important;min-height:44px}
+
+/* أزرار الوضعين */
+#fsBtn, #mobBtn{
+  position:fixed;bottom:14px;z-index:400;
   padding:7px 13px;font-size:.78rem;border-radius:8px;
-  background:rgba(139,92,246,.2);border:1px solid rgba(139,92,246,.4);
-  color:#c4b5fd;font-family:'Cairo',sans-serif;cursor:pointer;
-  display:none;transition:all .2s;backdrop-filter:blur(8px)}
-body.sm #fsBtn{display:block}
+  font-family:'Cairo',sans-serif;cursor:pointer;
+  display:none;transition:all .2s;backdrop-filter:blur(8px);
+  border:1px solid}
+#fsBtn{
+  left:14px;
+  background:rgba(139,92,246,.2);border-color:rgba(139,92,246,.4);color:#c4b5fd}
+#mobBtn{
+  left:160px;
+  background:rgba(20,184,166,.18);border-color:rgba(20,184,166,.4);color:#5eead4}
+body.sm #fsBtn,body.sm #mobBtn{display:block}
+body.stu-fs #fsBtn{background:rgba(239,68,68,.18);border-color:rgba(239,68,68,.4);color:#fca5a5}
+body.mob-mode #mobBtn{background:rgba(239,68,68,.18);border-color:rgba(239,68,68,.4);color:#fca5a5;left:14px}
+body.mob-mode #fsBtn{display:none!important}
 
 /* ── DASHBOARD VIEW ── */
 body.dm{overflow-y:auto!important}
@@ -556,6 +602,9 @@ body.dm #topPanel,body.dm #botPanel,body.dm #modelBar,body.dm #stuBar{display:no
 
 <!-- زر ملء الشاشة (طالب فقط) -->
 <button id="fsBtn" onclick="toggleFullscreen()" title="ملء الشاشة">⛶ ملء الشاشة</button>
+
+<!-- زر وضع الجوال (طالب فقط) -->
+<button id="mobBtn" onclick="toggleMobileMode()" title="وضع الجوال">📱 وضع الجوال</button>
 
   <!-- TOP PANEL (student: shows active model words) -->
   <div id="topPanel">
@@ -1927,6 +1976,8 @@ function loadStudentView(mi){
   tc.querySelectorAll('.ac.key').forEach(c=>c.style.display='none');
   // Set labels non-editable
   tc.querySelectorAll('.qlbl').forEach(l=>l.setAttribute('contenteditable','false'));
+  // إن كان وضع الجوال مفعلاً طبّق التخطيط فوراً
+  if(_isMobMode) applyMobileLayout(true);
   scheduleSave();
 }
 
@@ -2043,18 +2094,111 @@ function endDrag(){
 // FULLSCREEN (STUDENT MODE — topPanel + botPanel only)
 // ════════════════════════════════════════════════════════
 let _isStuFs = false;
+let _isMobMode = false;
+
 function toggleFullscreen(){
+  if(_isMobMode) toggleMobileMode(); // أطفئ وضع الجوال أولاً
   _isStuFs = !_isStuFs;
   document.body.classList.toggle('stu-fs', _isStuFs);
   const btn = document.getElementById('fsBtn');
   btn.textContent = _isStuFs ? '✕ خروج من ملء الشاشة' : '⛶ ملء الشاشة';
-  // ensure both panels visible when entering fullscreen
   if(_isStuFs){
     const topBody = document.getElementById('topBody');
     const botBody = document.getElementById('botBody');
     if(topBody) topBody.style.maxHeight='999px';
     if(botBody) botBody.style.maxHeight='999px';
   }
+}
+
+function toggleMobileMode(){
+  if(_isStuFs) toggleFullscreen(); // أطفئ ملء الشاشة أولاً
+  _isMobMode = !_isMobMode;
+  document.body.classList.toggle('mob-mode', _isMobMode);
+  const btn = document.getElementById('mobBtn');
+  btn.textContent = _isMobMode ? '✕ خروج من وضع الجوال' : '📱 وضع الجوال';
+
+  if(_isMobMode){
+    // افتح الشريطين كاملاً
+    const topBody = document.getElementById('topBody');
+    const botBody = document.getElementById('botBody');
+    if(topBody) topBody.style.maxHeight='999px';
+    if(botBody) botBody.style.maxHeight='999px';
+    // طبّق التخطيط الرأسي على صفوف المطلوبات
+    applyMobileLayout(true);
+  } else {
+    applyMobileLayout(false);
+  }
+}
+
+function applyMobileLayout(on){
+  // كل .trow → نعيد تنظيم الأزواج كـ mob-pair
+  document.querySelectorAll('#studentTasksC .trow').forEach(row=>{
+    if(on){
+      wrapTaskRowForMobile(row);
+    } else {
+      unwrapTaskRow(row);
+    }
+  });
+}
+
+function wrapTaskRowForMobile(row){
+  if(row.dataset.mobWrapped) return;
+  row.dataset.mobWrapped = '1';
+
+  // الخلايا الأصلية بالترتيب: q1 sep dz sep q2 sep dz sep q3 sep dz rdel
+  const cells = Array.from(row.children);
+  // نجمع الأزواج: [qlbl-wrap , dz] × 3 + [rdel]
+  const pairs = [];
+  let i = 0;
+  while(i < cells.length){
+    const c = cells[i];
+    if(c.classList.contains('csep')){ i++; continue; }
+    if(c.classList.contains('rdel')){ break; }
+    if(c.classList.contains('qlbl-wrap')){
+      const pair = document.createElement('div');
+      pair.className = 'mob-pair';
+      pair.dataset.pairIdx = pairs.length;
+      // السؤال
+      pair.appendChild(c);
+      // تخطّ separator إن وُجد
+      if(cells[i+1]?.classList.contains('csep')) i++;
+      // خانة الإجابة
+      const dz = cells[i+1];
+      if(dz?.classList.contains('dz')) pair.appendChild(dz);
+      pairs.push(pair);
+      i += 2;
+    } else { i++; }
+  }
+  const rdel = cells[cells.length-1];
+
+  // أفرغ الصف وأعد بناءه
+  row.innerHTML = '';
+  pairs.forEach(p => row.appendChild(p));
+  if(rdel?.classList.contains('rdel')) row.appendChild(rdel);
+}
+
+function unwrapTaskRow(row){
+  if(!row.dataset.mobWrapped) return;
+  delete row.dataset.mobWrapped;
+  // استعد الخلايا من داخل mob-pairs
+  const allCells = [];
+  row.querySelectorAll('.mob-pair').forEach(pair=>{
+    Array.from(pair.children).forEach(c => allCells.push(c));
+  });
+  const rdel = row.querySelector('.rdel');
+  row.innerHTML = '';
+
+  // أعد إدراجها بنمط الشبكة الأصلي مع separators
+  allCells.forEach((c, idx)=>{
+    row.appendChild(c);
+    // أضف separator بعد كل خلية إلا الأخيرة
+    if(idx < allCells.length - 1){
+      const sep = document.createElement('div');
+      sep.className = 'csep';
+      row.appendChild(sep);
+    }
+  });
+  if(rdel) row.appendChild(rdel);
 }
 
 // ════════════════════════════════════════════════════════
