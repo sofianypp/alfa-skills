@@ -320,7 +320,24 @@ body.stu-fs #topPanel{flex:0 0 auto;overflow-y:auto;max-height:42vh}
 body.stu-fs #botPanel{flex:1 1 0;overflow-y:auto;min-height:0}
 body.stu-fs #fsBtn{background:rgba(239,68,68,.18);border-color:rgba(239,68,68,.4);color:#fca5a5}
 
-/* ── MOBILE MODE ── */
+/* ── MOBILE MODE: تقليص خلايا القطعة ── */
+body.mob-mode #topGrid .wc{
+  padding:2px 5px !important;
+  font-size:.82rem !important;
+  border-radius:5px !important;
+  border-width:1px !important;
+  gap:3px !important;
+}
+body.mob-mode #topBody .cgrid{
+  gap:3px !important;
+  min-height:unset !important;
+}
+body.mob-mode #topBody{
+  overflow-y:scroll;
+  -webkit-overflow-scrolling:touch;
+  overscroll-behavior:contain;
+  touch-action:pan-y;
+}
 body.mob-mode .hdr,
 body.mob-mode #stuBar,
 body.mob-mode #modelBar{display:none!important}
@@ -2202,8 +2219,60 @@ function unwrapTaskRow(row){
 }
 
 // ════════════════════════════════════════════════════════
-// COLLAPSE TOGGLES
+// TWO-FINGER SCROLL vs ONE-FINGER DRAG (topBody in mobile mode)
 // ════════════════════════════════════════════════════════
+(function(){
+  let _scrolling = false;
+  let _scrollStartY = 0;
+  let _scrollStartTop = 0;
+
+  function getTopBody(){ return document.getElementById('topBody'); }
+
+  // touchstart: إذا كان إصبعان وداخل topBody → ابدأ وضع التمرير
+  document.addEventListener('touchstart', function(e){
+    if(!_isMobMode) return;
+    const topBody = getTopBody();
+    if(!topBody || !topBody.contains(e.target)) return;
+
+    if(e.touches.length >= 2){
+      // أوقف أي سحب جارٍ
+      if(drag){ endDrag(); }
+      _scrolling = true;
+      _scrollStartY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+      _scrollStartTop = topBody.scrollTop;
+      e.stopPropagation();
+    } else {
+      _scrolling = false;
+    }
+  }, {passive:true, capture:true});
+
+  // touchmove: إذا كانت إصبعان → مرّر يدوياً ومنع كل شيء آخر
+  document.addEventListener('touchmove', function(e){
+    if(!_isMobMode) return;
+    const topBody = getTopBody();
+    if(!topBody) return;
+    if(e.touches.length >= 2 && topBody.contains(e.target)){
+      _scrolling = true;
+      if(drag){ endDrag(); }
+      e.preventDefault();
+      e.stopPropagation();
+      const currentY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+      const delta = _scrollStartY - currentY;
+      topBody.scrollTop = _scrollStartTop + delta;
+    }
+  }, {passive:false, capture:true});
+
+  document.addEventListener('touchend', function(e){
+    if(e.touches.length < 2){ _scrolling = false; }
+  }, {passive:true, capture:true});
+
+  // منع beginDrag إذا كانت إصبعان نشطتان
+  document.addEventListener('touchstart', function(e){
+    if(_isMobMode && e.touches.length >= 2){
+      e.stopImmediatePropagation();
+    }
+  }, {passive:true, capture:true});
+})();
 
 // ═══════════════════════════════════════════════════════════
 // PIN TOGGLE
