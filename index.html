@@ -354,23 +354,28 @@ body.mob-mode .mob-pair .qlbl-wrap{
 body.mob-mode .mob-pair .dz{
   flex:1 1 0;border-radius:0 !important;min-height:44px}
 
-/* أزرار الوضعين */
+/* أزرار وضع الجوال وملء الشاشة — ثابتة أسفل الشاشة */
 #fsBtn, #mobBtn{
-  position:fixed;bottom:14px;z-index:400;
-  padding:7px 13px;font-size:.78rem;border-radius:8px;
+  position:fixed;
+  bottom:calc(14px + env(safe-area-inset-bottom, 0px));
+  z-index:9999;
+  padding:8px 14px;font-size:.8rem;border-radius:10px;
   font-family:'Cairo',sans-serif;cursor:pointer;
-  display:none;transition:all .2s;backdrop-filter:blur(8px);
-  border:1px solid}
+  display:none;transition:all .2s;
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  border:1px solid;font-weight:700;
+  box-shadow:0 2px 12px rgba(0,0,0,.4)}
+#mobBtn{
+  right:14px;
+  background:rgba(20,184,166,.25);border-color:rgba(20,184,166,.5);color:#5eead4}
 #fsBtn{
   left:14px;
-  background:rgba(139,92,246,.2);border-color:rgba(139,92,246,.4);color:#c4b5fd}
-#mobBtn{
-  left:160px;
-  background:rgba(20,184,166,.18);border-color:rgba(20,184,166,.4);color:#5eead4}
-body.sm #fsBtn,body.sm #mobBtn{display:block}
-body.stu-fs #fsBtn{background:rgba(239,68,68,.18);border-color:rgba(239,68,68,.4);color:#fca5a5}
-body.mob-mode #mobBtn{background:rgba(239,68,68,.18);border-color:rgba(239,68,68,.4);color:#fca5a5;left:14px}
+  background:rgba(139,92,246,.25);border-color:rgba(139,92,246,.5);color:#c4b5fd}
+body.sm #fsBtn, body.sm #mobBtn{display:block}
+body.mob-mode #mobBtn{background:rgba(239,68,68,.25)!important;border-color:rgba(239,68,68,.5)!important;color:#fca5a5!important}
 body.mob-mode #fsBtn{display:none!important}
+body.stu-fs #fsBtn{background:rgba(239,68,68,.25)!important;border-color:rgba(239,68,68,.5)!important;color:#fca5a5!important}
+body.stu-fs #mobBtn{display:none!important}
 
 /* ── DASHBOARD VIEW ── */
 body.dm{overflow-y:auto!important}
@@ -600,11 +605,9 @@ body.dm #topPanel,body.dm #botPanel,body.dm #modelBar,body.dm #stuBar{display:no
   <div id="onlineBadge"><span class="dot"></span>متصل</div>
 </div>
 
-<!-- زر ملء الشاشة (طالب فقط) -->
-<button id="fsBtn" onclick="toggleFullscreen()" title="ملء الشاشة">⛶ ملء الشاشة</button>
-
-<!-- زر وضع الجوال (طالب فقط) -->
-<button id="mobBtn" onclick="toggleMobileMode()" title="وضع الجوال">📱 وضع الجوال</button>
+<!-- أزرار الطالب الثابتة -->
+<button id="fsBtn" onclick="toggleFullscreen()">⛶ ملء الشاشة</button>
+<button id="mobBtn" onclick="toggleMobileMode()">📱 وضع الجوال</button>
 
   <!-- TOP PANEL (student: shows active model words) -->
   <div id="topPanel">
@@ -2097,7 +2100,7 @@ let _isStuFs = false;
 let _isMobMode = false;
 
 function toggleFullscreen(){
-  if(_isMobMode) toggleMobileMode(); // أطفئ وضع الجوال أولاً
+  if(_isMobMode) toggleMobileMode();
   _isStuFs = !_isStuFs;
   document.body.classList.toggle('stu-fs', _isStuFs);
   const btn = document.getElementById('fsBtn');
@@ -2111,19 +2114,16 @@ function toggleFullscreen(){
 }
 
 function toggleMobileMode(){
-  if(_isStuFs) toggleFullscreen(); // أطفئ ملء الشاشة أولاً
+  if(_isStuFs) toggleFullscreen();
   _isMobMode = !_isMobMode;
   document.body.classList.toggle('mob-mode', _isMobMode);
   const btn = document.getElementById('mobBtn');
   btn.textContent = _isMobMode ? '✕ خروج من وضع الجوال' : '📱 وضع الجوال';
-
   if(_isMobMode){
-    // افتح الشريطين كاملاً
     const topBody = document.getElementById('topBody');
     const botBody = document.getElementById('botBody');
     if(topBody) topBody.style.maxHeight='999px';
     if(botBody) botBody.style.maxHeight='999px';
-    // طبّق التخطيط الرأسي على صفوف المطلوبات
     applyMobileLayout(true);
   } else {
     applyMobileLayout(false);
