@@ -313,14 +313,77 @@ body.stu-fs .hdr,
 body.stu-fs #stuBar,
 body.stu-fs #modelBar{display:none!important}
 body.stu-fs{overflow:hidden!important}
-body.stu-fs #app{padding:0;max-width:100%;height:100%;display:flex;flex-direction:column}
+body.stu-fs #app{padding:0;max-width:100%;height:100vh;display:flex;flex-direction:column}
 body.stu-fs #topPanel,
 body.stu-fs #botPanel{border-radius:0;border-left:none;border-right:none}
-body.stu-fs #topPanel{flex:0 0 auto;overflow-y:auto;max-height:42vh}
-body.stu-fs #botPanel{flex:1 1 0;overflow-y:auto;min-height:0}
+body.stu-fs #topPanel{flex:0 0 66vh;height:66vh;max-height:66vh;overflow-y:auto}
+body.stu-fs #botPanel{flex:0 0 34vh;height:34vh;max-height:34vh;overflow-y:auto}
 body.stu-fs #fsBtn{background:rgba(239,68,68,.18);border-color:rgba(239,68,68,.4);color:#fca5a5}
 
-/* ── MOBILE MODE: تقليص خلايا القطعة ── */
+/* ── COLOR PALETTE IN HEADER ── */
+.model-color-palette{
+  display:flex;align-items:center;gap:4px;
+  background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1);
+  border-radius:8px;padding:3px 7px}
+.mcp-dot{width:15px;height:15px;border-radius:50%;cursor:pointer;
+  border:2px solid transparent;transition:transform .15s,border-color .15s;flex-shrink:0}
+.mcp-dot:hover{transform:scale(1.35);border-color:rgba(255,255,255,.6)}
+.mcp-dot.active{border-color:#fff;transform:scale(1.2)}
+
+/* قفل التلوين */
+.pal-lock-btn{
+  width:18px;height:18px;border-radius:4px;cursor:pointer;flex-shrink:0;
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);
+  color:rgba(255,255,255,.5);font-size:.65rem;display:flex;align-items:center;
+  justify-content:center;transition:all .2s;user-select:none}
+.pal-lock-btn:hover{background:rgba(255,255,255,.18);color:#fff}
+.pal-lock-btn.locked{background:rgba(239,68,68,.25);border-color:rgba(239,68,68,.5);color:#fca5a5}
+/* عند القفل: تعطيل النقاط بصرياً */
+.model-color-palette.locked .mcp-dot{opacity:.35;pointer-events:none}
+
+/* ── EXAM MODE BUTTON ── */
+.exam-btn{padding:3px 10px;font-size:.72rem;border-radius:7px;
+  background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.4);
+  color:#fcd34d;font-family:'Cairo',sans-serif;cursor:pointer;
+  transition:all .2s;white-space:nowrap}
+.exam-btn.active{background:rgba(239,68,68,.25);border-color:rgba(239,68,68,.6);
+  color:#fca5a5;box-shadow:0 0 8px rgba(239,68,68,.3)}
+
+/* ── WORD BUTTONS: ONE ROW ── */
+.word-btn-row{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:6px;align-items:center}
+
+/* إخفاء شريط الألوان العائم عن الخلايا في جميع الأوضاع */
+.wc-color-bar{display:none!important}
+
+/* hide palette in non-teacher header */
+body.sm .model-color-palette, body.dm .model-color-palette{display:none!important}
+.wc[data-cat="iraab"]{
+  background:linear-gradient(135deg,rgba(168,85,247,.3),rgba(126,34,206,.2));
+  border-color:rgba(168,85,247,.6);color:#e9d5ff}
+.wc[data-cat="iraab"]:hover{background:linear-gradient(135deg,rgba(168,85,247,.5),rgba(126,34,206,.35));border-color:#a855f7}
+.wc[data-cat="hala"]{
+  background:linear-gradient(135deg,rgba(34,197,94,.28),rgba(21,128,61,.18));
+  border-color:rgba(34,197,94,.55);color:#bbf7d0}
+.wc[data-cat="hala"]:hover{background:linear-gradient(135deg,rgba(34,197,94,.45),rgba(21,128,61,.3));border-color:#22c55e}
+.wc[data-cat="alamat"]{
+  background:linear-gradient(135deg,rgba(251,146,60,.28),rgba(194,65,12,.18));
+  border-color:rgba(251,146,60,.55);color:#fed7aa}
+.wc[data-cat="alamat"]:hover{background:linear-gradient(135deg,rgba(251,146,60,.45),rgba(194,65,12,.3));border-color:#f97316}
+/* drag-over highlight for reordering */
+.wc.drag-over-left{border-right:3px solid #facc15 !important}
+.wc.drag-over-right{border-left:3px solid #facc15 !important}
+/* color picker popup */
+.wc-color-bar{
+  position:absolute;top:-34px;right:0;
+  display:none;flex-direction:row;gap:4px;
+  background:rgba(15,15,30,.95);border:1px solid rgba(255,255,255,.15);
+  border-radius:7px;padding:4px 6px;z-index:500;
+  box-shadow:0 4px 16px rgba(0,0,0,.5)}
+.wc:hover .wc-color-bar{display:flex}
+.wc-color-dot{width:14px;height:14px;border-radius:50%;cursor:pointer;border:2px solid transparent;flex-shrink:0;transition:transform .15s}
+.wc-color-dot:hover{transform:scale(1.3)}
+/* category buttons row */
+.cat-btn-row{display:flex;gap:5px;flex-wrap:wrap;margin-top:5px}
 body.mob-mode #topGrid .wc{
   padding:2px 5px !important;
   font-size:.82rem !important;
@@ -520,7 +583,63 @@ body.dm #topPanel,body.dm #botPanel,body.dm #modelBar,body.dm #stuBar{display:no
 .prow-lbl{flex:1;font-family:'Cairo',sans-serif;font-size:.82rem;color:#e2e8f0;direction:rtl}
 .prow .btn{padding:3px 9px;font-size:.73rem}
 
-/* ── TOAST ── */
+/* ── MCQ & TF ROWS ── */
+.mcq-row{display:flex;align-items:stretch;border-bottom:1px solid rgba(255,255,255,.05);gap:0;position:relative}
+.mcq-qcell{flex:1;min-width:140px;background:linear-gradient(135deg,rgba(139,92,246,.18),rgba(109,40,217,.12));
+  border-right:1px solid rgba(139,92,246,.28);padding:6px 8px;
+  display:flex;align-items:flex-start;gap:4px}
+.mcq-qnum{font-size:.68rem;color:rgba(255,255,255,.35);padding:0 2px;flex-shrink:0;padding-top:2px}
+.mcq-qtext{flex:1;min-height:34px;background:none;border:none;outline:none;
+  color:#c4b5fd;font-family:'Cairo',sans-serif;font-size:.82rem;font-weight:700;
+  direction:rtl;resize:none;word-break:break-word;cursor:text;
+  width:100%;padding:0}
+.mcq-qtext:empty:before{content:attr(placeholder);color:rgba(255,255,255,.25);pointer-events:none}
+.mcq-sep{width:2px;background:rgba(255,255,255,.06);flex-shrink:0}
+.mcq-opts{display:flex;flex:2;min-width:0}
+.mcq-opt{flex:1;min-width:70px;padding:6px 5px;text-align:center;cursor:pointer;
+  font-family:'Cairo',sans-serif;font-size:.82rem;font-weight:700;
+  border-right:1px solid rgba(255,255,255,.06);
+  background:rgba(255,255,255,.03);color:var(--txt2);
+  transition:all .18s;user-select:none;touch-action:manipulation;
+  display:flex;align-items:center;justify-content:center;gap:4px;
+  position:relative;direction:rtl}
+.mcq-opt:last-child{border-right:none}
+.mcq-opt-inp{background:none;border:none;outline:none;color:inherit;
+  font-family:inherit;font-size:inherit;text-align:center;width:100%;
+  cursor:pointer;direction:rtl}
+.mcq-opt.sel-t{background:linear-gradient(135deg,rgba(139,92,246,.4),rgba(109,40,217,.3))!important;
+  color:#e9d5ff!important;box-shadow:inset 0 0 8px rgba(139,92,246,.25)}
+.mcq-opt.sel-s{background:linear-gradient(135deg,rgba(20,184,166,.4),rgba(13,148,136,.3))!important;
+  color:#5eead4!important;box-shadow:inset 0 0 8px rgba(20,184,166,.25)}
+.mcq-del{width:26px;background:rgba(239,68,68,.12);border:none;border-left:1px solid rgba(239,68,68,.2);
+  color:rgba(252,165,165,.4);cursor:pointer;display:flex;align-items:center;justify-content:center;
+  font-size:.76rem;flex-shrink:0;touch-action:manipulation;transition:all .17s}
+.mcq-del:hover{background:rgba(239,68,68,.35);color:#fff}
+.mcq-fb{font-size:.88rem;line-height:1;flex-shrink:0}
+.mcq-fb.ok{color:#4ade80;text-shadow:0 0 7px rgba(74,222,128,.8)}
+.mcq-fb.er{color:#f87171;text-shadow:0 0 7px rgba(248,113,113,.8)}
+/* TF */
+.tf-row{display:flex;align-items:stretch;border-bottom:1px solid rgba(255,255,255,.05);gap:0}
+.tf-qcell{flex:1;background:linear-gradient(135deg,rgba(20,184,166,.16),rgba(13,148,136,.1));
+  border-right:1px solid rgba(20,184,166,.28);padding:6px 8px;
+  display:flex;align-items:flex-start;gap:4px}
+.tf-opts{display:flex;flex-shrink:0;width:90px}
+.tf-opt{flex:1;padding:7px 4px;text-align:center;cursor:pointer;
+  font-family:'Cairo',sans-serif;font-size:1.15rem;font-weight:900;
+  border-right:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.03);
+  transition:all .18s;user-select:none;touch-action:manipulation;
+  display:flex;align-items:center;justify-content:center}
+.tf-opt:last-child{border-right:none}
+.tf-opt.tf-true{color:#22c55e}
+.tf-opt.tf-false{color:#ef4444}
+.tf-opt.sel-t.tf-true{background:rgba(34,197,94,.3)!important}
+.tf-opt.sel-t.tf-false{background:rgba(239,68,68,.3)!important}
+.tf-opt.sel-s.tf-true{background:rgba(20,184,166,.35)!important;color:#5eead4!important}
+.tf-opt.sel-s.tf-false{background:rgba(239,68,68,.35)!important;color:#fca5a5!important}
+/* mobile: mcq opts vertical */
+body.mob-mode .mcq-opts{flex-direction:column}
+body.mob-mode .mcq-opt{border-right:none;border-bottom:1px solid rgba(255,255,255,.06);min-width:100%}
+body.sm .mcq-opt-inp{pointer-events:none}
 .toast{position:fixed;bottom:14px;left:50%;
   transform:translateX(-50%) translateY(60px);
   background:rgba(22,163,74,.92);color:#fff;
@@ -528,6 +647,40 @@ body.dm #topPanel,body.dm #botPanel,body.dm #modelBar,body.dm #stuBar{display:no
   font-family:'Cairo',sans-serif;font-size:.84rem;font-weight:700;
   transition:transform .24s;z-index:9998}
 .toast.show{transform:translateX(-50%) translateY(0)}
+
+/* ── TopPanel: طي بحجم سطر واحد ── */
+#topPanel{transition:padding .2s}
+#topBody.collapsed{display:none!important}
+#topPanel.top-collapsed{padding-bottom:0!important}
+
+/* ── خط أبيض ثقيل ── */
+.wc,.wc input{color:#fff!important;font-weight:700!important}
+.mcq-opt{font-weight:700!important}
+.qlbl-wrap,.qlbl{color:#e2e8f0!important;font-weight:700!important}
+
+/* ── TF: إخفاء fb span لمنع التكرار — يظهر فقط عند الاختيار ── */
+.tf-opt span:last-child:not(:first-child){display:none!important}
+.tf-opt.tf-answered span:last-child{display:block!important}
+
+/* ── SPELLING CELLS ── */
+.spell-section{margin-top:10px;border:1px solid rgba(59,130,246,.2);border-radius:8px;overflow:hidden}
+.spell-hdr{display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:rgba(59,130,246,.08);cursor:pointer}
+.spell-hdr-title{font-family:'Amiri',serif;font-size:.88rem;color:#93c5fd}
+.spell-body{padding:6px;overflow:hidden;max-height:600px;transition:max-height .3s}
+.spell-row{display:flex;align-items:stretch;border-bottom:1px solid rgba(255,255,255,.05)}
+.spell-num{font-size:.72rem;color:rgba(245,200,66,.8);font-weight:700;padding:0 7px;display:flex;align-items:center;flex-shrink:0;background:rgba(245,200,66,.06)}
+.spell-cells{display:grid;grid-template-columns:repeat(6,1fr);flex:1}
+.spell-cell{min-width:60px;flex:1;padding:6px 8px;text-align:center;cursor:pointer;font-family:'Cairo',sans-serif;font-size:.82rem;font-weight:700;border-right:1px solid rgba(59,130,246,.15);background:rgba(255,255,255,.03);color:var(--txt2);transition:all .18s;user-select:none;touch-action:manipulation;display:flex;align-items:center;justify-content:center;direction:rtl;position:relative;min-height:38px}
+.spell-cell:last-child{border-right:none}
+.spell-cell.teacher-correct{background:linear-gradient(135deg,rgba(34,197,94,.3),rgba(21,128,61,.2))!important;color:#86efac!important;outline:2px solid rgba(34,197,94,.5)}
+.spell-cell.student-selected{background:linear-gradient(135deg,rgba(20,184,166,.3),rgba(13,148,136,.2))!important;color:#5eead4!important;outline:2px solid rgba(20,184,166,.5)}
+.spell-cell-inp{background:none;border:none;outline:none;color:inherit;font-family:inherit;font-size:inherit;text-align:center;width:100%;direction:rtl;cursor:text}
+body.mob-mode .spell-cells{grid-template-columns:repeat(2,1fr);}
+body.stu-fs .spell-cells{grid-template-columns:repeat(6,1fr);}
+.spell-del{width:26px;background:rgba(239,68,68,.12);border:none;border-left:1px solid rgba(239,68,68,.2);color:rgba(252,165,165,.4);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.76rem;flex-shrink:0;transition:all .17s}
+.spell-del:hover{background:rgba(239,68,68,.35);color:#fff}
+.spell-fb{position:absolute;top:1px;left:1px;font-size:.65rem;color:#4ade80;line-height:1;pointer-events:none}
+
 </style>
 
 </head>
@@ -568,15 +721,13 @@ body.dm #topPanel,body.dm #botPanel,body.dm #modelBar,body.dm #stuBar{display:no
   <div class="hdr" id="mainHdr">
     <button class="col-btn" id="hdrColBtn" onclick="toggleHdr()" style="order:0">▲</button>
     <div class="mode-sw" style="order:1">
-      <button class="mbtn" id="btnT" onclick="requestTeacher()">🎓 المعلم</button>
-      <button class="mbtn act-s" id="btnS" onclick="setMode('s')">👦 الطالب</button>
-      <button class="mbtn" id="btnD" onclick="requestDashboard()">📊 النتائج</button>
+      <button class="mbtn" id="btnT" onclick="switchRole('teacher')">🎓 المعلم</button>
+      <button class="mbtn act-s" id="btnS" onclick="switchRole('student')">👦 الطالب</button>
     </div>
-    <div id="onlineBadge" style="order:0"><span class="dot"></span>متصل</div>
     <div class="hdr-mid" style="order:2">
-      <h1>🌿 مستخرج المهارات اللغوية</h1>
+      <h1 id="mainTitle">🌿 مستخرج المهارات اللغوية</h1>
       <span class="sep">|</span>
-      <div class="sub">إعداد الأستاذ: أحمد أبوذكري</div>
+      <div class="sub" id="mainSub">إعداد الأستاذ: أحمد أبوذكري</div>
     </div>
     <div class="hdr-logo" style="order:3">
       <svg class="logo-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
@@ -604,7 +755,65 @@ body.dm #topPanel,body.dm #botPanel,body.dm #modelBar,body.dm #stuBar{display:no
     </div>
   </div>
 
+  <!-- ═══ ADMIN PANEL ═══ -->
+  <div id="adminPanel" style="display:none;flex:1;overflow-y:auto;padding-bottom:20px">
+    <div style="background:rgba(255,255,255,.04);border:1px solid rgba(245,200,66,.2);border-radius:12px;padding:16px;margin-bottom:14px">
+      <div style="font-family:'Amiri',serif;font-size:1.1rem;color:var(--gold);margin-bottom:12px">⚙️ لوحة الإدارة</div>
+      <!-- Add teacher -->
+      <div style="background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.2);border-radius:10px;padding:14px;margin-bottom:12px">
+        <div style="font-size:.88rem;color:#c4b5fd;font-weight:700;margin-bottom:10px">➕ إضافة معلم جديد</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <input id="adminTeacherName" type="text" placeholder="اسم المعلم" style="padding:8px 12px;border-radius:7px;border:1px solid rgba(139,92,246,.3);background:rgba(0,0,0,.35);color:var(--txt);font-family:'Cairo',sans-serif;font-size:.85rem;outline:none;direction:rtl;width:100%"/>
+          <input id="adminTeacherUser" type="text" placeholder="اسم المستخدم (للدخول)" style="padding:8px 12px;border-radius:7px;border:1px solid rgba(139,92,246,.3);background:rgba(0,0,0,.35);color:var(--txt);font-family:'Cairo',sans-serif;font-size:.85rem;outline:none;direction:rtl;width:100%"/>
+          <input id="adminTeacherPass" type="password" placeholder="كلمة المرور" style="padding:8px 12px;border-radius:7px;border:1px solid rgba(139,92,246,.3);background:rgba(0,0,0,.35);color:var(--txt);font-family:'Cairo',sans-serif;font-size:.85rem;outline:none;direction:rtl;width:100%"/>
+          <button onclick="adminAddTeacher()" style="padding:8px;border-radius:7px;border:none;background:linear-gradient(135deg,#8b5cf6,#6d28d9);color:#fff;font-family:'Cairo',sans-serif;font-size:.85rem;font-weight:700;cursor:pointer">+ إضافة معلم</button>
+        </div>
+      </div>
+      <!-- Teachers list -->
+      <div style="font-size:.88rem;color:#c4b5fd;font-weight:700;margin-bottom:8px">👨‍🏫 قائمة المعلمين</div>
+      <div id="adminTeachersList" style="display:flex;flex-direction:column;gap:6px"></div>
+    </div>
+  </div>
+
+  <!-- ═══ TEACHER PANEL ═══ -->
+  <div id="teacherPanel" style="display:none;flex:1;overflow-y:auto;min-height:0;flex-direction:column">
+    <!-- Teacher sub-tabs STICKY -->
+    <div style="position:sticky;top:0;z-index:200;background:var(--bg);padding:6px 0 8px;display:flex;gap:6px;flex-wrap:wrap;border-bottom:1px solid rgba(255,255,255,.07)">
+      <button id="tTabModels"  onclick="setTeacherTab('models')"  style="padding:6px 14px;border-radius:8px;border:none;font-family:'Cairo',sans-serif;font-size:.8rem;font-weight:700;cursor:pointer;background:linear-gradient(135deg,#8b5cf6,#6d28d9);color:#fff">📚 النماذج</button>
+      <button id="tTabResults" onclick="setTeacherTab('results')" style="padding:6px 14px;border-radius:8px;border:none;font-family:'Cairo',sans-serif;font-size:.8rem;font-weight:700;cursor:pointer;background:rgba(255,255,255,.08);color:var(--txt2)">📊 نتائج الطلاب</button>
+      <button id="tTabChat"    onclick="setTeacherTab('chat')"    style="padding:6px 14px;border-radius:8px;border:none;font-family:'Cairo',sans-serif;font-size:.8rem;font-weight:700;cursor:pointer;background:rgba(255,255,255,.08);color:var(--txt2)">💬 تواصل</button>
+      <button id="tTabSupport" onclick="setTeacherTab('support')" style="padding:6px 14px;border-radius:8px;border:none;font-family:'Cairo',sans-serif;font-size:.8rem;font-weight:700;cursor:pointer;background:rgba(255,255,255,.08);color:var(--txt2)">🛠 الدعم الفني</button>
+    </div>
+    <!-- Models tab -->
+    <div id="tPaneModels" style="display:flex;flex-direction:column;flex:1;min-height:0"></div>
+    <!-- Results tab -->
+    <div id="tPaneResults" style="display:none"></div>
+    <!-- Chat tab -->
+    <div id="tPaneChat" style="display:none;padding:14px">
+      <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:14px">
+        <div style="font-family:'Amiri',serif;font-size:1rem;color:var(--gold);margin-bottom:10px">💬 التواصل مع الإدارة</div>
+        <div id="chatMsgs" style="min-height:80px;max-height:200px;overflow-y:auto;margin-bottom:10px;display:flex;flex-direction:column;gap:6px"></div>
+        <div style="display:flex;gap:6px">
+          <input id="chatInp" type="text" placeholder="اكتب رسالتك..." style="flex:1;padding:8px 12px;border-radius:7px;border:1px solid rgba(20,184,166,.3);background:rgba(0,0,0,.35);color:var(--txt);font-family:'Cairo',sans-serif;font-size:.85rem;outline:none;direction:rtl" onkeydown="if(event.key==='Enter')sendTeacherMsg()"/>
+          <button onclick="sendTeacherMsg()" style="padding:8px 14px;border-radius:7px;border:none;background:linear-gradient(135deg,#14b8a6,#0d9488);color:#fff;font-family:'Cairo',sans-serif;font-size:.85rem;font-weight:700;cursor:pointer">إرسال</button>
+        </div>
+      </div>
+    </div>
+    <!-- Support tab -->
+    <div id="tPaneSupport" style="display:none;padding:14px">
+      <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:14px">
+        <div style="font-family:'Amiri',serif;font-size:1rem;color:var(--gold);margin-bottom:10px">🛠 الدعم الفني</div>
+        <div id="supportMsgs" style="min-height:80px;max-height:200px;overflow-y:auto;margin-bottom:10px;display:flex;flex-direction:column;gap:6px"></div>
+        <div style="display:flex;gap:6px">
+          <input id="supportInp" type="text" placeholder="وصف المشكلة..." style="flex:1;padding:8px 12px;border-radius:7px;border:1px solid rgba(245,158,11,.3);background:rgba(0,0,0,.35);color:var(--txt);font-family:'Cairo',sans-serif;font-size:.85rem;outline:none;direction:rtl" onkeydown="if(event.key==='Enter')sendSupportMsg()"/>
+          <button onclick="sendSupportMsg()" style="padding:8px 14px;border-radius:7px;border:none;background:linear-gradient(135deg,#f59e0b,#b45309);color:#fff;font-family:'Cairo',sans-serif;font-size:.85rem;font-weight:700;cursor:pointer">إرسال</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- MODEL BAR (student only) — single collapsible row -->
+  <div id="studentArea" style="display:flex;flex-direction:column;flex:1;min-height:0">
   <div id="modelBar">
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:nowrap">
       <button class="col-btn" id="modelBarColBtn" onclick="toggleModelBar()" style="flex-shrink:0">▲</button>
@@ -614,22 +823,19 @@ body.dm #topPanel,body.dm #botPanel,body.dm #modelBar,body.dm #stuBar{display:no
     </div>
   </div>
 
-<!-- STUDENT BAR -->
-<div id="stuBar">
-  <span class="stu-name" id="stuBarName"></span>
-  <span class="stu-class" id="stuBarClass"></span>
-  <span class="stu-score" id="stuBarScore"></span>
-  <div id="onlineBadge"><span class="dot"></span>متصل</div>
-</div>
-
 <!-- أزرار الطالب الثابتة -->
 <button id="fsBtn" onclick="toggleFullscreen()">⛶ ملء الشاشة</button>
 <button id="mobBtn" onclick="toggleMobileMode()">📱 وضع الجوال</button>
 
   <!-- TOP PANEL (student: shows active model words) -->
   <div id="topPanel">
-    <div class="panel-hdr">
-      <div class="sec-lbl" id="topPanelLbl">📖 القطعة النصية</div>
+    <div class="panel-hdr" style="flex-wrap:wrap;gap:5px">
+      <div class="sec-lbl" id="topPanelLbl" style="flex:1;min-width:0">📖 القطعة النصية</div>
+      <div id="wordFilterBtns" style="display:none;gap:3px;align-items:center">
+        <button class="wf-btn active" data-wf="all"  onclick="setWordFilter('all')">الجميع</button>
+        <button class="wf-btn"        data-wf="text" onclick="setWordFilter('text')">القطعة</button>
+        <button class="wf-btn"        data-wf="cat"  onclick="setWordFilter('cat')">الإعراب</button>
+      </div>
       <button class="col-btn" id="topColBtn" onclick="toggleTop()">▲</button>
     </div>
     <div class="col-body" id="topBody" style="max-height:600px">
@@ -638,11 +844,16 @@ body.dm #topPanel,body.dm #botPanel,body.dm #modelBar,body.dm #stuBar{display:no
     </div>
   </div>
 
+  <!-- SPLITTER: drag to resize -->
+  <div id="panelSplitter" title="اضغط مطولاً واسحب لتغيير الحجم" style="flex-shrink:0;width:100%;height:12px;cursor:ns-resize;display:none;align-items:center;justify-content:center;touch-action:none;user-select:none;-webkit-user-select:none;position:relative;z-index:50">
+    <div style="width:60px;height:4px;background:rgba(245,200,66,.4);border-radius:4px;transition:all .2s" id="splitterHandle"></div>
+  </div>
+
   <!-- BOTTOM PANEL -->
   <div id="botPanel">
     <div class="panel-hdr">
       <div class="sec-lbl">✏️ المطلوبات</div>
-      <button class="col-btn" id="botColBtn" onclick="toggleBot()">▲</button>
+      <button class="col-btn" id="botColBtn" onclick="toggleTasksOnly()">▲</button>
     </div>
     <div class="col-body" id="botBody" style="max-height:9999px">
       <div style="height:6px"></div>
@@ -666,7 +877,32 @@ body.dm #topPanel,body.dm #botPanel,body.dm #modelBar,body.dm #stuBar{display:no
           <div class="ch q">المطلوب الثالث</div><div></div>
           <div class="ch a">الإجابة</div><div></div>
         </div>
-        <div class="tasksC" id="studentTasksC"></div>
+        <div id="studentTasksWrap" style="overflow:hidden;transition:max-height .3s;max-height:9999px">
+          <div class="tasksC" id="studentTasksC"></div>
+        </div>
+
+        <!-- MCQ/TF section — collapsible -->
+        <div id="stuQSection" style="display:none;margin-top:6px">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.25);border-radius:8px 8px 0 0;cursor:pointer" onclick="toggleStuQSection()">
+            <span style="font-family:'Amiri',serif;font-size:.95rem;color:var(--gold)">📝 أسئلة الاختيار والصواب والخطأ</span>
+            <button id="stuQColBtn" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:6px;color:rgba(255,255,255,.6);width:24px;height:24px;cursor:pointer;font-size:.72rem;display:flex;align-items:center;justify-content:center">▲</button>
+          </div>
+          <div id="stuQBody" style="border:1px solid rgba(245,158,11,.15);border-top:none;border-radius:0 0 8px 8px;overflow-y:auto;max-height:999px;transition:max-height .35s">
+            <div class="tasksC" id="studentMCQC"></div>
+          </div>
+        </div>
+
+        <!-- Student Spelling Section -->
+        <div id="stuSpellSection" style="display:none;margin-top:8px;border:1px solid rgba(59,130,246,.2);border-radius:8px;overflow:hidden">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:rgba(59,130,246,.08)">
+            <span style="font-family:Amiri,serif;font-size:.88rem;color:#93c5fd">🔤 أسئلة الإملاء</span>
+            <button id="stuSpellColBtn" onclick="toggleStuSpell()" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:5px;color:rgba(255,255,255,.6);width:22px;height:22px;cursor:pointer;font-size:.7rem;line-height:1">▲</button>
+          </div>
+          <div id="stuSpellBody" style="overflow:hidden;max-height:999px;transition:max-height .3s">
+            <div id="stuSpellC" class="tasksC" style="padding:4px"></div>
+          </div>
+        </div>
+
         <div class="s-reset">
           <button class="btn br" onclick="resetMyAnswers()">🔄 مسح إجاباتي وإعادة المحاولة</button>
         </div>
@@ -704,7 +940,11 @@ body.dm #topPanel,body.dm #botPanel,body.dm #modelBar,body.dm #stuBar{display:no
       <span style="font-size:.78rem;color:#c4b5fd;font-weight:700;flex-shrink:0">🔍 ترشيح:</span>
       <input id="filterName" type="text" placeholder="بحث بالاسم..." autocomplete="off"
         oninput="applyFilters()"
-        style="padding:5px 10px;border-radius:6px;border:1px solid rgba(139,92,246,.3);background:rgba(0,0,0,.35);color:var(--txt);font-family:Cairo,sans-serif;font-size:.78rem;outline:none;direction:rtl;width:150px"/>
+        style="padding:5px 10px;border-radius:6px;border:1px solid rgba(139,92,246,.3);background:rgba(0,0,0,.35);color:var(--txt);font-family:Cairo,sans-serif;font-size:.78rem;outline:none;direction:rtl;width:130px"/>
+      <select id="filterTeacher" onchange="applyFilters()"
+        style="padding:5px 10px;border-radius:6px;border:1px solid rgba(20,184,166,.35);background:rgba(0,0,0,.35);color:var(--txt);font-family:Cairo,sans-serif;font-size:.78rem;outline:none;direction:rtl">
+        <option value="">كل المعلمين</option>
+      </select>
       <select id="filterClass" onchange="applyFilters()"
         style="padding:5px 10px;border-radius:6px;border:1px solid rgba(139,92,246,.3);background:rgba(0,0,0,.35);color:var(--txt);font-family:Cairo,sans-serif;font-size:.78rem;outline:none;direction:rtl">
         <option value="">كل الفصول</option>
@@ -787,18 +1027,21 @@ body.dm #topPanel,body.dm #botPanel,body.dm #modelBar,body.dm #stuBar{display:no
 </div>
 <!-- end dashView -->
 
+</div><!-- end studentArea -->
 </div><!-- end app -->
 <script>
 // ── Firebase SDK dynamic loader with fallback CDNs ──
 (function(){
-  const VERS = '10.12.2';
+  const VERS = '10.14.1';
   const CDNs = [
-    `https://www.gstatic.com/firebasejs/${VERS}/firebase-app-compat.js`,
-    `https://cdn.jsdelivr.net/npm/firebase@${VERS}/firebase-app-compat.js`
+    `https://cdn.jsdelivr.net/npm/firebase@${VERS}/firebase-app-compat.min.js`,
+    `https://cdnjs.cloudflare.com/ajax/libs/firebase/${VERS}/firebase-app-compat.min.js`,
+    `https://unpkg.com/firebase@${VERS}/firebase-app-compat.js`
   ];
   const CDNsDB = [
-    `https://www.gstatic.com/firebasejs/${VERS}/firebase-database-compat.js`,
-    `https://cdn.jsdelivr.net/npm/firebase@${VERS}/firebase-database-compat.js`
+    `https://cdn.jsdelivr.net/npm/firebase@${VERS}/firebase-database-compat.min.js`,
+    `https://cdnjs.cloudflare.com/ajax/libs/firebase/${VERS}/firebase-database-compat.min.js`,
+    `https://unpkg.com/firebase@${VERS}/firebase-database-compat.js`
   ];
 
   function loadScript(urls, idx, cb){
@@ -815,6 +1058,7 @@ body.dm #topPanel,body.dm #botPanel,body.dm #modelBar,body.dm #stuBar{display:no
     loadScript(CDNsDB, 0, function(e2){
       if(e2){ window._fbLoadErr='db'; return; }
       window._fbSDKReady = true;
+      console.log('✅ Firebase SDK loaded');
     });
   });
 })();
@@ -922,57 +1166,73 @@ function initFirebase(){
 function pushStudentAnswers(){
   if(!fbConnected || !db || !stuId) return;
   if(mode !== 's') return;
-  
   const modelIdx = activeModel;
   const m = models[modelIdx];
   if(!m) return;
 
-  // Calculate score
   let correct=0, total=0;
-  const dzs = document.querySelectorAll('#studentTasksC .dz');
-  dzs.forEach(zone=>{
-    const key = getKey(zone);
-    if(!key.length) return;
-    key.forEach(k=>{
-      total++;
-      const stuCells = zone.querySelectorAll('.ac.stu input');
-      let found = false;
-      stuCells.forEach(inp=>{ if(inp.value.trim()===k) found=true; });
-      if(found) correct++;
+  const details = {};
+
+  // ── FIX 2: Drag-drop (dz) — each key item = 1 point
+  document.querySelectorAll('#studentTasksC .trow').forEach(row=>{
+    const lblWraps = row.querySelectorAll('.qlbl-wrap');
+    row.querySelectorAll('.dz').forEach((zone,zi)=>{
+      const key = getKey(zone);
+      if(!key.length) return;
+      const lbl = (lblWraps[zi]?.querySelector('.qlbl')?.textContent||('مطلوب '+(zi+1))).trim();
+      const stuVals = [...zone.querySelectorAll('.ac.stu input')].map(i=>i.value.trim());
+      const usedIdx = new Set();
+      let qCorrect=0;
+      key.forEach(k=>{
+        total++;
+        const idx=stuVals.findIndex((v,i)=>v===k&&!usedIdx.has(i));
+        if(idx!==-1){usedIdx.add(idx);correct++;qCorrect++;}
+      });
+      const sk=lbl.replace(/[^\u0600-\u06FF\w]/g,'_');
+      details[sk]={correct:qCorrect,total:key.length};
     });
   });
 
-  // Build per-question details for analytics
-  const details = {};
-  document.querySelectorAll('#studentTasksC .trow').forEach(row=>{
-    const lbls = row.querySelectorAll('.qlbl');
-    const dzs  = row.querySelectorAll('.dz');
-    dzs.forEach((zone,zi)=>{
-      const key = getKey(zone);
-      if(!key.length) return;
-      const lbl = lbls[zi]?.textContent?.trim()||('س'+(zi+1));
-      let qCorrect=0;
-      key.forEach(k=>{
-        const found = [...zone.querySelectorAll('.ac.stu input')].some(i=>i.value.trim()===k);
-        if(found) qCorrect++;
-      });
-      const safeKey = lbl.replace(/[.#$/\[\]]/g,'_');
-      details[safeKey] = {correct:qCorrect, total:key.length};
-    });
+  // ── FIX 3: MCQ — each question = 1 point
+  document.querySelectorAll('#studentTasksC .mcq-row').forEach((row,ri)=>{
+    total++;
+    const correctI=parseInt(row.dataset.correct??-1);
+    const stuI=parseInt(row.dataset.stuAnswer??-2);
+    const ok=correctI>=0 && stuI===correctI;
+    if(ok) correct++;
+    const qtxt=row.querySelector('.mcq-qtext');
+    const lbl=(qtxt?qtxt.textContent.trim():'س متعدد '+(ri+1)).replace(/[^\u0600-\u06FF\w]/g,'_');
+    details['mcq_'+lbl]={correct:ok?1:0,total:1};
+  });
+
+  // ── FIX 4: TF (√/×) — each question = 1 point
+  document.querySelectorAll('#studentTasksC .tf-row').forEach((row,ri)=>{
+    total++;
+    const correctV=parseInt(row.dataset.correct??-1);
+    const stuV=parseInt(row.dataset.stuAnswer??-2);
+    const ok=correctV>=0 && stuV===correctV;
+    if(ok) correct++;
+    const qtxt=row.querySelector('.mcq-qtext');
+    const lbl=(qtxt?qtxt.textContent.trim():'س صح خطأ '+(ri+1)).replace(/[^\u0600-\u06FF\w]/g,'_');
+    details['tf_'+lbl]={correct:ok?1:0,total:1};
+  });
+
+  // ── FIX 5: Spelling — each correct cell = 1 point
+  document.querySelectorAll('#stuSpellC .spell-row').forEach((row,ri)=>{
+    const correctCells=JSON.parse(row.dataset.correctCells||'[]');
+    const stuSelected=JSON.parse(row.dataset.stuSelected||'[]');
+    if(!correctCells.length) return;
+    const rowTotal=correctCells.length;
+    const rowCorrect=stuSelected.filter(ci=>correctCells.includes(ci)).length;
+    total+=rowTotal; correct+=rowCorrect;
+    details['إملاء_'+(ri+1)]={correct:rowCorrect,total:rowTotal};
   });
 
   const payload = {
-    name: stuName,
-    class: stuClass,
-    modelIdx: modelIdx,
-    modelTitle: m.title || ('نموذج '+(modelIdx+1)),
-    correct, total,
-    pct: total>0 ? Math.round(correct/total*100) : 0,
-    ts: Date.now(),
-    online: true,
-    details
+    name:stuName, class:stuClass, modelIdx, modelTitle:m.title||('نموذج '+(modelIdx+1)),
+    correct, total, pct:total>0?Math.round(correct/total*100):0,
+    ts:Date.now(), online:true, details
   };
-
   db.ref('sessions/'+SESSION_ID+'/students/'+stuId).update(payload);
   updateStuBar(correct, total);
 }
@@ -1166,9 +1426,8 @@ function requestDashboard(){
 function setModeDash(){
   mode='d';
   document.body.className='dm';
-  document.getElementById('btnT').className='mbtn';
-  document.getElementById('btnS').className='mbtn';
-  document.getElementById('btnD').className='mbtn act-d';
+  if(document.getElementById('btnT')) document.getElementById('btnT').className='mbtn';
+  if(document.getElementById('btnS')) document.getElementById('btnS').className='mbtn';
   // Listen for live data
   if(fbConnected && db){
     db.ref('sessions/'+SESSION_ID+'/students').on('value', snap=>{
@@ -1185,34 +1444,46 @@ let _allEntries = [];
 function renderDashboard(data){
   _allEntries = Object.values(data).filter(e=>e.name);
 
-  // Populate class filter dropdown
-  const classSel = document.getElementById('filterClass');
-  const prevClass = classSel.value;
-  const classNames = [...new Set(_allEntries.map(e=>e.class).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'ar'));
-  classSel.innerHTML = '<option value="">كل الفصول</option>'
-    + classNames.map(c=>`<option value="${c}"${c===prevClass?' selected':''}>${c}</option>`).join('');
+  // Populate teacher filter
+  const teacherSel = document.getElementById('filterTeacher');
+  if(teacherSel){
+    const prevTeacher = teacherSel.value;
+    const teacherNames = ['ليس لديّ معلم',...new Set(_allEntries.map(e=>e.teacher).filter(n=>n&&n!=='ليس لديّ معلم'))].sort((a,b)=>a==='ليس لديّ معلم'?-1:b==='ليس لديّ معلم'?1:a.localeCompare(b,'ar'));
+    teacherSel.innerHTML='<option value="">كل المعلمين</option>'+teacherNames.map(n=>`<option value="${n}"${n===prevTeacher?' selected':''}>${n}</option>`).join('');
+  }
 
-  // Populate model filter dropdown
+  // Populate class filter
+  const classSel = document.getElementById('filterClass');
+  if(classSel){
+    const prevClass = classSel.value;
+    const classNames = [...new Set(_allEntries.map(e=>e.class).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'ar'));
+    classSel.innerHTML = '<option value="">كل الفصول</option>'+classNames.map(c=>`<option value="${c}"${c===prevClass?' selected':''}>${c}</option>`).join('');
+  }
+
+  // Populate model filter
   const modelSel = document.getElementById('filterModel');
-  const prevModel = modelSel.value;
-  const modelTitles = [...new Set(_allEntries.map(e=>e.modelTitle).filter(Boolean))].sort();
-  modelSel.innerHTML = '<option value="">كل النماذج</option>'
-    + modelTitles.map(t=>`<option value="${t}"${t===prevModel?' selected':''}>${t}</option>`).join('');
+  if(modelSel){
+    const prevModel = modelSel.value;
+    const modelTitles = [...new Set(_allEntries.map(e=>e.modelTitle).filter(Boolean))].sort();
+    modelSel.innerHTML = '<option value="">كل النماذج</option>'+modelTitles.map(t=>`<option value="${t}"${t===prevModel?' selected':''}>${t}</option>`).join('');
+  }
 
   applyFilters();
 }
 
 function applyFilters(){
-  const nameQ   = (document.getElementById('filterName')?.value||'').trim().toLowerCase();
-  const classQ  = document.getElementById('filterClass')?.value||'';
-  const modelQ  = document.getElementById('filterModel')?.value||'';
-  const statusQ = document.getElementById('filterStatus')?.value||'';
-  const scoreQ  = document.getElementById('filterScore')?.value||'';
+  const nameQ    = (document.getElementById('filterName')?.value||'').trim().toLowerCase();
+  const teacherQ = document.getElementById('filterTeacher')?.value||'';
+  const classQ   = document.getElementById('filterClass')?.value||'';
+  const modelQ   = document.getElementById('filterModel')?.value||'';
+  const statusQ  = document.getElementById('filterStatus')?.value||'';
+  const scoreQ   = document.getElementById('filterScore')?.value||'';
 
   const filtered = _allEntries.filter(e=>{
-    if(nameQ  && !(e.name||'').toLowerCase().includes(nameQ)) return false;
-    if(classQ && (e.class||'')!==classQ) return false;
-    if(modelQ && (e.modelTitle||'')!==modelQ) return false;
+    if(nameQ    && !(e.name||'').toLowerCase().includes(nameQ)) return false;
+    if(teacherQ && (e.teacher||'')!==teacherQ) return false;
+    if(classQ   && (e.class||'')!==classQ) return false;
+    if(modelQ   && (e.modelTitle||'')!==modelQ) return false;
     const isOnline = (Date.now()-e.ts)<120000;
     if(statusQ==='online'  && !isOnline) return false;
     if(statusQ==='offline' &&  isOnline) return false;
@@ -1229,18 +1500,13 @@ function applyFilters(){
   const cnt = document.getElementById('filterCount');
   if(cnt){
     const total = _allEntries.length;
-    cnt.textContent = filtered.length < total
-      ? `يُعرض ${filtered.length} من ${total}`
-      : `${total} طالب`;
+    cnt.textContent = filtered.length < total ? `يُعرض ${filtered.length} من ${total}` : `${total} طالب`;
   }
 }
 
 function resetFilters(){
-  document.getElementById('filterName').value='';
-  document.getElementById('filterClass').value='';
-  document.getElementById('filterModel').value='';
-  document.getElementById('filterStatus').value='';
-  document.getElementById('filterScore').value='';
+  ['filterName','filterTeacher','filterClass','filterModel','filterStatus','filterScore']
+    .forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
   applyFilters();
 }
 
@@ -1397,54 +1663,41 @@ function exportResults(){
 // PASSWORD
 // ════════════════════════════════════════════════════════
 function requestTeacher(){
-  const ov=document.getElementById('pwOverlay');
-  document.getElementById('pwInp').value='';
-  document.getElementById('pwErr').style.display='none';
-  ov.classList.add('show');
-  // belt-and-suspenders for all browsers
-  ov.style.visibility='visible';
-  ov.style.opacity='1';
-  ov.style.pointerEvents='all';
-  setTimeout(()=>document.getElementById('pwInp').focus(),120);
+  switchRole('teacher');
 }
-function checkPw(){
-  const v=document.getElementById('pwInp').value;
-  if(v===PASS){
-    const ov=document.getElementById('pwOverlay');
-    ov.classList.remove('show');
-    ov.style.visibility='hidden';
-    ov.style.opacity='0';
-    ov.style.pointerEvents='none';
-    const target = ov.dataset.target||'t';
-    ov.dataset.target='t'; // reset
-    if(target==='d') setModeDash(); else setMode('t');
-  } else {
-    document.getElementById('pwErr').style.display='block';
-    document.getElementById('pwInp').value='';
-    setTimeout(()=>document.getElementById('pwInp').focus(),50);
-  }
+
+function requestDashboard(){
+  switchRole('teacher');
 }
-function cancelPw(){
-  const ov=document.getElementById('pwOverlay');
-  ov.classList.remove('show');
-  ov.style.visibility='hidden';
-  ov.style.opacity='0';
-  ov.style.pointerEvents='none';
-}
-document.addEventListener('keydown',e=>{
-  const pwVisible = document.getElementById('pwOverlay').style.visibility==='visible';
-  if(pwVisible && e.key==='Enter'){
-    if(document.getElementById('pwInp').value.trim()) checkPw();
-    else { document.getElementById('pwErr').style.display='block'; document.getElementById('pwInp').focus(); }
-  }
-  if(pwVisible && e.key==='Escape') cancelPw();
-});
 
 // ════════════════════════════════════════════════════════
-// SAVE / LOAD
+// WORD FILTER (الجميع / القطعة / الإعراب)
+// ════════════════════════════════════════════════════════
+var _wordFilter='all';
+function setWordFilter(f){
+  _wordFilter=f;
+  document.querySelectorAll('.wf-btn').forEach(b=>{
+    b.classList.toggle('active', b.dataset.wf===f);
+  });
+  applyWordFilter();
+}
+function applyWordFilter(){
+  const grid=document.getElementById('topGrid'); if(!grid) return;
+  const SPECIAL=['iraab','hala','alamat','noun','verb','adj'];
+  grid.querySelectorAll('.wc').forEach(cell=>{
+    const cat=cell.dataset.cat||'';
+    const isSpecial=SPECIAL.includes(cat);
+    if(_wordFilter==='all')        cell.style.display='';
+    else if(_wordFilter==='text')  cell.style.display=isSpecial?'none':'';
+    else if(_wordFilter==='cat')   cell.style.display=isSpecial?'':'none';
+  });
+}
 // ════════════════════════════════════════════════════════
 let _st=null;
-function scheduleSave(){ clearTimeout(_st); _st=setTimeout(doSave,700); }
+function scheduleSave(){
+  pushUndo(); // save undo snapshot before changes persist
+  clearTimeout(_st); _st=setTimeout(doSave,700);
+}
 
 function doSave(){
   try{
@@ -1478,34 +1731,66 @@ function doLoad(){
 function syncAllModelsFromDom(){
   document.querySelectorAll('.model-card').forEach((card,i)=>{
     if(!models[i]) return;
-    // title
     const ti=card.querySelector('.model-title-inp');
     if(ti) models[i].title=ti.value;
+    models[i].examMode = card.dataset.examMode==='1';
     // words
     const words=[];
-    card.querySelectorAll('.wc input').forEach(inp=>words.push(inp.value));
+    card.querySelectorAll('.wc').forEach(wcel=>{
+      const inp=wcel.querySelector('input'); if(!inp) return;
+      const w={text:inp.value};
+      if(wcel.dataset.cat) w.cat=wcel.dataset.cat;
+      if(wcel.dataset.color) w.color=parseInt(wcel.dataset.color);
+      words.push(w);
+    });
     models[i].words=words;
-    // rows
+    // rows (drag-drop type)
     const rows=[];
     card.querySelectorAll('.trow').forEach(row=>{
       const lbls=row.querySelectorAll('.qlbl');
       const dzs=row.querySelectorAll('.dz');
       const q1=lbls[0]?.textContent.trim()||'',q2=lbls[1]?.textContent.trim()||'';
-      const k1=[],k2=[],s1=[],s2=[];
+      const k1=[],k2=[],s1=[],s2=[],k3=[],s3=[];
       dzs[0]?.querySelectorAll('.ac.key input').forEach(i=>k1.push(i.value));
       dzs[0]?.querySelectorAll('.ac.stu input').forEach(i=>s1.push(i.value));
       dzs[1]?.querySelectorAll('.ac.key input').forEach(i=>k2.push(i.value));
       dzs[1]?.querySelectorAll('.ac.stu input').forEach(i=>s2.push(i.value));
-      const k3=[],s3=[];
       dzs[2]?.querySelectorAll('.ac.key input').forEach(i=>k3.push(i.value));
       dzs[2]?.querySelectorAll('.ac.stu input').forEach(i=>s3.push(i.value));
-      // Read hints from data attributes
-      const hint1=row.dataset.hint1||'';
-      const hint2=row.dataset.hint2||'';
-      const hint3=row.dataset.hint3||'';
-      rows.push({q1,q2,q3:lbls[2]?.textContent.trim()||'',k1,k2,k3,s1,s2,s3,hint1,hint2,hint3});
+      rows.push({q1,q2,q3:lbls[2]?.textContent.trim()||'',k1,k2,k3,s1,s2,s3,
+        hint1:row.dataset.hint1||'',hint2:row.dataset.hint2||'',hint3:row.dataset.hint3||''});
     });
     models[i].rows=rows;
+    // MCQ rows — من القسم المنفصل
+    const mcqRows=[];
+    card.querySelectorAll('.tasksC .mcq-row').forEach(row=>{
+      const qtxt=row.querySelector('.mcq-qtext');
+      const opts=[...row.querySelectorAll('.mcq-opt-inp')].map(i=>i.value);
+      mcqRows.push({q:qtxt?qtxt.textContent.trim():'',opts,
+        correct:parseInt(row.dataset.correct??-1),hint:row.dataset.hint||''});
+    });
+    models[i].mcqRows=mcqRows;
+    // TF rows
+    const tfRows=[];
+    card.querySelectorAll('.tasksC .tf-row').forEach(row=>{
+      const qtxt=row.querySelector('.mcq-qtext');
+      tfRows.push({q:qtxt?qtxt.textContent.trim():'',
+        correct:parseInt(row.dataset.correct??-1),hint:row.dataset.hint||''});
+    });
+    models[i].tfRows=tfRows;
+    // Save spelling rows
+    const spellRows=[];
+    card.querySelectorAll('[data-spell-container="1"] .spell-row').forEach(function(row){
+      const cells=[],correctCells=[],stuSelected=[];
+      row.querySelectorAll('.spell-cell').forEach(function(cell,ci){
+        const inp=cell.querySelector('.spell-cell-inp');
+        cells.push(inp?inp.value:'');
+        if(cell.classList.contains('teacher-correct')) correctCells.push(ci);
+        if(cell.classList.contains('student-selected')) stuSelected.push(ci);
+      });
+      spellRows.push({cells,correctCells,stuSelected});
+    });
+    models[i].spellRows=spellRows;
   });
 }
 
@@ -1516,16 +1801,19 @@ document.addEventListener('input', scheduleSave);
 // ════════════════════════════════════════════════════════
 function setMode(m){
   mode=m;
-  document.body.className=m==='s'?'sm':'tm';
-  document.getElementById('btnT').className='mbtn'+(m==='t'?' act-t':'');
-  document.getElementById('btnS').className='mbtn'+(m==='s'?' act-s':'');
-  document.getElementById('btnD').className='mbtn';
-  document.getElementById('teacherView').style.display=m==='t'?'block':'none';
-  document.getElementById('studentView').style.display=m==='s'?'block':'none';
+  if(m==='s') document.body.className='sm';
+  else if(m==='t') document.body.className='tm';
+  // Update old btnT/btnS references where needed
+  if(document.getElementById('btnT')) document.getElementById('btnT').className='mbtn'+(m==='t'?' act-t':'');
+  if(document.getElementById('btnS')) document.getElementById('btnS').className='mbtn'+(m==='s'?' act-s':'');
+  const teacherView=document.getElementById('teacherView');
+  const studentView=document.getElementById('studentView');
+  if(teacherView) teacherView.style.display=m==='t'?'block':'none';
+  if(studentView) studentView.style.display=m==='s'?'block':'none';
 
   if(m==='t'){
     renderTeacherModels();
-    showActiveModelWords(); // show first model words in top panel
+    showActiveModelWords();
   } else {
     renderModelBar();
     loadStudentView(activeModel);
@@ -1589,7 +1877,73 @@ function renderTeacherModels(){
     const delBtn=document.createElement('button'); delBtn.className='model-del-btn';
     delBtn.textContent='🗑 حذف';
     delBtn.onclick=()=>deleteModel(idx);
+    // ── لوحة الألوان (7 ألوان)
+    const PALETTE=[
+      {bg:'#1e3a5f',border:'#3b82f6',text:'#dbeafe',label:'أزرق'},
+      {bg:'#14532d',border:'#22c55e',text:'#bbf7d0',label:'أخضر'},
+      {bg:'#4a1d96',border:'#a855f7',text:'#e9d5ff',label:'بنفسجي'},
+      {bg:'#7c2d12',border:'#f97316',text:'#fed7aa',label:'برتقالي'},
+      {bg:'#831843',border:'#ec4899',text:'#fce7f3',label:'وردي'},
+      {bg:'#1f2937',border:'#9ca3af',text:'#f3f4f6',label:'رمادي'},
+      {bg:'#451a03',border:'#f59e0b',text:'#fef3c7',label:'ذهبي'},
+    ];
+    let activePalIdx=null;
+    let palLocked=false;
+    const palette=document.createElement('div'); palette.className='model-color-palette';
+
+    // زر القفل
+    const lockBtn=document.createElement('div'); lockBtn.className='pal-lock-btn';
+    lockBtn.title='قفل/فتح التلوين'; lockBtn.textContent='🔓';
+    lockBtn.addEventListener('click',()=>{
+      palLocked=!palLocked;
+      lockBtn.textContent=palLocked?'🔒':'🔓';
+      lockBtn.classList.toggle('locked',palLocked);
+      palette.classList.toggle('locked',palLocked);
+    });
+    palette.appendChild(lockBtn);
+
+    // نقطة إعادة التعيين
+    const resetDot=document.createElement('div'); resetDot.className='mcp-dot';
+    resetDot.style.cssText='background:rgba(255,255,255,.1);border:2px dashed rgba(255,255,255,.3)';
+    resetDot.title='إزالة اللون';
+    resetDot.addEventListener('click',()=>{
+      if(palLocked) return;
+      activePalIdx=null;
+      palette.querySelectorAll('.mcp-dot').forEach(d=>d.classList.remove('active'));
+      resetDot.classList.add('active');
+    });
+    palette.appendChild(resetDot);
+    PALETTE.forEach((c,i)=>{
+      const dot=document.createElement('div'); dot.className='mcp-dot';
+      dot.style.background=c.bg; dot.style.borderColor=c.border; dot.title=c.label;
+      dot.addEventListener('click',()=>{
+        if(palLocked) return;
+        activePalIdx=i;
+        palette.querySelectorAll('.mcp-dot').forEach(d=>d.classList.remove('active'));
+        dot.classList.add('active');
+      });
+      palette.appendChild(dot);
+    });
+
+    // ── زر وضع الاختبار
+    const examBtn=document.createElement('button'); examBtn.className='exam-btn';
+    examBtn.textContent='📝 وضع الاختبار';
+    examBtn.title='تفعيل/إيقاف وضع الاختبار';
+    const examActive=m.examMode||false;
+    if(examActive){ examBtn.classList.add('active'); examBtn.textContent='🔒 وضع الاختبار'; }
+    card.dataset.examMode=examActive?'1':'0';
+    examBtn.addEventListener('click',()=>{
+      const isOn=examBtn.classList.toggle('active');
+      examBtn.textContent=isOn?'🔒 وضع الاختبار':'📝 وضع الاختبار';
+      card.dataset.examMode=isOn?'1':'0';
+      m.examMode=isOn;
+      scheduleSave();
+      showToast(isOn?'وضع الاختبار مفعّل 🔒':'وضع الاختبار مُوقف ✔');
+    });
+
     chdr.appendChild(badge); chdr.appendChild(ti);
+    chdr.appendChild(palette);
+    chdr.appendChild(examBtn);
     chdr.appendChild(colBtn); chdr.appendChild(delBtn);
 
     // collapsible body
@@ -1608,14 +1962,67 @@ function renderTeacherModels(){
     const bBtn=document.createElement('button'); bBtn.className='btn bp'; bBtn.textContent='توزيع ⚡';
     bBtn.onclick=()=>parseBulkForModel(idx,bta);
     bulkRow.appendChild(bta); bulkRow.appendChild(bBtn);
-    const wtb=document.createElement('div'); wtb.className='tb';
-    const addWBtn=document.createElement('button'); addWBtn.className='btn bb'; addWBtn.textContent='+ كلمة';
-    addWBtn.onclick=()=>{ appendWordToGrid(grid,''); scheduleSave(); };
-    const clrWBtn=document.createElement('button'); clrWBtn.className='btn br'; clrWBtn.textContent='مسح الكلمات';
-    clrWBtn.onclick=()=>{ if(confirm('مسح كلمات هذه القطعة؟')){grid.innerHTML='';scheduleSave();} };
-    wtb.appendChild(addWBtn); wtb.appendChild(clrWBtn);
+
+    // grid أولاً لأن الأزرار تحتاجه في closure
     const grid=document.createElement('div'); grid.className='cgrid';
-    m.words.forEach(w=>appendWordToGrid(grid,w));
+    m.words.forEach(w=>{
+      if(typeof w==='string') appendWordToGrid(grid,w);
+      else appendWordToGrid(grid,w.text||'',w.cat||null,w.color!=null?w.color:null);
+    });
+
+    // ربط لوحة الألوان بالـ grid (بعد تعريف grid)
+    grid.addEventListener('focusin',e=>{
+      if(mode!=='t') return;
+      if(palLocked) return;
+      if(activePalIdx===null) return;
+      const inp=e.target; if(!inp.matches('.wc input')) return;
+      const cell=inp.closest('.wc'); if(!cell) return;
+      const c=PALETTE[activePalIdx];
+      cell.style.background=`linear-gradient(135deg,${c.bg}dd,${c.bg}99)`;
+      cell.style.borderColor=c.border; inp.style.color=c.text;
+      cell.dataset.color=activePalIdx;
+      scheduleSave();
+    });
+
+    // ── شريط الأزرار الموحد (سطر واحد)
+    const wordBtnRow=document.createElement('div'); wordBtnRow.className='word-btn-row';
+
+    const addWBtn=document.createElement('button'); addWBtn.className='btn bb'; addWBtn.textContent='+ كلمة';
+    addWBtn.style.cssText='padding:3px 8px;font-size:.75rem';
+    addWBtn.onclick=()=>{ insertWordAfterFocused(grid,''); };
+
+    const clrWBtn=document.createElement('button'); clrWBtn.className='btn br'; clrWBtn.textContent='مسح الكلمات';
+    clrWBtn.style.cssText='padding:3px 8px;font-size:.75rem';
+    clrWBtn.onclick=()=>{ if(confirm('مسح كلمات هذه القطعة؟')){grid.innerHTML='';scheduleSave();} };
+
+    const IRAAB=['مبتدأ','خبر','فاعل','مفعول به','مفعول مطلق','مفعول لأجله','اسم مجرور','اسم لفعل ناسخ','اسم لحرف ناسخ','مضاف إليه','نعت','اسم معطوف'];
+    const addIraabBtn=document.createElement('button'); addIraabBtn.className='btn'; addIraabBtn.textContent='+ الإعرابات';
+    addIraabBtn.style.cssText='padding:3px 8px;font-size:.75rem;background:rgba(168,85,247,.2);border:1px solid rgba(168,85,247,.5);color:#e9d5ff';
+    addIraabBtn.onclick=()=>{ IRAAB.forEach(w=>appendWordToGrid(grid,w,'iraab')); scheduleSave(); showToast('تمت إضافة الإعرابات ✔'); };
+    const clrIraabBtn=document.createElement('button'); clrIraabBtn.className='btn br'; clrIraabBtn.textContent='مسح الإعرابات';
+    clrIraabBtn.style.cssText='padding:3px 8px;font-size:.75rem';
+    clrIraabBtn.onclick=()=>{ grid.querySelectorAll('.wc[data-cat="iraab"]').forEach(c=>c.remove()); scheduleSave(); showToast('تم مسح الإعرابات'); };
+
+    const HALA=['مرفوع','منصوب','مجرور','مبني على'];
+    const addHalaBtn=document.createElement('button'); addHalaBtn.className='btn'; addHalaBtn.textContent='+ الحالات';
+    addHalaBtn.style.cssText='padding:3px 8px;font-size:.75rem;background:rgba(34,197,94,.2);border:1px solid rgba(34,197,94,.5);color:#bbf7d0';
+    addHalaBtn.onclick=()=>{ HALA.forEach(w=>appendWordToGrid(grid,w,'hala')); scheduleSave(); showToast('تمت إضافة الحالات ✔'); };
+    const clrHalaBtn=document.createElement('button'); clrHalaBtn.className='btn br'; clrHalaBtn.textContent='مسح الحالات';
+    clrHalaBtn.style.cssText='padding:3px 8px;font-size:.75rem';
+    clrHalaBtn.onclick=()=>{ grid.querySelectorAll('.wc[data-cat="hala"]').forEach(c=>c.remove()); scheduleSave(); showToast('تم مسح الحالات'); };
+
+    const ALAMAT=['الضمة','الفتحة','الكسرة','المقدرة','الألف','الواو','الياء','ثبوت النون','حذف النون','الفتح','الضم','السكون','الكسر'];
+    const addAlamatBtn=document.createElement('button'); addAlamatBtn.className='btn'; addAlamatBtn.textContent='+ العلامات';
+    addAlamatBtn.style.cssText='padding:3px 8px;font-size:.75rem;background:rgba(251,146,60,.2);border:1px solid rgba(251,146,60,.5);color:#fed7aa';
+    addAlamatBtn.onclick=()=>{ ALAMAT.forEach(w=>appendWordToGrid(grid,w,'alamat')); scheduleSave(); showToast('تمت إضافة العلامات ✔'); };
+    const clrAlamatBtn=document.createElement('button'); clrAlamatBtn.className='btn br'; clrAlamatBtn.textContent='مسح العلامات';
+    clrAlamatBtn.style.cssText='padding:3px 8px;font-size:.75rem';
+    clrAlamatBtn.onclick=()=>{ grid.querySelectorAll('.wc[data-cat="alamat"]').forEach(c=>c.remove()); scheduleSave(); showToast('تم مسح العلامات'); };
+
+    wordBtnRow.appendChild(addWBtn); wordBtnRow.appendChild(clrWBtn);
+    wordBtnRow.appendChild(addIraabBtn); wordBtnRow.appendChild(clrIraabBtn);
+    wordBtnRow.appendChild(addHalaBtn); wordBtnRow.appendChild(clrHalaBtn);
+    wordBtnRow.appendChild(addAlamatBtn); wordBtnRow.appendChild(clrAlamatBtn);
 
     // Tasks section
     const tlbl=document.createElement('div'); tlbl.className='sec-lbl';
@@ -1628,19 +2035,56 @@ function renderTeacherModels(){
     const bc=document.createElement('div'); bc.className='bc';
     const addRBtn=document.createElement('button'); addRBtn.className='btn bg'; addRBtn.textContent='+ إضافة سطر';
     addRBtn.onclick=()=>{ addRowToContainer(tc,'',''); scheduleSave(); };
-    const presBtn=document.createElement('button'); presBtn.className='btn bp'; presBtn.textContent='📋 قائمة المطلوبات';
-    presBtn.onclick=()=>openPresets(tc);
     const clrABtn=document.createElement('button'); clrABtn.className='btn br'; clrABtn.textContent='🗑 مسح إجابات المعلم';
     clrABtn.onclick=()=>{
       if(!confirm('مسح إجابات المعلم (مفاتيح التصحيح) في هذا النموذج؟'))return;
       tc.querySelectorAll('.ac.key').forEach(c=>{const z=c.parentElement;c.remove();if(mode==='t')updateKey(z);refreshPH(z);});
       scheduleSave(); showToast('تم مسح إجابات المعلم ✔');
     };
-    bc.appendChild(addRBtn); bc.appendChild(presBtn); bc.appendChild(clrABtn);
+    const addIraabQBtn=document.createElement('button'); addIraabQBtn.className='btn bp';
+    addIraabQBtn.textContent='+ سؤال إعراب'; addIraabQBtn.style.cssText='padding:5px 10px;font-size:.76rem';
+    addIraabQBtn.onclick=()=>{ addIraabQRow(tc); scheduleSave(); };
+    bc.appendChild(addRBtn); bc.appendChild(clrABtn); bc.appendChild(addIraabQBtn);
 
-    cbody.appendChild(wlbl); cbody.appendChild(bulkRow); cbody.appendChild(wtb);
+    // MCQ/TF section below المطلوبات
+    const qSection=document.createElement('div');
+    qSection.style.cssText='margin-top:10px;border:1px solid rgba(245,158,11,.2);border-radius:8px;overflow:hidden';
+    const qHdr=document.createElement('div');
+    qHdr.style.cssText='display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:rgba(245,158,11,.08);cursor:pointer';
+    qHdr.innerHTML='<span style="font-family:Amiri,serif;font-size:.88rem;color:var(--gold)">📝 أسئلة الاختيار والصواب والخطأ</span>';
+    const qColBtn=document.createElement('button');
+    qColBtn.textContent='▲'; qColBtn.style.cssText='background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:5px;color:rgba(255,255,255,.6);width:22px;height:22px;cursor:pointer;font-size:.7rem';
+    qHdr.appendChild(qColBtn);
+    const qBody=document.createElement('div');
+    qBody.style.cssText='padding:6px;overflow-y:auto;max-height:600px;transition:max-height .3s';
+    const tcQ=document.createElement('div'); tcQ.className='tasksC';
+    if(m.mcqRows) m.mcqRows.forEach(r=>addMCQRow(tcQ,r));
+    if(m.tfRows)  m.tfRows.forEach(r=>addTFRow(tcQ,r));
+    qBody.appendChild(tcQ);
+    // MCQ/TF add buttons below qSection
+    const qBtns=document.createElement('div');
+    qBtns.style.cssText='display:flex;gap:6px;padding:6px;flex-wrap:wrap';
+    const addMCQBtn=document.createElement('button'); addMCQBtn.className='btn bo';
+    addMCQBtn.style.cssText='padding:5px 10px;font-size:.76rem';
+    addMCQBtn.textContent='+ سؤال خيارات';
+    addMCQBtn.onclick=()=>{ addMCQRow(tcQ,null); scheduleSave(); };
+    const addTFBtn=document.createElement('button'); addTFBtn.className='btn bk';
+    addTFBtn.style.cssText='padding:5px 10px;font-size:.76rem';
+    addTFBtn.textContent='+ سؤال √ أو ✗';
+    addTFBtn.onclick=()=>{ addTFRow(tcQ,null); scheduleSave(); };
+    qBtns.appendChild(addMCQBtn); qBtns.appendChild(addTFBtn);
+    qBody.appendChild(qBtns);
+    qSection.appendChild(qHdr); qSection.appendChild(qBody);
+    let _qOpen=true;
+    qColBtn.onclick=e=>{ e.stopPropagation();
+      _qOpen=!_qOpen; qBody.style.maxHeight=_qOpen?'600px':'0'; qColBtn.textContent=_qOpen?'▲':'▼'; };
+    qHdr.addEventListener('click',()=>qColBtn.click());
+    cbody.appendChild(wlbl); cbody.appendChild(bulkRow);
+    cbody.appendChild(wordBtnRow);
     cbody.appendChild(grid); cbody.appendChild(tlbl); cbody.appendChild(colHdr);
-    cbody.appendChild(tc); cbody.appendChild(bc);
+    cbody.appendChild(tc); cbody.appendChild(bc); cbody.appendChild(qSection);
+    // Spelling section LAST
+    buildSpellingSection(cbody, m);
     card.appendChild(chdr); card.appendChild(cbody);
     cont.appendChild(card);
   });
@@ -1671,22 +2115,100 @@ function parseBulkForModel(idx,ta){
 // ════════════════════════════════════════════════════════
 // WORD CELLS
 // ════════════════════════════════════════════════════════
-function appendWordToGrid(grid, text){
-  const cell=document.createElement('div'); cell.className='wc';
-  const inp=document.createElement('input');
+let _lastFocusedCell = null; // آخر خلية تم التركيز عليها
+
+const WC_COLORS = [
+  {label:'افتراضي', bg:null},
+  {label:'أزرق',    bg:'#1d4ed8',border:'#3b82f6',text:'#dbeafe'},
+  {label:'أخضر',    bg:'#166534',border:'#22c55e',text:'#bbf7d0'},
+  {label:'بنفسجي',  bg:'#6b21a8',border:'#a855f7',text:'#e9d5ff'},
+  {label:'برتقالي', bg:'#9a3412',border:'#f97316',text:'#fed7aa'},
+  {label:'وردي',    bg:'#9d174d',border:'#ec4899',text:'#fce7f3'},
+  {label:'رمادي',   bg:'#374151',border:'#9ca3af',text:'#f3f4f6'},
+  {label:'ذهبي',    bg:'#78350f',border:'#f59e0b',text:'#fef3c7'},
+];
+
+function applyCellColor(cell, colorIdx){
+  const c = WC_COLORS[colorIdx] || WC_COLORS[0];
+  if(!c.bg){
+    cell.style.background='';cell.style.borderColor='';
+    cell.querySelector('input').style.color='';
+    cell.removeAttribute('data-color');
+  } else {
+    cell.style.background=`linear-gradient(135deg,${c.bg}cc,${c.bg}88)`;
+    cell.style.borderColor=c.border;
+    cell.querySelector('input').style.color=c.text;
+    cell.dataset.color=colorIdx;
+  }
+}
+
+function applyCatStyle(cell, cat){
+  cell.dataset.cat = cat||'';
+}
+
+function appendWordToGrid(grid, text, cat, colorIdx){
+  const cell = document.createElement('div'); cell.className='wc';
+  if(cat) cell.dataset.cat=cat;
+
+  // color picker bar
+  const colorBar = document.createElement('div'); colorBar.className='wc-color-bar';
+  WC_COLORS.forEach((c,i)=>{
+    const dot = document.createElement('div'); dot.className='wc-color-dot';
+    dot.title=c.label;
+    dot.style.background = c.bg||'rgba(255,255,255,.15)';
+    dot.style.borderColor = c.border||'rgba(255,255,255,.3)';
+    dot.addEventListener('mousedown',e=>{ e.preventDefault(); e.stopPropagation(); applyCellColor(cell,i); scheduleSave(); });
+    colorBar.appendChild(dot);
+  });
+
+  const inp = document.createElement('input');
   inp.value=text||''; inp.placeholder='كلمة'; inp.dir='rtl'; inp.type='text';
   inp.style.width=mw(text,18.8)+'px';
   inp.addEventListener('input',()=>{ inp.style.width=mw(inp.value,18.8)+'px'; scheduleSave(); });
+  inp.addEventListener('focus',()=>{ _lastFocusedCell=cell; });
   inp.addEventListener('mousedown',e=>e.stopPropagation());
   inp.addEventListener('touchstart',e=>e.stopPropagation(),{passive:true});
-  const xb=document.createElement('button'); xb.className='xb'; xb.innerHTML='✕';
-  xb.addEventListener('click',e=>{e.stopPropagation();cell.remove();scheduleSave();});
+
+  const xb = document.createElement('button'); xb.className='xb'; xb.innerHTML='✕';
+  xb.addEventListener('click',e=>{e.stopPropagation();cell.remove();scheduleSave();if(_lastFocusedCell===cell)_lastFocusedCell=null;});
   xb.addEventListener('touchend',e=>{e.preventDefault();e.stopPropagation();cell.remove();scheduleSave();});
-  cell.appendChild(inp); cell.appendChild(xb);
-  cell.addEventListener('mousedown',e=>{ if(e.target===inp||e.target===xb)return; beginDrag(e,'top',cell,null,inp.value.trim()||'؟'); });
-  cell.addEventListener('touchstart',e=>{ if(e.target===inp||e.target===xb)return; beginDrag(e,'top',cell,null,inp.value.trim()||'؟'); },{passive:false});
+
+  cell.appendChild(colorBar);
+  cell.appendChild(inp);
+  cell.appendChild(xb);
+
+  // apply color if given
+  if(colorIdx!=null) applyCellColor(cell, colorIdx);
+
+  // drag reorder within grid
+  cell.addEventListener('mousedown',e=>{
+    if(e.target===inp||e.target===xb||colorBar.contains(e.target)) return;
+    beginDrag(e,'top',cell,null,inp.value.trim()||'؟');
+  });
+  cell.addEventListener('touchstart',e=>{
+    if(e.target===inp||e.target===xb||colorBar.contains(e.target)) return;
+    beginDrag(e,'top',cell,null,inp.value.trim()||'؟');
+  },{passive:false});
+
   grid.appendChild(cell);
   return cell;
+}
+
+// أضف كلمة بعد آخر خلية تم التركيز عليها (أو في النهاية)
+function insertWordAfterFocused(grid, text, cat, colorIdx){
+  const newCell = document.createElement('div');
+  grid.appendChild(newCell); // placeholder
+  const built = appendWordToGrid(newCell.parentElement, text, cat, colorIdx);
+  // remove placeholder since appendWordToGrid already appended
+  // Now reposition: insert after focused cell
+  if(_lastFocusedCell && _lastFocusedCell.parentElement===grid){
+    _lastFocusedCell.insertAdjacentElement('afterend', built);
+  }
+  // else it's already at the end (from appendChild inside appendWordToGrid)
+  newCell.remove(); // remove the placeholder div
+  built.querySelector('input').focus();
+  scheduleSave();
+  return built;
 }
 
 // Helpers for old single-model top grid (used in student view) — renders read-only drag cells
@@ -1694,7 +2216,11 @@ function renderTopGridForModel(mi){
   const grid=document.getElementById('topGrid');
   grid.innerHTML='';
   if(mi<0||mi>=models.length)return;
-  models[mi].words.forEach(w=>appendWordToGrid(grid,w));
+  models[mi].words.forEach(w=>{
+    if(typeof w==='string') appendWordToGrid(grid,w);
+    else appendWordToGrid(grid,w.text||'',w.cat||null,w.color!=null?w.color:null);
+  });
+  applyWordFilter();
 }
 
 // teacher helpers for active model
@@ -1789,9 +2315,11 @@ function mkLbl(txt,cls,hint){
       scheduleSave();
     });
   } else {
-    // Student: click bulb → show hint popup
+    // Student: click bulb → show hint (unless exam mode)
     bulb.addEventListener('click',e=>{
       e.stopPropagation();
+      // وضع الاختبار: لا تغذية راجعة
+      if(models[activeModel] && models[activeModel].examMode) return;
       const row=getRow(); if(!row) return;
       const hintKey='hint'+cls.replace(/[^123]/g,'');
       const hintText=row.dataset[hintKey]||'';
@@ -1949,11 +2477,71 @@ function updateKey(zone){
 function getKey(zone){ try{return JSON.parse(zone.dataset.key||'[]');}catch(e){return[];} }
 function checkAns(cell,zone){
   cell.querySelectorAll('.fb').forEach(f=>f.remove());
+  // وضع الاختبار: تحقق من النموذج النشط
+  if(mode==='s' && models[activeModel] && models[activeModel].examMode) return;
+  // في واجهة المعلم: تحقق من data-exam-mode على card
+  if(mode==='t'){
+    const card=zone.closest('.model-card');
+    if(card && card.dataset.examMode==='1') return;
+  }
   const key=getKey(zone); if(!key.length)return;
   const v=cell.querySelector('input').value.trim(); if(!v)return;
   const ok=key.includes(v);
   const fb=document.createElement('span'); fb.className='fb '+(ok?'ok':'er');
   fb.textContent=ok?' ✓':' ✗'; cell.appendChild(fb);
+}
+
+
+// ════════════════════════════════════════════════════════
+// IRAAB QUESTION ROW (merged answer cells)
+// ════════════════════════════════════════════════════════
+function addIraabQRow(tc, q1, q2, k1, k2, s1, s2, hint1, hint2){
+  _rowIdx++;
+  q1 = q1||('المطلوب الإعرابي '+_rowIdx+' أ');
+  q2 = q2||('المطلوب الإعرابي '+_rowIdx+' ب');
+  hint1=hint1||''; hint2=hint2||'';
+  const row=document.createElement('div');
+  row.className='trow iraab-q-row';
+  row.dataset.hint1=hint1; row.dataset.hint2=hint2;
+  row.dataset.iraabRow='1';
+  // Grid: q1 | dz_merged_12 | q2 | dz_merged_34 | del
+  row.style.cssText='display:grid;grid-template-columns:minmax(100px,.9fr) minmax(0,2.2fr) minmax(100px,.9fr) minmax(0,2.2fr) 26px;align-items:stretch;border-bottom:1px solid rgba(255,255,255,.05)';
+
+  const lb1=mkLbl(q1,'q1',hint1);
+  const dz1=mkMergedDZ(); // merged zone for 2+3
+  const lb2=mkLbl(q2,'q2',hint2);
+  const dz2=mkMergedDZ(); // merged zone for 5+6
+  dz2.classList.add('last');
+
+  const del=document.createElement('button'); del.className='rdel to'; del.innerHTML='✕';
+  del.style.cssText='background:rgba(239,68,68,.12);border:none;border-left:1px solid rgba(239,68,68,.2);color:rgba(252,165,165,.4);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.76rem;flex-shrink:0;transition:all .17s;';
+  del.addEventListener('click',()=>{row.remove();scheduleSave();});
+
+  row.appendChild(lb1); row.appendChild(dz1);
+  row.appendChild(lb2); row.appendChild(dz2);
+  row.appendChild(del);
+  tc.appendChild(row);
+
+  if(k1)k1.forEach(t=>{if(t&&t.trim())mkACell(dz1,t,'key');});
+  if(k2)k2.forEach(t=>{if(t&&t.trim())mkACell(dz2,t,'key');});
+  if(s1)s1.forEach(t=>{if(t&&t.trim())mkACell(dz1,t,'stu');});
+  if(s2)s2.forEach(t=>{if(t&&t.trim())mkACell(dz2,t,'stu');});
+  refreshPH(dz1); refreshPH(dz2);
+  scheduleSave();
+}
+
+function mkMergedDZ(){
+  const z=document.createElement('div');
+  z.className='dz merged-dz';
+  z.style.cssText='min-height:46px;background:rgba(245,200,66,.03);border-right:1px solid rgba(245,200,66,.14);padding:5px 6px;display:flex;flex-wrap:wrap;gap:5px;align-items:center;direction:rtl;transition:background .15s';
+  addPH(z);
+  z.addEventListener('mouseenter',()=>{ if(drag)z.classList.add('over'); });
+  z.addEventListener('mouseleave',()=>z.classList.remove('over'));
+  z.addEventListener('dblclick',e=>{
+    if(mode!=='t')return;
+    if(e.target===z||e.target.classList.contains('ph')) mkACell(z,'','key',true);
+  });
+  return z;
 }
 
 // ════════════════════════════════════════════════════════
@@ -1977,28 +2565,57 @@ function renderModelBar(){
 
 function loadStudentView(mi){
   activeModel=mi;
-  // Update bar buttons
-  document.querySelectorAll('.model-num-btn').forEach((b,i)=>
-    b.classList.toggle('active',i===mi));
-  // Render words in top grid
+  document.querySelectorAll('.model-num-btn').forEach((b,i)=>b.classList.toggle('active',i===mi));
   renderTopGridForModel(mi);
-  // Render tasks in student tasksC
   const tc=document.getElementById('studentTasksC'); tc.innerHTML=''; _rowIdx=0;
   if(mi<0||mi>=models.length)return;
   const m=models[mi];
-  // Update label
-  document.getElementById('topPanelLbl').textContent=
-    '📖 '+(m.title||('نموذج '+(mi+1)));
+  document.getElementById('topPanelLbl').textContent='📖 '+(m.title||('نموذج '+(mi+1)));
+
+  // Drag-drop rows
   m.rows.forEach(r=>{
     addRowToContainer(tc,r.q1,r.q2,r.k1,r.k2,r.s1,r.s2,r.q3,r.k3,r.s3,r.hint1||'',r.hint2||'',r.hint3||'');
   });
-  // Hide key cells (student mode)
   tc.querySelectorAll('.ac.key').forEach(c=>c.style.display='none');
-  // Set labels non-editable
   tc.querySelectorAll('.qlbl').forEach(l=>l.setAttribute('contenteditable','false'));
-  // إن كان وضع الجوال مفعلاً طبّق التخطيط فوراً
+
+  // MCQ + TF rows
+  const mcqC=document.getElementById('studentMCQC');
+  const qSec=document.getElementById('stuQSection');
+  if(mcqC) mcqC.innerHTML='';
+  const hasMCQ=(m.mcqRows&&m.mcqRows.length)||(m.tfRows&&m.tfRows.length);
+  if(qSec) qSec.style.display=hasMCQ?'block':'none';
+  if(mcqC && m.mcqRows) m.mcqRows.forEach(r=>addMCQRow(mcqC,r));
+  if(mcqC && m.tfRows)  m.tfRows.forEach(r=>addTFRow(mcqC,r));
+
+  // Render spelling section in student view
+  const stuSpellSec = document.getElementById('stuSpellSection');
+  const stuSpellC   = document.getElementById('stuSpellC');
+  if(stuSpellC) stuSpellC.innerHTML='';
+  if(m.spellRows && m.spellRows.length > 0){
+    // Always show if teacher has spelling rows
+    if(stuSpellSec) stuSpellSec.style.display = 'block';
+    m.spellRows.forEach(r=>addSpellingRow(stuSpellC, r));
+  } else {
+    if(stuSpellSec) stuSpellSec.style.display = 'none';
+  }
   if(_isMobMode) applyMobileLayout(true);
   scheduleSave();
+}
+
+let _stuQOpen=true;
+function toggleStuQSection(){
+  _stuQOpen=!_stuQOpen;
+  const body=document.getElementById('stuQBody');
+  const btn=document.getElementById('stuQColBtn');
+  if(body) body.style.maxHeight=_stuQOpen?'999px':'0';
+  if(btn)  btn.textContent=_stuQOpen?'▲':'▼';
+  // When collapsed, allow page scroll
+  if(!_stuQOpen){
+    document.body.style.overflowY='auto';
+  } else {
+    document.body.style.overflowY='';
+  }
 }
 
 function resetMyAnswers(){
@@ -2156,6 +2773,16 @@ function applyMobileLayout(on){
       unwrapTaskRow(row);
     }
   });
+  // Show splitter in mobile/fullscreen mode
+  if(on){
+    const s=document.getElementById('panelSplitter');
+    if(s) s.style.display='flex';
+    // Reset heights so splitter works
+    const top=document.getElementById('topPanel');
+    const bot=document.getElementById('botPanel');
+    if(top && !top.style.height){ top.style.height='40%'; top.style.maxHeight='40%'; }
+    if(bot){ bot.style.flex='1'; bot.style.overflow='auto'; }
+  }
 }
 
 function wrapTaskRowForMobile(row){
@@ -2297,10 +2924,42 @@ function toggleHdr(){
 function toggleTop(){
   topOpen=!topOpen;
   const body=document.getElementById('topBody');
+  const panel=document.getElementById('topPanel');
   const btn=document.getElementById('topColBtn');
-  if(topOpen){body.style.maxHeight='600px';body.classList.remove('collapsed');}
-  else{body.style.maxHeight='0';body.classList.add('collapsed');}
+  if(topOpen){
+    body.style.maxHeight='600px';
+    body.classList.remove('collapsed');
+    panel.classList.remove('top-collapsed');
+  } else {
+    body.style.maxHeight='0';
+    body.classList.add('collapsed');
+    panel.classList.add('top-collapsed');
+    if(mode==='s'){
+      document.body.style.overflowY='auto';
+      const app=document.getElementById('app');
+      if(app){ app.style.overflow='visible'; app.style.height='auto'; }
+    }
+  }
   btn.textContent=topOpen?'▲':'▼'; scheduleSave();
+}
+
+// ════════════════════════════════════════════════════════
+// TOGGLE TASKS ONLY (student view — fold المطلوبات only)
+// ════════════════════════════════════════════════════════
+let _tasksOpen = true;
+function toggleTasksOnly(){
+  if(mode==='s'){
+    _tasksOpen=!_tasksOpen;
+    const wrap=document.getElementById('studentTasksWrap');
+    const btn=document.getElementById('botColBtn');
+    if(wrap){
+      wrap.style.maxHeight=_tasksOpen?'9999px':'0';
+      wrap.style.overflow=_tasksOpen?'visible':'hidden';
+    }
+    if(btn) btn.textContent=_tasksOpen?'▲':'▼';
+  } else {
+    toggleBot(); // teacher mode: fold everything
+  }
 }
 function toggleBot(){
   botOpen=!botOpen;
@@ -2349,13 +3008,838 @@ document.addEventListener('touchstart',e=>{
   if(!e.target.closest('.bulb-btn')&&!e.target.closest('#hintPopup')) hideHintPopup();
 },{passive:true});
 
+
+// ════════════════════════════════════════════════════════
+// UNDO (Ctrl+Z)
+// ════════════════════════════════════════════════════════
+const _undoStack=[];
+const MAX_UNDO=30;
+let _undoLock=false;
+function pushUndo(){
+  if(_undoLock)return;
+  try{
+    syncAllModelsFromDom();
+    const snap=JSON.stringify({models,activeModel});
+    if(_undoStack.length&&_undoStack[_undoStack.length-1]===snap)return;
+    _undoStack.push(snap);
+    if(_undoStack.length>MAX_UNDO)_undoStack.shift();
+  }catch(e){}
+}
+function doUndo(){
+  if(_undoStack.length<2){showToast('لا يوجد ما يمكن التراجع عنه');return;}
+  _undoStack.pop();
+  const prev=_undoStack[_undoStack.length-1];
+  try{
+    const d=JSON.parse(prev);
+    _undoLock=true;
+    models=d.models; activeModel=d.activeModel;
+    if(mode==='t') renderTeacherModels();
+    else{renderModelBar();loadStudentView(activeModel);}
+    _undoLock=false;
+    showToast('تم التراجع ↩');
+  }catch(e){_undoLock=false;}
+}
+document.addEventListener('keydown',e=>{
+  if((e.ctrlKey||e.metaKey)&&e.key==='z'&&!e.shiftKey){
+    e.preventDefault(); doUndo();
+  }
+});
+
+// ════════════════════════════════════════════════════════
+// SPELLING CELLS (أسئلة الإملاء)
+// ════════════════════════════════════════════════════════
+let _spellOpen = true;
+
+function makeSpellCell(ci, cellVal, correctSet, stuSelSet, row, cellsWrap){
+  const cell = document.createElement('div'); cell.className='spell-cell';
+  const inp  = document.createElement('input'); inp.className='spell-cell-inp';
+  inp.type='text'; inp.dir='rtl';
+  inp.value = typeof cellVal==='string' ? cellVal : (cellVal&&cellVal.text||'');
+  inp.placeholder = 'كلمة';
+
+  if(mode==='t'){
+    inp.style.pointerEvents='auto'; inp.style.cursor='text';
+    inp.addEventListener('input', ()=>{ scheduleSave(); });
+    inp.addEventListener('mousedown', e=>e.stopPropagation());
+    cell.addEventListener('click', e=>{
+      if(e.target===inp) return;
+      // Use current index in cellsWrap
+      const idx=[...cellsWrap.children].indexOf(cell);
+      const isCorrect=cell.classList.contains('teacher-correct');
+      if(isCorrect){ cell.classList.remove('teacher-correct'); correctSet.delete(idx); }
+      else { cell.classList.add('teacher-correct'); correctSet.add(idx); }
+      // Rebuild correctCells from DOM to stay in sync
+      const allCells=[...cellsWrap.children];
+      const cc=allCells.map((_,i)=>i).filter(i=>allCells[i].classList.contains('teacher-correct'));
+      row.dataset.correctCells=JSON.stringify(cc);
+      scheduleSave();
+    });
+  } else {
+    inp.style.pointerEvents='none';
+    // FIX 5: if empty cell in teacher, don't render in student
+    if(!inp.value.trim()){ cell.style.display='none'; }
+    cell.addEventListener('click', ()=>{
+      if(cell.style.display==='none') return;
+      const idx=[...cellsWrap.children].indexOf(cell);
+      const isSel=cell.classList.contains('student-selected');
+      if(isSel){ cell.classList.remove('student-selected'); stuSelSet.delete(idx); }
+      else { cell.classList.add('student-selected'); stuSelSet.add(idx); }
+      row.dataset.stuSelected=JSON.stringify([...stuSelSet]);
+      // Rebuild correctSet from dataset
+      const cc=JSON.parse(row.dataset.correctCells||'[]');
+      checkSpellingRow(row, new Set(cc), stuSelSet);
+      scheduleSave(); setTimeout(pushStudentAnswers,400);
+    });
+    cell.addEventListener('touchend', e=>{ e.preventDefault(); cell.click(); });
+  }
+  if(mode==='t' && correctSet.has(ci)) cell.classList.add('teacher-correct');
+  if(mode==='s' && stuSelSet.has(ci))  cell.classList.add('student-selected');
+  cell.appendChild(inp);
+  return cell;
+}
+
+function addSpellingRow(tcSpell, data){
+  const row = document.createElement('div'); row.className='spell-row';
+  row.dataset.type='spell';
+  const num = document.createElement('div'); num.className='spell-num';
+
+  // FIX 3: Default 6 cells (not 8)
+  const cellVals = data&&data.cells ? data.cells : Array(6).fill('');
+  const correctSet = new Set();
+  const stuSelSet  = new Set();
+  if(data&&data.correctCells) data.correctCells.forEach(i=>correctSet.add(i));
+  if(data&&data.stuSelected)  data.stuSelected.forEach(i=>stuSelSet.add(i));
+
+  const cellsWrap = document.createElement('div'); cellsWrap.className='spell-cells';
+  cellVals.forEach((cv,ci)=>{
+    cellsWrap.appendChild(makeSpellCell(ci,cv,correctSet,stuSelSet,row,cellsWrap));
+  });
+
+  const del = document.createElement('div'); del.className='spell-del';
+  del.innerHTML='✕'; del.title='حذف السطر';
+  if(mode!=='t') del.style.display='none';
+  del.addEventListener('click',()=>{ row.remove(); renumberSpellingRows(tcSpell); scheduleSave(); });
+  del.addEventListener('mouseenter',()=>{del.style.background='rgba(239,68,68,.35)';del.style.color='#fff';});
+  del.addEventListener('mouseleave',()=>{del.style.background='rgba(239,68,68,.12)';del.style.color='rgba(252,165,165,.4)';});
+
+  row.appendChild(num); row.appendChild(cellsWrap); row.appendChild(del);
+  tcSpell.appendChild(row);
+  renumberSpellingRows(tcSpell);
+  scheduleSave();
+  return row;
+}
+
+function renumberSpellingRows(tc){
+  if(!tc) return;
+  let n=0;
+  tc.querySelectorAll('.spell-row').forEach(row=>{
+    n++;
+    const num=row.querySelector('.spell-num');
+    if(num) num.textContent=n+'. ';
+  });
+}
+
+function checkSpellingRow(row, correctSet, stuSelSet){
+  // Score: number of correct cells selected by student
+  // Remove previous feedback from cells
+  const cells = row.querySelectorAll('.spell-cell');
+  cells.forEach((cell,ci)=>{
+    cell.querySelectorAll('.spell-fb').forEach(f=>f.remove());
+    if(stuSelSet.has(ci) && correctSet.has(ci)){
+      // Correct selection — show ✓
+      const fb = document.createElement('span'); fb.className='spell-fb';
+      fb.style.cssText='position:absolute;top:1px;left:1px;font-size:.65rem;color:#4ade80;line-height:1';
+      fb.textContent='✓'; cell.appendChild(fb);
+    }
+    // Wrong selection: student selected but teacher didn't mark it — no ✗ shown (only ✓)
+  });
+}
+
+function buildSpellingSection(container, model){
+  const section = document.createElement('div'); section.className='spell-section';
+  const shdr = document.createElement('div'); shdr.className='spell-hdr';
+  const stitle = document.createElement('span'); stitle.className='spell-hdr-title';
+  stitle.textContent='🔤 أسئلة الإملاء';
+  const sColBtn = document.createElement('button');
+  sColBtn.style.cssText='background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:5px;color:rgba(255,255,255,.6);width:22px;height:22px;cursor:pointer;font-size:.7rem';
+  sColBtn.textContent='▲';
+  shdr.appendChild(stitle); shdr.appendChild(sColBtn);
+
+  const sbody = document.createElement('div'); sbody.className='spell-body';
+  const tcSpell = document.createElement('div'); tcSpell.className='tasksC';
+  tcSpell.dataset.spellContainer='1';
+
+  // Track focused row
+  let _focusedRow = null;
+  tcSpell.addEventListener('focusin', e=>{
+    const row=e.target.closest('.spell-row');
+    if(row) _focusedRow=row;
+  });
+  tcSpell.addEventListener('click', e=>{
+    const row=e.target.closest('.spell-row');
+    if(row) _focusedRow=row;
+  });
+
+  // Restore saved rows
+  if(model.spellRows) model.spellRows.forEach(r=>addSpellingRow(tcSpell, r));
+
+  // Buttons row
+  const sBtns = document.createElement('div');
+  sBtns.style.cssText='display:flex;gap:6px;padding:6px;flex-wrap:wrap';
+
+  // FIX 3: + إضافة سطر — 6 cells
+  const addSpellBtn = document.createElement('button'); addSpellBtn.className='btn bb';
+  addSpellBtn.style.cssText='padding:5px 10px;font-size:.76rem';
+  addSpellBtn.textContent='+ إضافة سطر إملاء';
+  addSpellBtn.onclick=()=>{ addSpellingRow(tcSpell, {cells:Array(6).fill('')}); };
+
+  // FIX 1: + كلمة — add cell to focused row
+  const addCellBtn = document.createElement('button'); addCellBtn.className='btn bg';
+  addCellBtn.style.cssText='padding:5px 10px;font-size:.76rem';
+  addCellBtn.textContent='+ كلمة';
+  addCellBtn.onclick=()=>{
+    const row = _focusedRow || tcSpell.querySelector('.spell-row:last-child');
+    if(!row){ showToast('اضغط على السطر أولاً'); return; }
+    const cw = row.querySelector('.spell-cells');
+    if(!cw) return;
+    const correctSet=new Set(JSON.parse(row.dataset.correctCells||'[]'));
+    const stuSelSet=new Set(JSON.parse(row.dataset.stuSelected||'[]'));
+    const ci = cw.children.length;
+    const cell = makeSpellCell(ci,'',correctSet,stuSelSet,row,cw);
+    cw.appendChild(cell);
+    cell.querySelector('input')?.focus();
+    scheduleSave();
+  };
+
+  // FIX 2: حذف كلمة — remove last cell from focused row
+  const delCellBtn = document.createElement('button'); delCellBtn.className='btn br';
+  delCellBtn.style.cssText='padding:5px 10px;font-size:.76rem';
+  delCellBtn.textContent='حذف كلمة';
+  delCellBtn.onclick=()=>{
+    const row = _focusedRow || tcSpell.querySelector('.spell-row:last-child');
+    if(!row){ showToast('اضغط على السطر أولاً'); return; }
+    const cw = row.querySelector('.spell-cells');
+    if(!cw || cw.children.length===0) return;
+    // Remove last cell
+    cw.removeChild(cw.lastElementChild);
+    // Rebuild correctCells after removal
+    const allCells=[...cw.children];
+    const cc=allCells.map((_,i)=>i).filter(i=>allCells[i].classList.contains('teacher-correct'));
+    row.dataset.correctCells=JSON.stringify(cc);
+    scheduleSave();
+  };
+
+  // FIX 4: مسح — clear text only, keep cells
+  const clrSpellBtn = document.createElement('button'); clrSpellBtn.className='btn bo';
+  clrSpellBtn.style.cssText='padding:5px 10px;font-size:.76rem';
+  clrSpellBtn.textContent='مسح الكتابة';
+  clrSpellBtn.onclick=()=>{
+    if(!confirm('مسح نصوص الخلايا مع الحفاظ على عددها؟')) return;
+    tcSpell.querySelectorAll('.spell-cell-inp').forEach(inp=>{
+      inp.value='';
+    });
+    // Clear correct marks
+    tcSpell.querySelectorAll('.spell-cell').forEach(cell=>{
+      cell.classList.remove('teacher-correct','student-selected');
+    });
+    tcSpell.querySelectorAll('.spell-row').forEach(row=>{
+      row.dataset.correctCells='[]';
+      row.dataset.stuSelected='[]';
+    });
+    scheduleSave(); showToast('تم مسح الكتابة ✔');
+  };
+
+  // Delete all rows completely
+  const delAllBtn = document.createElement('button'); delAllBtn.className='btn br';
+  delAllBtn.style.cssText='padding:5px 10px;font-size:.76rem';
+  delAllBtn.textContent='حذف الأسئلة كلها';
+  delAllBtn.onclick=()=>{
+    if(confirm('حذف جميع أسئلة الإملاء نهائياً؟')){ tcSpell.innerHTML=''; scheduleSave(); }
+  };
+
+  sBtns.appendChild(addSpellBtn);
+  sBtns.appendChild(addCellBtn);
+  sBtns.appendChild(delCellBtn);
+  sBtns.appendChild(clrSpellBtn);
+  sBtns.appendChild(delAllBtn);
+  sbody.appendChild(tcSpell); sbody.appendChild(sBtns);
+
+  let _sOpen=true;
+  sColBtn.onclick=e=>{
+    e.stopPropagation(); _sOpen=!_sOpen;
+    sbody.style.maxHeight=_sOpen?'600px':'0';
+    sColBtn.textContent=_sOpen?'▲':'▼';
+  };
+  shdr.addEventListener('click',()=>sColBtn.click());
+
+  section.appendChild(shdr); section.appendChild(sbody);
+  container.appendChild(section);
+  return {section, tcSpell};
+}
+
+function toggleStuSpell(){
+  const body=document.getElementById('stuSpellBody');
+  const btn=document.getElementById('stuSpellColBtn');
+  const open=body.style.maxHeight!=='0px';
+  body.style.maxHeight=open?'0':'999px';
+  if(btn) btn.textContent=open?'▼':'▲';
+}
 // ════════════════════════════════════════════════════════
 // TOAST
 // ════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════
+// PANEL SPLITTER — drag to resize topPanel/botPanel
+// ════════════════════════════════════════════════════════
+(function(){
+  let _active=false, _startY=0, _startTopH=0, _longTimer=null;
+  const MIN_H=80, MAX_PCT=0.85;
+
+  function getSplitter(){ return document.getElementById('panelSplitter'); }
+  function getTop()     { return document.getElementById('topPanel'); }
+  function getBot()     { return document.getElementById('botPanel'); }
+
+  function showSplitter(){
+    const s=getSplitter(); if(s) s.style.display='flex';
+  }
+
+  function applyH(topH){
+    const app = document.getElementById('app');
+    const appH = app ? app.clientHeight : window.innerHeight;
+    const maxH = appH * MAX_PCT;
+    topH = Math.max(MIN_H, Math.min(maxH, topH));
+    const top=getTop(), bot=getBot(), spl=getSplitter();
+    if(!top||!bot) return;
+    // Set top height explicitly
+    top.style.height=topH+'px';
+    top.style.maxHeight=topH+'px';
+    top.style.flexShrink='0';
+    top.style.overflow='hidden';
+    // Calculate remaining height for bot
+    const splH = spl ? spl.offsetHeight : 12;
+    const hdrH = document.querySelector('.hdr') ? document.querySelector('.hdr').offsetHeight : 0;
+    const modelBarH = document.getElementById('modelBar') ? document.getElementById('modelBar').offsetHeight : 0;
+    const stuBarH = document.getElementById('stuBar') ? document.getElementById('stuBar').offsetHeight : 0;
+    const usedH = topH + splH + hdrH + modelBarH + stuBarH + 20; // 20 = padding/margin
+    const botH = Math.max(100, appH - usedH);
+    bot.style.height = botH + 'px';
+    bot.style.maxHeight = botH + 'px';
+    bot.style.flex = '0 0 ' + botH + 'px';
+    bot.style.overflow = 'auto';
+    bot.style.minHeight = '0';
+  }
+
+  function startSplit(clientY){
+    const top=getTop(); if(!top) return;
+    _active=true; _startY=clientY;
+    _startTopH=top.getBoundingClientRect().height;
+    const s=getSplitter(); if(s){ const h=s.querySelector('#splitterHandle'); if(h) h.style.background='var(--gold)'; h&&(h.style.width='90px'); }
+    document.body.style.cursor='ns-resize';
+    document.body.style.userSelect='none';
+  }
+  function moveSplit(clientY){
+    if(!_active) return;
+    applyH(_startTopH+(clientY-_startY));
+  }
+  function endSplit(){
+    if(!_active) return; _active=false;
+    const s=getSplitter(); if(s){ const h=s.querySelector('#splitterHandle'); if(h){ h.style.background='rgba(245,200,66,.4)'; h.style.width='60px'; }}
+    document.body.style.cursor=''; document.body.style.userSelect='';
+  }
+
+  // Mouse
+  document.addEventListener('mousedown',e=>{
+    const s=getSplitter(); if(!s||!s.contains(e.target)) return;
+    e.preventDefault(); startSplit(e.clientY);
+    document.addEventListener('mousemove',_mm=e2=>moveSplit(e2.clientY));
+    document.addEventListener('mouseup',()=>{ endSplit(); document.removeEventListener('mousemove',_mm); },{once:true});
+  });
+
+  // Touch: long press to activate
+  document.addEventListener('touchstart',e=>{
+    const s=getSplitter(); if(!s||!s.contains(e.target)) return;
+    const t=e.touches[0];
+    _longTimer=setTimeout(()=>{
+      navigator.vibrate&&navigator.vibrate(30);
+      startSplit(t.clientY);
+    },300);
+  },{passive:true});
+  document.addEventListener('touchmove',e=>{
+    if(!_active){ clearTimeout(_longTimer); return; }
+    e.preventDefault(); moveSplit(e.touches[0].clientY);
+  },{passive:false});
+  document.addEventListener('touchend',()=>{ clearTimeout(_longTimer); endSplit(); },{passive:true});
+
+  // Show splitter when student mode active
+  const _origEnterStu = window.enterStudent;
+  window.enterStudent = function(){
+    _origEnterStu&&_origEnterStu.apply(this,arguments);
+    setTimeout(showSplitter, 100);
+  };
+})();
+
+// ════════════════════════════════════════════════════════
+// MCQ & TF QUESTION ROWS
+// ════════════════════════════════════════════════════════
+let _lastFocusedRow=null;
+
+function renumberRows(tc){
+  if(!tc) return;
+  let n=0;
+  tc.querySelectorAll('.mcq-row,.tf-row').forEach(row=>{
+    n++;
+    const num=row.querySelector('.mcq-qnum,.tf-qnum');
+    if(num) num.textContent=n+'. ';
+  });
+}
+
+function insertAfterFocused(tc, newRow){
+  if(_lastFocusedRow && _lastFocusedRow.parentElement===tc){
+    _lastFocusedRow.insertAdjacentElement('afterend',newRow);
+  } else {
+    tc.appendChild(newRow);
+  }
+}
+
+function addMCQRow(tc, data){
+  const row=document.createElement('div'); row.className='mcq-row';
+  row.dataset.type='mcq';
+  row.style.cssText='display:flex;align-items:stretch;border-bottom:1px solid rgba(255,255,255,.05);gap:0;position:relative';
+  row.addEventListener('focusin',()=>{ _lastFocusedRow=row; });
+
+  const qcell=document.createElement('div'); qcell.className='mcq-qcell';
+  qcell.style.cssText='flex:0 0 48%;background:linear-gradient(135deg,rgba(139,92,246,.18),rgba(109,40,217,.12));border-right:1px solid rgba(139,92,246,.28);padding:6px 8px;display:flex;align-items:flex-start;gap:4px;min-width:0';
+  const bulb=document.createElement('button'); bulb.className='bulb-btn'; bulb.textContent='\u{1F4A1}';
+  bulb.style.cssText='flex-shrink:0;background:none;border:none;cursor:pointer;opacity:.6;font-size:1rem;padding:0 2px';
+  const qnum=document.createElement('span'); qnum.className='mcq-qnum';
+  qnum.style.cssText='font-size:.75rem;color:rgba(245,200,66,.85);font-weight:700;flex-shrink:0;padding-top:2px;white-space:nowrap';
+  let _hint=data&&data.hint||'';
+  if(_hint) bulb.classList.add('has-hint');
+  bulb.addEventListener('click',e=>{
+    e.stopPropagation();
+    if(mode==='t'){
+      const v=prompt('التغذية الراجعة:',_hint); if(v===null)return;
+      _hint=v.trim(); bulb.classList.toggle('has-hint',_hint.length>0); scheduleSave();
+    } else {
+      if(models[activeModel]&&models[activeModel].examMode) return;
+      showHintPopup(_hint||'لا توجد تغذية راجعة',bulb);
+    }
+  });
+  const qtxt=document.createElement('div'); qtxt.className='mcq-qtext';
+  qtxt.setAttribute('contenteditable',mode==='t'?'true':'false');
+  qtxt.setAttribute('placeholder','اكتب السؤال...'); qtxt.dir='rtl';
+  qtxt.style.cssText='flex:1;min-height:34px;background:none;border:none;outline:none;color:#c4b5fd;font-family:Cairo,sans-serif;font-size:.82rem;font-weight:700;direction:rtl;word-break:break-word;cursor:text;padding:0';
+  if(data&&data.q) qtxt.textContent=data.q;
+  qtxt.addEventListener('input',scheduleSave);
+  qcell.appendChild(bulb); qcell.appendChild(qnum); qcell.appendChild(qtxt);
+
+  const sep=document.createElement('div'); sep.style.cssText='width:2px;background:rgba(255,255,255,.06);flex-shrink:0';
+  const opts=document.createElement('div'); opts.className='mcq-opts';
+  opts.style.cssText='display:flex;flex:1;min-width:0';
+  const optLabels=data&&data.opts?data.opts:['','','',''];
+  const correctIdx=data&&data.correct!=null?data.correct:-1;
+
+  optLabels.forEach((lbl,oi)=>{
+    const opt=document.createElement('div'); opt.className='mcq-opt';
+    opt.style.cssText='flex:1;padding:5px 4px;text-align:center;cursor:pointer;font-family:Cairo,sans-serif;font-size:.8rem;font-weight:700;border-right:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.03);color:var(--txt2);transition:all .18s;user-select:none;touch-action:manipulation;display:flex;align-items:center;justify-content:center;gap:3px;direction:rtl;position:relative';
+    if(mode==='t'&&oi===correctIdx){
+      opt.style.background='linear-gradient(135deg,rgba(34,197,94,.3),rgba(21,128,61,.2))';
+      opt.style.color='#86efac';
+    }
+    const inp=document.createElement('input'); inp.className='mcq-opt-inp';
+    inp.type='text'; inp.value=lbl; inp.dir='rtl'; inp.placeholder='خيار '+(oi+1);
+    inp.style.cssText='background:none;border:none;outline:none;color:inherit;font-family:inherit;font-size:inherit;text-align:center;width:100%;cursor:pointer;direction:rtl;min-width:0';
+    inp.addEventListener('mousedown',e=>e.stopPropagation());
+    inp.addEventListener('focus',()=>{ if(inp.placeholder) inp.select(); });
+    if(mode==='s') inp.setAttribute('readonly','true');
+    inp.addEventListener('input',scheduleSave);
+    const fbSpan=document.createElement('span'); fbSpan.style.cssText='font-size:.8rem;flex-shrink:0;display:none';
+    opt.appendChild(inp); opt.appendChild(fbSpan);
+    opt.addEventListener('click',()=>{
+      if(mode==='t'){
+        opts.querySelectorAll('.mcq-opt').forEach(o=>{
+          o.style.background='rgba(255,255,255,.03)'; o.style.color='var(--txt2)';
+        });
+        opt.style.background='linear-gradient(135deg,rgba(34,197,94,.3),rgba(21,128,61,.2))';
+        opt.style.color='#86efac';
+        row.dataset.correct=oi; scheduleSave();
+      } else if(mode==='s'){
+        opts.querySelectorAll('.mcq-opt').forEach(o=>{
+          o.style.background='rgba(255,255,255,.03)'; o.style.color='var(--txt2)';
+          const f=o.querySelector('span'); if(f) f.style.display='none';
+        });
+        opt.style.background='linear-gradient(135deg,rgba(20,184,166,.3),rgba(13,148,136,.2))';
+        opt.style.color='#5eead4';
+        const ci=parseInt(row.dataset.correct??-1), ok=oi===ci;
+        fbSpan.textContent=ok?' \u2713':'';
+        fbSpan.style.cssText='font-size:.8rem;flex-shrink:0;display:'+(ok?'inline':'none')+';color:#4ade80';
+        row.dataset.stuAnswer=oi; scheduleSave(); setTimeout(pushStudentAnswers,400);
+      }
+    });
+    opt.addEventListener('touchend',e=>{if(mode==='s'){e.preventDefault();opt.click();}});
+    opts.appendChild(opt);
+  });
+
+  const del=document.createElement('div'); del.className='mcq-del';
+  del.style.cssText='width:26px;background:rgba(239,68,68,.12);border:none;border-left:1px solid rgba(239,68,68,.2);color:rgba(252,165,165,.4);cursor:pointer;display:'+(mode==='t'?'flex':'none')+';align-items:center;justify-content:center;font-size:.76rem;flex-shrink:0;transition:all .17s';
+  del.innerHTML='\u2715';
+  del.addEventListener('mouseenter',()=>{del.style.background='rgba(239,68,68,.35)';del.style.color='#fff';});
+  del.addEventListener('mouseleave',()=>{del.style.background='rgba(239,68,68,.12)';del.style.color='rgba(252,165,165,.4)';});
+  del.addEventListener('click',()=>{ row.remove(); renumberRows(tc); scheduleSave(); });
+  row.appendChild(qcell); row.appendChild(sep); row.appendChild(opts); row.appendChild(del);
+  insertAfterFocused(tc,row); renumberRows(tc); return row;
+}
+
+function addTFRow(tc, data){
+  const row=document.createElement('div'); row.className='tf-row';
+  row.dataset.type='tf';
+  row.style.cssText='display:flex;align-items:stretch;border-bottom:1px solid rgba(255,255,255,.05);gap:0';
+  row.addEventListener('focusin',()=>{ _lastFocusedRow=row; });
+
+  const qcell=document.createElement('div'); qcell.className='tf-qcell';
+  qcell.style.cssText='flex:1;background:linear-gradient(135deg,rgba(20,184,166,.16),rgba(13,148,136,.1));border-right:1px solid rgba(20,184,166,.28);padding:6px 8px;display:flex;align-items:flex-start;gap:4px';
+  const bulb=document.createElement('button'); bulb.className='bulb-btn'; bulb.textContent='\u{1F4A1}';
+  bulb.style.cssText='flex-shrink:0;background:none;border:none;cursor:pointer;opacity:.6;font-size:1rem;padding:0 2px';
+  const qnum=document.createElement('span'); qnum.className='tf-qnum';
+  qnum.style.cssText='font-size:.75rem;color:rgba(245,200,66,.85);font-weight:700;flex-shrink:0;padding-top:2px;white-space:nowrap';
+  let _hint=data&&data.hint||'';
+  if(_hint) bulb.classList.add('has-hint');
+  bulb.addEventListener('click',e=>{
+    e.stopPropagation();
+    if(mode==='t'){
+      const v=prompt('التغذية الراجعة:',_hint); if(v===null)return;
+      _hint=v.trim(); bulb.classList.toggle('has-hint',_hint.length>0); scheduleSave();
+    } else {
+      if(models[activeModel]&&models[activeModel].examMode) return;
+      showHintPopup(_hint||'لا توجد تغذية راجعة',bulb);
+    }
+  });
+  const qtxt=document.createElement('div'); qtxt.className='mcq-qtext';
+  qtxt.setAttribute('contenteditable',mode==='t'?'true':'false');
+  qtxt.setAttribute('placeholder','اكتب السؤال...'); qtxt.dir='rtl';
+  qtxt.style.cssText='flex:1;min-height:34px;background:none;border:none;outline:none;color:#5eead4;font-family:Cairo,sans-serif;font-size:.82rem;font-weight:700;direction:rtl;word-break:break-word;cursor:text;padding:0';
+  if(data&&data.q) qtxt.textContent=data.q;
+  qtxt.addEventListener('input',scheduleSave);
+  qcell.appendChild(bulb); qcell.appendChild(qnum); qcell.appendChild(qtxt);
+
+  const sep=document.createElement('div'); sep.style.cssText='width:2px;background:rgba(255,255,255,.06);flex-shrink:0';
+  const tfOpts=document.createElement('div'); tfOpts.className='tf-opts';
+  tfOpts.style.cssText='display:flex;flex-shrink:0;width:90px';
+  const correctAns=data&&data.correct!=null?data.correct:-1;
+
+  [{val:1,sym:'\u2713',green:true},{val:0,sym:'\u2717',green:false}].forEach(({val,sym,green})=>{
+    const opt=document.createElement('div');
+    opt.className='tf-opt '+(green?'tf-true':'tf-false');
+    opt.style.cssText='flex:1;padding:7px 4px;text-align:center;cursor:pointer;font-family:Cairo,sans-serif;font-size:1.1rem;font-weight:900;border-right:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.03);transition:all .18s;user-select:none;touch-action:manipulation;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:2px;color:'+(green?'#22c55e':'#ef4444');
+    if(mode==='t'&&val===correctAns){
+      opt.style.background=green?'rgba(34,197,94,.3)':'rgba(239,68,68,.25)';
+    }
+    const symS=document.createElement('span'); symS.textContent=sym; symS.style.fontSize='1.2rem'; opt.appendChild(symS);
+    opt.addEventListener('click',()=>{
+      if(mode==='t'){
+        tfOpts.querySelectorAll('.tf-opt').forEach(o=>{
+          o.style.background='rgba(255,255,255,.03)';
+          o.style.outline='none';
+        });
+        opt.style.background=green?'rgba(34,197,94,.3)':'rgba(239,68,68,.25)';
+        opt.style.outline='2px solid '+(green?'#22c55e':'#ef4444');
+        row.dataset.correct=val; scheduleSave();
+      } else if(mode==='s'){
+        tfOpts.querySelectorAll('.tf-opt').forEach(o=>{
+          o.style.background='rgba(255,255,255,.03)';
+          o.style.outline='none';
+          o.style.boxShadow='none';
+        });
+        const cv=parseInt(row.dataset.correct??-1), ok=val===cv;
+        opt.style.background='rgba(20,184,166,.25)';
+        opt.style.outline=ok?'2px solid #4ade80':'none';
+        opt.style.boxShadow=ok?'0 0 10px rgba(74,222,128,.4)':'none';
+        row.dataset.stuAnswer=val; scheduleSave(); setTimeout(pushStudentAnswers,400);
+      }
+    });
+    opt.addEventListener('touchend',e=>{if(mode==='s'){e.preventDefault();opt.click();}});
+    tfOpts.appendChild(opt);
+  });
+
+  const del=document.createElement('div'); del.className='mcq-del';
+  del.style.cssText='width:26px;background:rgba(239,68,68,.12);border:none;border-left:1px solid rgba(239,68,68,.2);color:rgba(252,165,165,.4);cursor:pointer;display:'+(mode==='t'?'flex':'none')+';align-items:center;justify-content:center;font-size:.76rem;flex-shrink:0;transition:all .17s';
+  del.innerHTML='\u2715';
+  del.addEventListener('mouseenter',()=>{del.style.background='rgba(239,68,68,.35)';del.style.color='#fff';});
+  del.addEventListener('mouseleave',()=>{del.style.background='rgba(239,68,68,.12)';del.style.color='rgba(252,165,165,.4)';});
+  del.addEventListener('click',()=>{ row.remove(); renumberRows(tc); scheduleSave(); });
+  if(mode!=='t') del.style.display='none';
+  row.appendChild(qcell); row.appendChild(sep); row.appendChild(tfOpts); row.appendChild(del);
+  insertAfterFocused(tc,row); renumberRows(tc); return row;
+}
 function showToast(msg){
   const t=document.getElementById('toast');
   t.textContent=msg; t.classList.add('show');
   setTimeout(()=>t.classList.remove('show'),2300);
+}
+
+// ════════════════════════════════════════════════════════
+// MULTI-ROLE LOGIN SYSTEM
+// ════════════════════════════════════════════════════════
+const ADMIN_PASS = '0564125';
+const STU_PASS   = '123';
+let currentRole  = 'student';
+let currentTeacherName = '';
+let _loginRole   = 'student';
+
+// Teachers list stored in localStorage
+function getTeachers(){
+  try{ return JSON.parse(localStorage.getItem('teachers_list')||'[]'); }catch(e){ return []; }
+}
+function saveTeachers(arr){ localStorage.setItem('teachers_list',JSON.stringify(arr)); }
+
+function setLoginRole(role){
+  _loginRole = role;
+  const roles = {teacher:'loginRoleTeacher',student:'loginRoleStudent'};
+  Object.entries(roles).forEach(([r,id])=>{
+    const btn = document.getElementById(id); if(!btn) return;
+    const cols = {teacher:'linear-gradient(135deg,#8b5cf6,#6d28d9)',student:'linear-gradient(135deg,#14b8a6,#0d9488)'};
+    btn.style.background = r===role ? cols[r] : 'transparent';
+    btn.style.color = r===role ? '#fff' : 'var(--txt2)';
+    btn.style.boxShadow = r===role ? '0 2px 8px rgba(0,0,0,.3)' : 'none';
+  });
+  const nameInp         = document.getElementById('loginName');
+  const teacherUserWrap = document.getElementById('loginTeacherUserWrap');
+  const classInp        = document.getElementById('loginClass');
+  const passInp         = document.getElementById('loginPass');
+  if(role==='student'){
+    nameInp.style.display='block'; nameInp.placeholder='الاسم الكامل';
+    if(teacherUserWrap) teacherUserWrap.style.display='none';
+    if(classInp) classInp.style.display='block';
+    if(passInp)  passInp.style.display='none';
+  } else {
+    nameInp.style.display='none';
+    if(teacherUserWrap) teacherUserWrap.style.display='block';
+    if(classInp) classInp.style.display='none';
+    if(passInp)  passInp.style.display='block';
+    renderTeacherLoginDropdown(getTeachers());
+  }
+}
+
+function populateTeacherDropdown(){
+  const sel = document.getElementById('loginTeacher');
+  if(!sel) return;
+  sel.innerHTML='<option value="none">ليس لديّ معلم</option>';
+  getTeachers().forEach(t=>{
+    const opt=document.createElement('option'); opt.value=t.username; opt.textContent=t.name;
+    sel.appendChild(opt);
+  });
+}
+
+let _selectedTeacherLogin = null;
+function renderTeacherLoginDropdown(teachers){
+  const dd = document.getElementById('teacherLoginDropdown');
+  if(!dd) return;
+  dd.innerHTML='';
+  if(!teachers.length){
+    dd.innerHTML='<div style="padding:8px 12px;color:var(--txt2);font-size:.82rem">لا يوجد معلمون مسجلون</div>';
+    dd.style.display='block'; return;
+  }
+  teachers.forEach(t=>{
+    const opt=document.createElement('div');
+    opt.style.cssText='padding:8px 12px;cursor:pointer;font-family:Cairo,sans-serif;font-size:.85rem;color:var(--txt);direction:rtl;transition:background .15s';
+    opt.textContent=t.name;
+    opt.onmouseover=()=>opt.style.background='rgba(139,92,246,.25)';
+    opt.onmouseout=()=>opt.style.background='';
+    opt.onmousedown=()=>{
+      _selectedTeacherLogin=t;
+      document.getElementById('loginTeacherUserInp').value=t.name;
+      dd.style.display='none';
+    };
+    dd.appendChild(opt);
+  });
+  dd.style.display='block';
+}
+function showTeacherLoginDropdown(){ renderTeacherLoginDropdown(getTeachers()); }
+function filterTeacherLoginList(){
+  const q=(document.getElementById('loginTeacherUserInp').value||'').toLowerCase();
+  const filtered=getTeachers().filter(t=>t.name.toLowerCase().includes(q)||t.username.toLowerCase().includes(q));
+  _selectedTeacherLogin=null; renderTeacherLoginDropdown(filtered);
+}
+document.addEventListener('click',e=>{
+  if(!e.target.closest('#loginTeacherUserWrap')){
+    const dd=document.getElementById('teacherLoginDropdown'); if(dd) dd.style.display='none';
+  }
+});
+
+function doLogin(){
+  const err = document.getElementById('loginErr');
+  err.style.display='none';
+  if(_loginRole==='teacher'){
+    if(!_selectedTeacherLogin){ err.textContent='⚠️ اختر معلماً من القائمة'; err.style.display='block'; return; }
+    const pass = (document.getElementById('loginPass')?.value||'').trim();
+    if(pass!==_selectedTeacherLogin.password){ err.textContent='❌ كلمة المرور غير صحيحة'; err.style.display='block'; return; }
+    document.getElementById('loginOverlay').style.display='none';
+    enterTeacher(_selectedTeacherLogin);
+  } else {
+    const name = (document.getElementById('loginName')?.value||'').trim();
+    const cls  = (document.getElementById('loginClass')?.value||'').trim();
+    if(!name){ err.textContent='⚠️ أدخل اسمك الكامل'; err.style.display='block'; return; }
+    if(!cls){ err.textContent='⚠️ أدخل الفصل'; err.style.display='block'; return; }
+    document.getElementById('loginOverlay').style.display='none';
+    stuName=name; stuClass=cls; currentTeacherName='';
+    stuId='stu_'+name.replace(/\s+/g,'_')+'_'+cls.replace(/\s+/g,'_')+'_'+Date.now().toString(36);
+    enterStudent();
+  }
+}
+
+function highlightRoleBtn(role){
+  // No highlighting per user request
+}
+
+
+function enterAdmin(){
+  currentRole='admin';
+  highlightRoleBtn('admin');
+  document.getElementById('adminPanel').style.display='block';
+  document.getElementById('teacherPanel').style.display='none';
+  document.getElementById('studentArea').style.display='none';
+  document.body.className='tm';
+  renderAdminTeachers();
+}
+
+function enterTeacher(t){
+  currentRole='teacher';
+  currentTeacherName = t.name;
+  highlightRoleBtn('teacher');
+  document.getElementById('mainTitle').textContent='🎓 أستاذ / ة '+t.name;
+  document.getElementById('adminPanel').style.display='none';
+  document.getElementById('teacherPanel').style.display='flex';
+  document.getElementById('studentArea').style.display='none';
+  document.body.className='tm';
+  const modelsPane = document.getElementById('tPaneModels');
+  modelsPane.innerHTML='';
+  modelsPane.appendChild(document.getElementById('teacherView'));
+  setTeacherTab('models');
+  renderTeacherModels();
+  setMode('t');
+}
+
+function enterStudent(){
+  currentRole='student';
+  highlightRoleBtn('student');
+  document.getElementById('adminPanel').style.display='none';
+  document.getElementById('teacherPanel').style.display='none';
+  document.getElementById('studentArea').style.display='flex';
+  document.body.className='sm';
+  // Show word filter buttons
+  const wfb=document.getElementById('wordFilterBtns');
+  if(wfb) wfb.style.display='flex';
+  setMode('s');
+  if(fbConnected && db){
+    db.ref('sessions/'+SESSION_ID+'/students/'+stuId).set({
+      name:stuName, class:stuClass, teacher:currentTeacherName,
+      correct:0, total:0, pct:0, ts:Date.now(), online:true
+    });
+    setupPresence();
+    listenModels();
+  }
+}
+
+function switchRole(role){
+  document.getElementById('loginOverlay').style.display='flex';
+  setLoginRole(role);
+  const ni=document.getElementById('loginName'); if(ni) ni.value='';
+  const pi=document.getElementById('loginPass'); if(pi) pi.value='';
+  const ci=document.getElementById('loginClass'); if(ci) ci.value='';
+  const ti=document.getElementById('loginTeacherUserInp'); if(ti) ti.value='';
+  _selectedTeacherLogin=null;
+  document.getElementById('loginErr').style.display='none';
+  setTimeout(()=>{
+    const first=(role==='teacher')?document.getElementById('loginTeacherUserInp'):document.getElementById('loginName');
+    if(first) first.focus();
+  },100);
+}
+
+// ── Admin: manage teachers ──
+function adminAddTeacher(){
+  const name = document.getElementById('adminTeacherName').value.trim();
+  const user = document.getElementById('adminTeacherUser').value.trim();
+  const pass = document.getElementById('adminTeacherPass').value.trim();
+  if(!name||!user||!pass){ showToast('أكمل جميع البيانات'); return; }
+  const teachers = getTeachers();
+  if(teachers.find(t=>t.username===user)){ showToast('اسم المستخدم موجود مسبقاً'); return; }
+  teachers.push({name,username:user,password:pass});
+  saveTeachers(teachers);
+  document.getElementById('adminTeacherName').value='';
+  document.getElementById('adminTeacherUser').value='';
+  document.getElementById('adminTeacherPass').value='';
+  renderAdminTeachers();
+  showToast('تم إضافة المعلم: '+name+' ✔');
+}
+
+function adminDeleteTeacher(username){
+  if(!confirm('حذف هذا المعلم؟')) return;
+  const teachers = getTeachers().filter(t=>t.username!==username);
+  saveTeachers(teachers);
+  renderAdminTeachers();
+  showToast('تم حذف المعلم');
+}
+
+function renderAdminTeachers(){
+  const cont = document.getElementById('adminTeachersList');
+  const teachers = getTeachers();
+  cont.innerHTML='';
+  if(!teachers.length){
+    cont.innerHTML='<div style="color:var(--txt2);font-size:.82rem;text-align:center;padding:12px">لا يوجد معلمون مضافون بعد</div>';
+    return;
+  }
+  teachers.forEach(t=>{
+    const row=document.createElement('div');
+    row.style.cssText='display:flex;align-items:center;gap:8px;padding:8px 12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:8px';
+    row.innerHTML=`
+      <div style="flex:1;text-align:right">
+        <div style="font-size:.88rem;color:var(--txt);font-weight:700">أستاذ / ة ${t.name}</div>
+        <div style="font-size:.73rem;color:var(--txt2)">@${t.username}</div>
+      </div>
+      <button onclick="adminDeleteTeacher('${t.username}')" style="padding:4px 10px;border-radius:6px;border:none;background:rgba(239,68,68,.2);color:#fca5a5;font-family:'Cairo',sans-serif;font-size:.73rem;cursor:pointer">حذف</button>
+    `;
+    cont.appendChild(row);
+  });
+}
+
+// ── Teacher sub-tabs ──
+function setTeacherTab(tab){
+  const panes = {models:'tPaneModels',results:'tPaneResults',chat:'tPaneChat',support:'tPaneSupport'};
+  const tabs  = {models:'tTabModels',results:'tTabResults',chat:'tTabChat',support:'tTabSupport'};
+  Object.entries(panes).forEach(([t,id])=>{
+    const el=document.getElementById(id); if(el) el.style.display=t===tab?(t==='models'?'flex':'block'):'none';
+  });
+  Object.entries(tabs).forEach(([t,id])=>{
+    const btn=document.getElementById(id); if(!btn) return;
+    btn.style.background=t===tab?'linear-gradient(135deg,#8b5cf6,#6d28d9)':'rgba(255,255,255,.08)';
+    btn.style.color=t===tab?'#fff':'var(--txt2)';
+  });
+  // Load results pane
+  if(tab==='results'){
+    const pane=document.getElementById('tPaneResults');
+    pane.innerHTML='';
+    const dash=document.getElementById('dashView');
+    if(dash) pane.appendChild(dash);
+    setModeDash();
+  }
+}
+
+// ── Chat/Support ──
+function sendTeacherMsg(){
+  const inp=document.getElementById('chatInp'); const v=inp.value.trim(); if(!v) return;
+  addChatBubble('chatMsgs',v,'sent'); inp.value='';
+  if(fbConnected&&db) db.ref('sessions/'+SESSION_ID+'/chat').push({from:currentTeacherName,msg:v,ts:Date.now()});
+}
+function sendSupportMsg(){
+  const inp=document.getElementById('supportInp'); const v=inp.value.trim(); if(!v) return;
+  addChatBubble('supportMsgs',v,'sent'); inp.value='';
+  showToast('تم إرسال الرسالة للدعم الفني ✔');
+}
+function addChatBubble(containerId, text, dir){
+  const cont=document.getElementById(containerId); if(!cont) return;
+  const bub=document.createElement('div');
+  bub.style.cssText=`align-self:${dir==='sent'?'flex-end':'flex-start'};background:${dir==='sent'?'rgba(139,92,246,.25)':'rgba(255,255,255,.08)'};border-radius:10px;padding:7px 12px;font-size:.82rem;max-width:85%;color:var(--txt);direction:rtl`;
+  bub.textContent=text; cont.appendChild(bub);
+  cont.scrollTop=cont.scrollHeight;
 }
 
 // ════════════════════════════════════════════════════════
@@ -2385,32 +3869,47 @@ window.addEventListener('DOMContentLoaded',()=>{
     modelIdCounter=1;
   }
   setMode('s');
-  // Show student info form when in student mode
-  if(mode==='s'){
-    // Check if came from URL with session param (student)
-    const isStudent = new URLSearchParams(location.search).get('s');
-    if(isStudent || true){ // always ask for name
-      document.getElementById('stuInfoOverlay').style.display='flex';
-    }
-  }
+  setLoginRole('student');
+  document.getElementById('loginOverlay').style.display='flex';
+  document.getElementById('adminPanel') && (document.getElementById('adminPanel').style.display='none');
+  document.getElementById('teacherPanel') && (document.getElementById('teacherPanel').style.display='none');
+  document.getElementById('studentArea') && (document.getElementById('studentArea').style.display='none');
 });
 </script>
 <div id="hintPopup"></div>
 
-<!-- STUDENT INFO OVERLAY -->
-<div id="stuInfoOverlay">
-  <div id="stuInfoBox">
-    <h2>👤 بيانات الطالب</h2>
-    <p>أدخل اسمك وفصلك للبدء</p>
-    <input class="stu-field" id="stuNameInp" type="text" placeholder="الاسم الكامل" autocomplete="off"
-      onkeydown="if(event.key==='Enter'){document.getElementById('stuClassInp').focus();}"/>
-    <input class="stu-field" id="stuClassInp" type="text" placeholder="الفصل (مثال: خامس أ)" autocomplete="off"
-      onkeydown="if(event.key==='Enter'){startStudent();}"/>
-    <div id="stuFormErr" style="display:none;color:#f87171;font-size:.78rem;text-align:center;margin-top:-6px">⚠️ يرجى إدخال الاسم والفصل للمتابعة</div>
-    <button class="btn bg" onclick="startStudent()" style="padding:10px;font-size:.9rem">ابدأ الحل ✏️</button>
+<!-- ═══ UNIFIED LOGIN OVERLAY ═══ -->
+<div id="loginOverlay" style="position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.92);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center">
+  <div style="background:#0f172a;border:1px solid rgba(139,92,246,.4);border-radius:18px;padding:28px 24px;width:min(380px,94vw);display:flex;flex-direction:column;gap:14px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.6)">
+    <div style="font-family:'Amiri',serif;font-size:1.4rem;color:var(--gold);margin-bottom:4px">🌿 مستخرج المهارات اللغوية</div>
+    <div style="display:flex;background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.1);border-radius:40px;padding:3px;gap:2px">
+      <button id="loginRoleTeacher" onclick="setLoginRole('teacher')" style="flex:1;padding:6px;border-radius:40px;border:none;font-family:'Cairo',sans-serif;font-size:.75rem;font-weight:700;cursor:pointer;transition:all .2s;color:var(--txt2);background:transparent">🎓 المعلم</button>
+      <button id="loginRoleStudent" onclick="setLoginRole('student')" style="flex:1;padding:6px;border-radius:40px;border:none;font-family:'Cairo',sans-serif;font-size:.75rem;font-weight:700;cursor:pointer;transition:all .2s;color:#fff;background:linear-gradient(135deg,var(--teal),var(--teal2));box-shadow:0 2px 8px rgba(20,184,166,.4)">👦 الطالب</button>
+    </div>
+    <!-- Fields -->
+    <input id="loginName" type="text" placeholder="الاسم الكامل" autocomplete="off"
+      style="padding:10px 14px;border-radius:8px;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.4);color:var(--txt);font-family:'Cairo',sans-serif;font-size:.9rem;outline:none;direction:rtl;width:100%"
+      onkeydown="if(event.key==='Enter')doLogin()"/>
+    <!-- Teacher username (teacher role) — searchable dropdown -->
+    <div id="loginTeacherUserWrap" style="display:none;position:relative">
+      <input id="loginTeacherUserInp" type="text" placeholder="ابحث باسم المعلم..." autocomplete="off"
+        oninput="filterTeacherLoginList()"
+        onfocus="showTeacherLoginDropdown()"
+        style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid rgba(139,92,246,.4);background:rgba(0,0,0,.4);color:var(--txt);font-family:'Cairo',sans-serif;font-size:.9rem;outline:none;direction:rtl"/>
+      <div id="teacherLoginDropdown" style="display:none;position:absolute;top:100%;right:0;left:0;background:#1e1b4b;border:1px solid rgba(139,92,246,.4);border-radius:8px;z-index:9010;max-height:160px;overflow-y:auto;box-shadow:0 6px 20px rgba(0,0,0,.5);margin-top:2px"></div>
+    </div>
+    <!-- Class field (student only) -->
+    <input id="loginClass" type="text" placeholder="الفصل (مثال: خامس أ)" autocomplete="off"
+      style="padding:10px 14px;border-radius:8px;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.4);color:var(--txt);font-family:'Cairo',sans-serif;font-size:.9rem;outline:none;direction:rtl;width:100%;display:none"
+      onkeydown="if(event.key==='Enter')doLogin()"/>
+    <!-- Password for teacher only -->
+    <input id="loginPass" type="password" placeholder="كلمة المرور" autocomplete="off"
+      style="padding:10px 14px;border-radius:8px;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.4);color:var(--txt);font-family:'Cairo',sans-serif;font-size:.9rem;text-align:center;outline:none;letter-spacing:3px;direction:ltr;width:100%;display:none"
+      onkeydown="if(event.key==='Enter')doLogin()"/>
+    <div id="loginErr" style="display:none;color:#f87171;font-size:.8rem">❌ بيانات غير صحيحة</div>
+    <button onclick="doLogin()" style="padding:11px;border-radius:8px;border:none;background:linear-gradient(135deg,#22c55e,#15803d);color:#fff;font-family:'Cairo',sans-serif;font-size:.95rem;font-weight:700;cursor:pointer">دخول ✏️</button>
   </div>
 </div>
-
 
 </body>
 </html>
