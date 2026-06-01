@@ -681,6 +681,64 @@ body.stu-fs .spell-cells{grid-template-columns:repeat(6,1fr);}
 .spell-del:hover{background:rgba(239,68,68,.35);color:#fff}
 .spell-fb{position:absolute;top:1px;left:1px;font-size:.65rem;color:#4ade80;line-height:1;pointer-events:none}
 
+
+/* ── LISTEN & WRITE (استمع واكتب) ── */
+.lw-section{margin-top:10px;border:1px solid rgba(245,158,11,.25);border-radius:8px;overflow:hidden}
+.lw-hdr{display:flex;align-items:center;justify-content:space-between;padding:6px 10px;
+  background:rgba(245,158,11,.08);cursor:pointer}
+.lw-hdr-title{font-family:'Amiri',serif;font-size:.88rem;color:#fcd34d}
+.lw-body{padding:6px;overflow-y:auto;max-height:600px;transition:max-height .3s}
+.lw-row{border-bottom:1px solid rgba(255,255,255,.05);padding:6px 4px;position:relative}
+.lw-row-hdr{display:flex;align-items:center;gap:4px;margin-bottom:6px}
+.lw-row-num{font-size:.72rem;color:rgba(245,158,11,.8);font-weight:700;
+  background:rgba(245,158,11,.08);padding:1px 6px;border-radius:4px;flex-shrink:0}
+.lw-row-del{background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.25);
+  border-radius:5px;color:rgba(252,165,165,.6);cursor:pointer;padding:2px 8px;
+  font-size:.72rem;margin-right:auto;touch-action:manipulation}
+.lw-row-del:hover{background:rgba(239,68,68,.4);color:#fff}
+.lw-cells{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.lw-cell{background:rgba(255,255,255,.04);border:1px solid rgba(245,158,11,.18);
+  border-radius:8px;padding:6px;display:flex;flex-direction:column;gap:4px;min-width:0}
+/* audio controls row */
+.lw-ctrl{display:flex;gap:3px;justify-content:center;flex-wrap:wrap}
+.lw-btn{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);
+  border-radius:5px;cursor:pointer;font-size:.88rem;width:26px;height:26px;
+  display:flex;align-items:center;justify-content:center;transition:all .18s;
+  touch-action:manipulation;line-height:1;flex-shrink:0}
+.lw-btn:hover{background:rgba(255,255,255,.16)}
+.lw-btn.active{background:rgba(245,158,11,.3);border-color:rgba(245,158,11,.6);
+  box-shadow:0 0 6px rgba(245,158,11,.4)}
+.lw-btn.disabled{opacity:.3;cursor:not-allowed;pointer-events:none}
+/* answer input */
+.lw-ans{width:100%;padding:5px 7px;border-radius:6px;
+  border:1px solid rgba(245,158,11,.25);background:rgba(0,0,0,.35);
+  color:var(--txt);font-family:'Cairo',sans-serif;font-size:.85rem;
+  text-align:center;outline:none;direction:rtl;transition:border-color .2s}
+.lw-ans:focus{border-color:rgba(245,158,11,.6)}
+.lw-ans.correct{border-color:#4ade80;background:rgba(34,197,94,.1)}
+.lw-ans.wrong{border-color:#f87171;background:rgba(239,68,68,.08)}
+/* teacher answer (hidden from student) */
+.lw-teacher-ans{font-size:.72rem;color:rgba(245,158,11,.6);
+  text-align:center;padding:2px;display:none}
+body.tm .lw-teacher-ans{display:block}
+/* add-word btn (teacher only) */
+.lw-add-word-btn{background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.3);
+  border-radius:5px;color:#93c5fd;cursor:pointer;padding:2px 8px;font-size:.72rem;
+  touch-action:manipulation;transition:all .18s}
+.lw-add-word-btn:hover{background:rgba(59,130,246,.3)}
+/* del word btn (teacher only) */
+.lw-del-word-btn{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);
+  border-radius:5px;color:rgba(252,165,165,.6);cursor:pointer;padding:2px 6px;
+  font-size:.72rem;touch-action:manipulation}
+.lw-del-word-btn:hover{background:rgba(239,68,68,.3);color:#fff}
+/* student play buttons */
+.lw-stu-ctrl{display:flex;gap:4px;justify-content:center;margin-bottom:4px}
+/* recording indicator */
+.lw-rec{display:none;width:8px;height:8px;border-radius:50%;
+  background:#ef4444;animation:pulse 1s infinite;flex-shrink:0;align-self:center}
+.lw-rec.active{display:inline-block}
+/* mobile: 2 columns */
+body.mob-mode .lw-cells,body.stu-fs .lw-cells{grid-template-columns:repeat(2,1fr)}
 </style>
 
 </head>
@@ -788,16 +846,91 @@ body.stu-fs .spell-cells{grid-template-columns:repeat(6,1fr);}
     <div id="tPaneModels" style="display:flex;flex-direction:column;flex:1;min-height:0"></div>
     <!-- Results tab -->
     <div id="tPaneResults" style="display:none"></div>
-    <!-- Chat tab -->
-    <div id="tPaneChat" style="display:none;padding:14px">
-      <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:14px">
-        <div style="font-family:'Amiri',serif;font-size:1rem;color:var(--gold);margin-bottom:10px">💬 التواصل مع الإدارة</div>
-        <div id="chatMsgs" style="min-height:80px;max-height:200px;overflow-y:auto;margin-bottom:10px;display:flex;flex-direction:column;gap:6px"></div>
-        <div style="display:flex;gap:6px">
-          <input id="chatInp" type="text" placeholder="اكتب رسالتك..." style="flex:1;padding:8px 12px;border-radius:7px;border:1px solid rgba(20,184,166,.3);background:rgba(0,0,0,.35);color:var(--txt);font-family:'Cairo',sans-serif;font-size:.85rem;outline:none;direction:rtl" onkeydown="if(event.key==='Enter')sendTeacherMsg()"/>
-          <button onclick="sendTeacherMsg()" style="padding:8px 14px;border-radius:7px;border:none;background:linear-gradient(135deg,#14b8a6,#0d9488);color:#fff;font-family:'Cairo',sans-serif;font-size:.85rem;font-weight:700;cursor:pointer">إرسال</button>
+    <!-- Chat tab — Teachers & Students Tables -->
+    <div id="tPaneChat" style="display:none;padding:14px;overflow-y:auto;max-height:calc(100vh - 160px)">
+
+      <!-- ══ TEACHERS TABLE ══ -->
+      <div style="background:rgba(255,255,255,.04);border:1px solid rgba(139,92,246,.2);border-radius:12px;padding:14px;margin-bottom:18px">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:10px">
+          <div style="font-family:'Amiri',serif;font-size:1.05rem;color:var(--gold)">👨‍🏫 بيانات المعلمين</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <button onclick="addTeacherRow()" style="padding:5px 12px;border-radius:7px;border:none;background:linear-gradient(135deg,#22c55e,#15803d);color:#fff;font-family:'Cairo',sans-serif;font-size:.78rem;font-weight:700;cursor:pointer">+ إضافة معلم</button>
+            <button onclick="showTeacherTablePw()" style="padding:5px 12px;border-radius:7px;border:none;background:linear-gradient(135deg,#8b5cf6,#6d28d9);color:#fff;font-family:'Cairo',sans-serif;font-size:.78rem;font-weight:700;cursor:pointer">🔓 إظهار وتعديل</button>
+            <button onclick="changeTeacherTablePw()" style="padding:5px 12px;border-radius:7px;border:none;background:linear-gradient(135deg,#f59e0b,#b45309);color:#fff;font-family:'Cairo',sans-serif;font-size:.78rem;font-weight:700;cursor:pointer">🔑 تغيير كلمة المرور</button>
+          </div>
+        </div>
+
+        <!-- Table with inline search headers -->
+        <div style="overflow-x:auto;max-height:340px;overflow-y:auto" id="teachersTableWrap">
+          <table style="width:100%;border-collapse:collapse;font-size:.82rem;direction:rtl" id="teachersTable">
+            <thead>
+              <tr>
+                <th style="background:rgba(139,92,246,.2);color:#c4b5fd;padding:5px 8px;border:1px solid rgba(255,255,255,.07);font-family:Cairo,sans-serif;text-align:center;width:50px">م</th>
+                <th style="background:rgba(139,92,246,.2);color:#c4b5fd;padding:5px 8px;border:1px solid rgba(255,255,255,.07);font-family:Cairo,sans-serif">
+                  <div style="display:flex;flex-direction:column;gap:3px">
+                    <span>اسم المعلم</span>
+                    <input id="ftTeacher" type="text" placeholder="🔍 بحث وترشيح..." oninput="renderTeachersTable()" dir="rtl" style="width:100%;padding:3px 7px;border-radius:5px;border:1px solid rgba(139,92,246,.35);background:rgba(0,0,0,.4);color:var(--txt);font-family:Cairo,sans-serif;font-size:.73rem;outline:none;font-weight:400"/>
+                  </div>
+                </th>
+                <th style="background:rgba(139,92,246,.2);color:#c4b5fd;padding:5px 8px;border:1px solid rgba(255,255,255,.07);font-family:Cairo,sans-serif">
+                  <div style="display:flex;flex-direction:column;gap:3px">
+                    <span>كلمة المرور</span>
+                    <input id="ftPass" type="text" placeholder="🔍 بحث وترشيح..." oninput="renderTeachersTable()" dir="rtl" style="width:100%;padding:3px 7px;border-radius:5px;border:1px solid rgba(139,92,246,.35);background:rgba(0,0,0,.4);color:var(--txt);font-family:Cairo,sans-serif;font-size:.73rem;outline:none;font-weight:400"/>
+                  </div>
+                </th>
+                <th style="background:rgba(139,92,246,.2);color:#c4b5fd;padding:5px 8px;border:1px solid rgba(255,255,255,.07);width:40px"></th>
+              </tr>
+            </thead>
+            <tbody id="teachersTbody"></tbody>
+          </table>
         </div>
       </div>
+
+      <!-- ══ STUDENTS TABLE ══ -->
+      <div style="background:rgba(255,255,255,.04);border:1px solid rgba(20,184,166,.2);border-radius:12px;padding:14px">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:10px">
+          <div style="font-family:'Amiri',serif;font-size:1.05rem;color:var(--teal)">👦 قوائم الطلاب المسجلين</div>
+          <button onclick="addStudentRow()" style="padding:5px 12px;border-radius:7px;border:none;background:linear-gradient(135deg,#22c55e,#15803d);color:#fff;font-family:Cairo,sans-serif;font-size:.78rem;font-weight:700;cursor:pointer">+ إضافة طالب</button>
+        </div>
+
+        <!-- Table with inline search headers -->
+        <div style="overflow-x:auto;max-height:380px;overflow-y:auto">
+          <table style="width:100%;border-collapse:collapse;font-size:.82rem;direction:rtl" id="studentsTable">
+            <thead>
+              <tr>
+                <th style="background:rgba(20,184,166,.15);color:#5eead4;padding:5px 8px;border:1px solid rgba(255,255,255,.07);font-family:Cairo,sans-serif;text-align:center;width:46px">م</th>
+                <th style="background:rgba(20,184,166,.15);color:#5eead4;padding:5px 8px;border:1px solid rgba(255,255,255,.07);font-family:Cairo,sans-serif">
+                  <div style="display:flex;flex-direction:column;gap:3px">
+                    <span>اسم الطالب</span>
+                    <input id="fStuName" type="text" placeholder="🔍 بحث وترشيح..." oninput="renderStudentsTable()" dir="rtl" style="width:100%;padding:3px 7px;border-radius:5px;border:1px solid rgba(20,184,166,.3);background:rgba(0,0,0,.4);color:var(--txt);font-family:Cairo,sans-serif;font-size:.73rem;outline:none;font-weight:400"/>
+                  </div>
+                </th>
+                <th style="background:rgba(20,184,166,.15);color:#5eead4;padding:5px 8px;border:1px solid rgba(255,255,255,.07);font-family:Cairo,sans-serif">
+                  <div style="display:flex;flex-direction:column;gap:3px">
+                    <span>الصف</span>
+                    <input id="fStuGrade" type="text" placeholder="🔍 بحث..." oninput="renderStudentsTable()" dir="rtl" style="width:100%;padding:3px 7px;border-radius:5px;border:1px solid rgba(20,184,166,.3);background:rgba(0,0,0,.4);color:var(--txt);font-family:Cairo,sans-serif;font-size:.73rem;outline:none;font-weight:400"/>
+                  </div>
+                </th>
+                <th style="background:rgba(20,184,166,.15);color:#5eead4;padding:5px 8px;border:1px solid rgba(255,255,255,.07);font-family:Cairo,sans-serif">
+                  <div style="display:flex;flex-direction:column;gap:3px">
+                    <span>الفصل</span>
+                    <input id="fStuClass" type="text" placeholder="🔍 بحث..." oninput="renderStudentsTable()" dir="rtl" style="width:100%;padding:3px 7px;border-radius:5px;border:1px solid rgba(20,184,166,.3);background:rgba(0,0,0,.4);color:var(--txt);font-family:Cairo,sans-serif;font-size:.73rem;outline:none;font-weight:400"/>
+                  </div>
+                </th>
+                <th style="background:rgba(20,184,166,.15);color:#5eead4;padding:5px 8px;border:1px solid rgba(255,255,255,.07);font-family:Cairo,sans-serif">
+                  <div style="display:flex;flex-direction:column;gap:3px">
+                    <span>المعلم</span>
+                    <input id="fStuTeacher" type="text" placeholder="🔍 بحث..." oninput="renderStudentsTable()" dir="rtl" style="width:100%;padding:3px 7px;border-radius:5px;border:1px solid rgba(20,184,166,.3);background:rgba(0,0,0,.4);color:var(--txt);font-family:Cairo,sans-serif;font-size:.73rem;outline:none;font-weight:400"/>
+                  </div>
+                </th>
+                <th style="background:rgba(20,184,166,.15);color:#5eead4;padding:5px 8px;border:1px solid rgba(255,255,255,.07);width:40px"></th>
+              </tr>
+            </thead>
+            <tbody id="studentsTbody"></tbody>
+          </table>
+        </div>
+      </div>
+
     </div>
     <!-- Support tab -->
     <div id="tPaneSupport" style="display:none;padding:14px">
@@ -900,6 +1033,17 @@ body.stu-fs .spell-cells{grid-template-columns:repeat(6,1fr);}
           </div>
           <div id="stuSpellBody" style="overflow:hidden;max-height:999px;transition:max-height .3s">
             <div id="stuSpellC" class="tasksC" style="padding:4px"></div>
+          </div>
+        </div>
+
+        <!-- Student Listen & Write Section -->
+        <div id="stuLWSection" style="display:none;margin-top:8px;border:1px solid rgba(245,158,11,.25);border-radius:8px;overflow:hidden">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:rgba(245,158,11,.08)">
+            <span style="font-family:Amiri,serif;font-size:.88rem;color:#fcd34d">🎧 استمع واكتب</span>
+            <button id="stuLWColBtn" onclick="toggleStuLW()" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:5px;color:rgba(255,255,255,.6);width:22px;height:22px;cursor:pointer;font-size:.7rem;line-height:1">▲</button>
+          </div>
+          <div id="stuLWBody" style="overflow:hidden;max-height:999px;transition:max-height .3s;padding:6px">
+            <div id="stuLWC" class="lw-cells" style="gap:6px"></div>
           </div>
         </div>
 
@@ -1228,8 +1372,25 @@ function pushStudentAnswers(){
     details['إملاء_'+(ri+1)]={correct:rowCorrect,total:rowTotal};
   });
 
+  // LW scoring — each cell = 1 point if answer matches
+  const lwCont=document.getElementById('stuLWC');
+  if(lwCont){
+    lwCont.querySelectorAll('.lw-row').forEach(function(row,ri){
+      row.querySelectorAll('.lw-cell').forEach(function(cell,ci){
+        const inp=cell.querySelector('.lw-ans'); if(!inp) return;
+        const mLW=models[activeModel]; if(!mLW||!mLW.lwRows||!mLW.lwRows[ri]) return;
+        const correctAns=(mLW.lwRows[ri].cells&&mLW.lwRows[ri].cells[ci]?mLW.lwRows[ri].cells[ci].answer||'':'').trim();
+        if(!correctAns) return;
+        total++;
+        if(inp.value.trim()===correctAns) correct++;
+        const sk='استمع_'+(ri+1)+'_'+(ci+1);
+        details[sk]={correct:inp.value.trim()===correctAns?1:0,total:1};
+      });
+    });
+  }
+
   const payload = {
-    name:stuName, class:stuClass, modelIdx, modelTitle:m.title||('نموذج '+(modelIdx+1)),
+    name:stuName, class:stuClass, modelIdx:activeModel, modelTitle:models[activeModel]&&models[activeModel].title||('نموذج '+(activeModel+1)),
     correct, total, pct:total>0?Math.round(correct/total*100):0,
     ts:Date.now(), online:true, details
   };
@@ -1791,6 +1952,23 @@ function syncAllModelsFromDom(){
       spellRows.push({cells,correctCells,stuSelected});
     });
     models[i].spellRows=spellRows;
+    // Save LW rows
+    const lwRows=[];
+    const lwCont=card.querySelector('[id^="lwRows_"]');
+    if(lwCont){
+      lwCont.querySelectorAll('.lw-row').forEach(function(row,ri){
+        const cells=[];
+        row.querySelectorAll('.lw-cell').forEach(function(cell,ci){
+          const ansInp=cell.querySelector('.lw-ans');
+          const answer=ansInp?ansInp.value.trim():'';
+          const audioData=getLWAudio(i,ri,ci);
+          cells.push({answer:answer,audioKey:lwAudioKey(i,ri,ci)});
+          if(audioData){ if(!models[i].lwAudio)models[i].lwAudio={}; models[i].lwAudio[lwAudioKey(i,ri,ci)]=audioData; }
+        });
+        lwRows.push({cells});
+      });
+    }
+    models[i].lwRows=lwRows;
   });
 }
 
@@ -2085,6 +2263,8 @@ function renderTeacherModels(){
     cbody.appendChild(tc); cbody.appendChild(bc); cbody.appendChild(qSection);
     // Spelling section LAST
     buildSpellingSection(cbody, m);
+    // LW section (very last)
+    buildLWSection(cbody, m, idx);
     card.appendChild(chdr); card.appendChild(cbody);
     cont.appendChild(card);
   });
@@ -2599,6 +2779,7 @@ function loadStudentView(mi){
   } else {
     if(stuSpellSec) stuSpellSec.style.display = 'none';
   }
+  loadStudentLWView(mi);
   if(_isMobMode) applyMobileLayout(true);
   scheduleSave();
 }
@@ -3284,6 +3465,290 @@ function toggleStuSpell(){
   body.style.maxHeight=open?'0':'999px';
   if(btn) btn.textContent=open?'▼':'▲';
 }
+
+// ════════════════════════════════════════════════════════
+// LISTEN & WRITE — استمع واكتب
+// ════════════════════════════════════════════════════════
+let _lwAudioBlobs = {}; // key: cellId → base64 audio data
+
+function toggleStuLW(){
+  const body=document.getElementById('stuLWBody');
+  const btn=document.getElementById('stuLWColBtn');
+  const open=body.style.maxHeight!=='0px';
+  body.style.maxHeight=open?'0':'999px';
+  if(btn) btn.textContent=open?'▼':'▲';
+}
+
+// ── Helper: store audio as base64 in model ──
+function lwAudioKey(mi,ri,ci){ return 'lw_'+mi+'_'+ri+'_'+ci; }
+
+function storeLWAudio(mi,ri,ci,dataUrl){
+  const key=lwAudioKey(mi,ri,ci);
+  _lwAudioBlobs[key]=dataUrl;
+  // Save to model
+  if(!models[mi].lwAudio) models[mi].lwAudio={};
+  models[mi].lwAudio[key]=dataUrl;
+  scheduleSave();
+}
+
+function getLWAudio(mi,ri,ci){
+  const key=lwAudioKey(mi,ri,ci);
+  if(_lwAudioBlobs[key]) return _lwAudioBlobs[key];
+  if(models[mi]&&models[mi].lwAudio&&models[mi].lwAudio[key]) return models[mi].lwAudio[key];
+  return null;
+}
+
+// ── Build a single LW cell ──
+function makeLWCell(mi, ri, ci, cellData, isTeacher){
+  const cell=document.createElement('div'); cell.className='lw-cell';
+  const audioSrc=getLWAudio(mi,ri,ci);
+  let _recorder=null, _stream=null, _chunks=[], _audioEl=new Audio();
+
+  if(isTeacher){
+    // Teacher: 5 buttons above
+    const ctrl=document.createElement('div'); ctrl.className='lw-ctrl';
+    const recBtn   =makeLWBtn('🎙','تسجيل');
+    const fileBtn  =makeLWBtn('📁','تحميل ملف');
+    const playBtn  =makeLWBtn('🔊','تشغيل'); if(!audioSrc) playBtn.classList.add('disabled');
+    const replayBtn=makeLWBtn('↩','إعادة من البداية'); if(!audioSrc) replayBtn.classList.add('disabled');
+    const delBtn   =makeLWBtn('🗑','حذف الصوت'); if(!audioSrc) delBtn.classList.add('disabled');
+    const recInd   =document.createElement('span'); recInd.className='lw-rec';
+    ctrl.append(recBtn,fileBtn,playBtn,replayBtn,delBtn,recInd);
+
+    // Hidden file input for upload
+    const fileInp=document.createElement('input'); fileInp.type='file';
+    fileInp.accept='audio/*'; fileInp.style.display='none';
+    cell.appendChild(fileInp);
+
+    // Record
+    recBtn.addEventListener('click',async()=>{
+      if(_recorder&&_recorder.state==='recording'){
+        _recorder.stop(); recBtn.textContent='🎙'; recInd.classList.remove('active'); return;
+      }
+      try{
+        _stream=await navigator.mediaDevices.getUserMedia({audio:true});
+        _chunks=[]; _recorder=new MediaRecorder(_stream);
+        _recorder.ondataavailable=e=>_chunks.push(e.data);
+        _recorder.onstop=()=>{
+          const blob=new Blob(_chunks,{type:'audio/webm'});
+          const reader=new FileReader();
+          reader.onload=()=>{
+            const dataUrl=reader.result;
+            storeLWAudio(mi,ri,ci,dataUrl);
+            _audioEl.src=dataUrl;
+            [playBtn,replayBtn,delBtn].forEach(b=>b.classList.remove('disabled'));
+            playBtn.classList.add('active');
+            // Update student view if in teacher mode
+            if(typeof refreshStudentLWCells==='function') refreshStudentLWCells(mi,ri,ci,dataUrl);
+          };
+          reader.readAsDataURL(blob);
+          _stream.getTracks().forEach(t=>t.stop());
+        };
+        _recorder.start(); recBtn.textContent='⏹'; recInd.classList.add('active');
+      }catch(e){ showToast('تعذّر الوصول للميكروفون'); }
+    });
+
+    // Upload file
+    fileBtn.addEventListener('click',()=>fileInp.click());
+    fileInp.addEventListener('change',()=>{
+      const file=fileInp.files[0]; if(!file) return;
+      const reader=new FileReader();
+      reader.onload=()=>{
+        storeLWAudio(mi,ri,ci,reader.result);
+        _audioEl.src=reader.result;
+        [playBtn,replayBtn,delBtn].forEach(b=>b.classList.remove('disabled'));
+        playBtn.classList.add('active');
+        if(typeof refreshStudentLWCells==='function') refreshStudentLWCells(mi,ri,ci,reader.result);
+      };
+      reader.readAsDataURL(file);
+    });
+
+    // Play/Pause
+    if(audioSrc){ _audioEl.src=audioSrc; playBtn.classList.add('active'); }
+    playBtn.addEventListener('click',()=>{
+      if(_audioEl.paused){ _audioEl.play(); playBtn.textContent='⏸'; }
+      else { _audioEl.pause(); playBtn.textContent='🔊'; }
+    });
+    _audioEl.addEventListener('ended',()=>{ playBtn.textContent='🔊'; });
+
+    // Replay
+    replayBtn.addEventListener('click',()=>{ _audioEl.currentTime=0; _audioEl.play(); playBtn.textContent='⏸'; });
+
+    // Delete audio
+    delBtn.addEventListener('click',()=>{
+      if(!confirm('حذف الملف الصوتي؟')) return;
+      const key=lwAudioKey(mi,ri,ci);
+      delete _lwAudioBlobs[key];
+      if(models[mi]&&models[mi].lwAudio) delete models[mi].lwAudio[key];
+      _audioEl.src=''; playBtn.classList.remove('active'); playBtn.classList.add('disabled');
+      replayBtn.classList.add('disabled'); delBtn.classList.add('disabled');
+      playBtn.textContent='🔊';
+      if(typeof refreshStudentLWCells==='function') refreshStudentLWCells(mi,ri,ci,null);
+      scheduleSave();
+    });
+
+    cell.appendChild(ctrl);
+
+    // Teacher answer input (the correct answer)
+    const ansInp=document.createElement('input'); ansInp.className='lw-ans';
+    ansInp.type='text'; ansInp.dir='rtl'; ansInp.placeholder='الإجابة الصحيحة...';
+    ansInp.value=cellData&&cellData.answer?cellData.answer:'';
+    ansInp.addEventListener('input',()=>{ scheduleSave(); });
+    cell.appendChild(ansInp);
+
+    // Delete word button (teacher only)
+    const delWordBtn=document.createElement('button'); delWordBtn.className='lw-del-word-btn';
+    delWordBtn.textContent='✕ حذف الخلية'; delWordBtn.style.cssText='margin-top:4px;width:100%';
+    delWordBtn.addEventListener('click',()=>{
+      if(confirm('حذف هذه الخلية؟')){ cell.remove(); scheduleSave(); }
+    });
+    cell.appendChild(delWordBtn);
+
+  } else {
+    // Student: 2 buttons (play + replay)
+    const ctrl=document.createElement('div'); ctrl.className='lw-stu-ctrl';
+    const playBtn  =makeLWBtn('🔊','تشغيل');
+    const replayBtn=makeLWBtn('↩','إعادة من البداية');
+    if(!audioSrc){ playBtn.classList.add('disabled'); replayBtn.classList.add('disabled'); }
+    else { playBtn.classList.add('active'); }
+    ctrl.append(playBtn,replayBtn);
+    let _audioElS=new Audio();
+    if(audioSrc){ _audioElS.src=audioSrc; }
+    playBtn.addEventListener('click',()=>{
+      if(_audioElS.paused){ _audioElS.play(); playBtn.textContent='⏸'; }
+      else { _audioElS.pause(); playBtn.textContent='🔊'; }
+    });
+    _audioElS.addEventListener('ended',()=>playBtn.textContent='🔊');
+    replayBtn.addEventListener('click',()=>{ _audioElS.currentTime=0; _audioElS.play(); playBtn.textContent='⏸'; });
+    cell.appendChild(ctrl);
+
+    // Student answer input
+    const ansInp=document.createElement('input'); ansInp.className='lw-ans';
+    ansInp.type='text'; ansInp.dir='rtl'; ansInp.placeholder='اكتب ما سمعتَه...';
+    ansInp.value=cellData&&cellData.stuAnswer?cellData.stuAnswer:'';
+    ansInp.addEventListener('input',()=>{
+      // FIX 3: trim for comparison
+      const correct=(cellData&&cellData.answer?cellData.answer:'').trim();
+      const stu=ansInp.value.trim();
+      if(correct){
+        ansInp.classList.toggle('correct', stu===correct);
+        ansInp.classList.toggle('wrong',   stu!==correct && stu.length>0);
+      }
+      scheduleSave(); setTimeout(pushStudentAnswers,400);
+    });
+    cell.appendChild(ansInp);
+
+    // Store reference for later answer retrieval
+    cell.dataset.stuAnswerEl='1';
+  }
+  return cell;
+}
+
+function makeLWBtn(icon,title){
+  const b=document.createElement('button'); b.className='lw-btn';
+  b.textContent=icon; b.title=title; return b;
+}
+
+// Refresh student cells when teacher updates audio
+function refreshStudentLWCells(mi,ri,ci,dataUrl){
+  // Update the stored model audio
+  if(!models[mi].lwAudio) models[mi].lwAudio={};
+  const key=lwAudioKey(mi,ri,ci);
+  if(dataUrl) models[mi].lwAudio[key]=dataUrl;
+  else delete models[mi].lwAudio[key];
+}
+
+// ── Build LW row ──
+function makeLWRow(mi, ri, rowData, container, isTeacher){
+  const row=document.createElement('div'); row.className='lw-row';
+  // Header
+  const hdr=document.createElement('div'); hdr.className='lw-row-hdr';
+  const num=document.createElement('span'); num.className='lw-row-num';
+  num.textContent='س '+(ri+1);
+  hdr.appendChild(num);
+  if(isTeacher){
+    // Add word button
+    const addWordBtn=document.createElement('button'); addWordBtn.className='lw-add-word-btn';
+    addWordBtn.textContent='+ كلمة';
+    addWordBtn.addEventListener('click',()=>{
+      const ci=cellsWrap.children.length;
+      cellsWrap.appendChild(makeLWCell(mi,ri,ci,{},true));
+      scheduleSave();
+    });
+    // Del row button
+    const delRowBtn=document.createElement('button'); delRowBtn.className='lw-row-del';
+    delRowBtn.textContent='✕ حذف السطر';
+    delRowBtn.addEventListener('click',()=>{ if(confirm('حذف هذا السطر؟')){ row.remove(); scheduleSave(); } });
+    hdr.appendChild(addWordBtn); hdr.appendChild(delRowBtn);
+  }
+  row.appendChild(hdr);
+  // Cells
+  const cellsWrap=document.createElement('div'); cellsWrap.className='lw-cells';
+  const cells=rowData&&rowData.cells?rowData.cells:Array(4).fill({});
+  cells.forEach((cd,ci)=>{
+    cellsWrap.appendChild(makeLWCell(mi,ri,ci,cd,isTeacher));
+  });
+  row.appendChild(cellsWrap);
+  return row;
+}
+
+// ── Build LW section (teacher) ──
+function buildLWSection(container, model, mi){
+  const section=document.createElement('div'); section.className='lw-section';
+  const shdr=document.createElement('div'); shdr.className='lw-hdr';
+  const stitle=document.createElement('span'); stitle.className='lw-hdr-title';
+  stitle.textContent='🎧 استمع واكتب';
+  const colBtn=document.createElement('button');
+  colBtn.style.cssText='background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:5px;color:rgba(255,255,255,.6);width:22px;height:22px;cursor:pointer;font-size:.7rem';
+  colBtn.textContent='▲';
+  shdr.appendChild(stitle); shdr.appendChild(colBtn);
+  const sbody=document.createElement('div'); sbody.className='lw-body';
+  const rowsCont=document.createElement('div'); rowsCont.id='lwRows_'+mi;
+
+  // Restore saved rows
+  if(model.lwRows){
+    model.lwRows.forEach((rd,ri)=>rowsCont.appendChild(makeLWRow(mi,ri,rd,rowsCont,true)));
+  }
+
+  // Buttons
+  const btns=document.createElement('div'); btns.style.cssText='display:flex;gap:6px;padding:6px;flex-wrap:wrap';
+  const addRowBtn=document.createElement('button'); addRowBtn.className='btn bo';
+  addRowBtn.style.cssText='padding:5px 10px;font-size:.76rem'; addRowBtn.textContent='+ إضافة سؤال';
+  addRowBtn.addEventListener('click',()=>{
+    const ri=rowsCont.children.length;
+    rowsCont.appendChild(makeLWRow(mi,ri,{cells:Array(4).fill({})},rowsCont,true));
+    scheduleSave();
+  });
+  const clearBtn=document.createElement('button'); clearBtn.className='btn br';
+  clearBtn.style.cssText='padding:5px 10px;font-size:.76rem'; clearBtn.textContent='مسح الأسئلة كلها';
+  clearBtn.addEventListener('click',()=>{ if(confirm('مسح جميع أسئلة الاستماع؟')){ rowsCont.innerHTML=''; scheduleSave(); } });
+  btns.appendChild(addRowBtn); btns.appendChild(clearBtn);
+  sbody.appendChild(rowsCont); sbody.appendChild(btns);
+
+  let _open=true;
+  colBtn.onclick=e=>{ e.stopPropagation(); _open=!_open; sbody.style.maxHeight=_open?'600px':'0'; colBtn.textContent=_open?'▲':'▼'; };
+  shdr.addEventListener('click',()=>colBtn.click());
+  section.appendChild(shdr); section.appendChild(sbody);
+  container.appendChild(section);
+}
+
+// ── Load LW in student view ──
+function loadStudentLWView(mi){
+  const sec=document.getElementById('stuLWSection');
+  const cont=document.getElementById('stuLWC');
+  if(!cont) return;
+  cont.innerHTML='';
+  const m=models[mi];
+  if(!m||!m.lwRows||!m.lwRows.length){ if(sec) sec.style.display='none'; return; }
+  if(sec) sec.style.display='block';
+  // Re-style cont as a column of rows (not grid)
+  cont.style.display='flex'; cont.style.flexDirection='column'; cont.style.gap='6px';
+  m.lwRows.forEach((rd,ri)=>{
+    const row=makeLWRow(mi,ri,rd,cont,false);
+    cont.appendChild(row);
+  });
+}
+
 // ════════════════════════════════════════════════════════
 // TOAST
 // ════════════════════════════════════════════════════════
@@ -3911,5 +4376,244 @@ window.addEventListener('DOMContentLoaded',()=>{
   </div>
 </div>
 
+
+<script>
+// ════════════════════════════════════════════════════════
+// TEACHERS & STUDENTS TABLES
+// ════════════════════════════════════════════════════════
+const TBL_KEY = 'comms_tables_v1';
+const TABLE_PW_KEY = 'teacher_table_pw';
+const MASTER_PW = 'الأستاذ أبوذكري'; // cannot be changed
+let _tableUnlocked = false;
+
+function getTblData(){
+  try{ return JSON.parse(localStorage.getItem(TBL_KEY))||{}; }catch(e){return {};}
+}
+function saveTblData(d){ localStorage.setItem(TBL_KEY, JSON.stringify(d)); }
+
+function getTablePw(){
+  return localStorage.getItem(TABLE_PW_KEY) || '0564125';
+}
+
+function initTblData(){
+  const d = getTblData();
+  if(!d.teachers) d.teachers = [{name:'المشرف التربوي', pass:'0564125'}];
+  if(!d.students)  d.students = [];
+  saveTblData(d);
+  return d;
+}
+
+// ── Password check overlay ──
+function showTeacherTablePw(){
+  const pw = prompt('أدخل كلمة المرور للإظهار والتعديل:');
+  if(pw===null) return;
+  if(pw===getTablePw() || pw===MASTER_PW){
+    _tableUnlocked = true;
+    renderTeachersTable();
+    showToast('تم الإظهار — يمكنك التعديل ✔');
+  } else {
+    alert('كلمة المرور غير صحيحة');
+  }
+}
+
+function changeTeacherTablePw(){
+  const old = prompt('أدخل كلمة المرور الحالية:');
+  if(old===null) return;
+  if(old!==getTablePw() && old!==MASTER_PW){ alert('كلمة المرور الحالية غير صحيحة'); return; }
+  const nw = prompt('أدخل كلمة المرور الجديدة:');
+  if(!nw || !nw.trim()){ alert('كلمة المرور لا يمكن أن تكون فارغة'); return; }
+  const confirm2 = prompt('أعد إدخال كلمة المرور الجديدة للتأكيد:');
+  if(nw!==confirm2){ alert('كلمتا المرور غير متطابقتين'); return; }
+  localStorage.setItem(TABLE_PW_KEY, nw.trim());
+  showToast('تم تغيير كلمة المرور ✔');
+}
+
+// ── TEACHERS TABLE ──
+function renderTeachersTable(){
+  const d = initTblData();
+  const fName = (document.getElementById('ftTeacher')?.value||'').toLowerCase();
+  const fPass = (document.getElementById('ftPass')?.value||'').toLowerCase();
+  const tbody = document.getElementById('teachersTbody');
+  if(!tbody) return;
+  tbody.innerHTML='';
+  const filtered = d.teachers.filter(t=>
+    (!fName || t.name.toLowerCase().includes(fName)) &&
+    (!fPass || t.pass.toLowerCase().includes(fPass))
+  );
+  filtered.forEach((t,i)=>{
+    const tr=document.createElement('tr');
+    // Serial
+    const tdN=document.createElement('td');
+    tdN.style.cssText='padding:6px 10px;border:1px solid rgba(255,255,255,.06);text-align:center;color:var(--txt2)';
+    tdN.textContent=i+1;
+    // Name
+    const tdName=document.createElement('td');
+    tdName.style.cssText='padding:6px 10px;border:1px solid rgba(255,255,255,.06);direction:rtl';
+    if(_tableUnlocked){
+      const inp=document.createElement('input');
+      inp.value=t.name; inp.dir='rtl';
+      inp.style.cssText='background:none;border:none;outline:none;color:var(--txt);font-family:Cairo,sans-serif;font-size:.82rem;width:100%';
+      inp.addEventListener('change',()=>{ t.name=inp.value.trim(); saveTblData(d); });
+      tdName.appendChild(inp);
+    } else {
+      tdName.innerHTML='<span style="color:var(--txt);font-weight:600">••••••••</span>';
+    }
+    // Pass
+    const tdPass=document.createElement('td');
+    tdPass.style.cssText='padding:6px 10px;border:1px solid rgba(255,255,255,.06);direction:ltr';
+    if(_tableUnlocked){
+      const inp2=document.createElement('input');
+      inp2.value=t.pass; inp2.type='text'; inp2.style.cssText='background:none;border:none;outline:none;color:var(--txt2);font-family:monospace;font-size:.8rem;width:100%;letter-spacing:1px';
+      inp2.addEventListener('change',()=>{ t.pass=inp2.value.trim(); saveTblData(d); });
+      tdPass.appendChild(inp2);
+    } else {
+      tdPass.innerHTML='<span style="color:var(--txt2);letter-spacing:3px">••••••</span>';
+    }
+    // Del
+    const tdDel=document.createElement('td');
+    tdDel.style.cssText='padding:4px 6px;border:1px solid rgba(255,255,255,.06);text-align:center';
+    if(_tableUnlocked && i>0){ // can't delete first row (المشرف)
+      const delBtn=document.createElement('button');
+      delBtn.textContent='✕';
+      delBtn.style.cssText='background:none;border:none;color:rgba(252,165,165,.5);cursor:pointer;font-size:.9rem';
+      delBtn.onclick=()=>{
+        const origIdx=d.teachers.indexOf(t);
+        if(origIdx>0){ d.teachers.splice(origIdx,1); saveTblData(d); renderTeachersTable(); }
+      };
+      tdDel.appendChild(delBtn);
+    }
+    tr.appendChild(tdN); tr.appendChild(tdName); tr.appendChild(tdPass); tr.appendChild(tdDel);
+    tbody.appendChild(tr);
+  });
+  if(!filtered.length){
+    const tr=document.createElement('tr');
+    tr.innerHTML='<td colspan="4" style="padding:16px;text-align:center;color:var(--txt2);font-style:italic">لا توجد نتائج</td>';
+    tbody.appendChild(tr);
+  }
+}
+
+function addTeacherRow(){
+  if(!_tableUnlocked){ showToast('اضغط "إظهار وتعديل" أولاً'); return; }
+  const d=initTblData();
+  d.teachers.push({name:'معلم جديد',pass:'1234'});
+  saveTblData(d); renderTeachersTable();
+}
+
+function pasteTeacherNames(){
+  if(!_tableUnlocked){ showToast('اضغط "إظهار وتعديل" أولاً'); return; }
+  const ta=document.getElementById('teacherPasteArea');
+  if(!ta) return;
+  const names=ta.value.trim().split('\n').map(n=>n.trim()).filter(n=>n);
+  if(!names.length){ showToast('لا يوجد نص للصق'); return; }
+  const d=initTblData();
+  names.forEach(name=>{ if(!d.teachers.find(t=>t.name===name)) d.teachers.push({name,pass:'1234'}); });
+  saveTblData(d); renderTeachersTable(); ta.value='';
+  showToast('تم إضافة '+names.length+' معلم ✔');
+}
+
+// ── STUDENTS TABLE ──
+function renderStudentsTable(){
+  const d=initTblData();
+  const fN=(document.getElementById('fStuName')?.value||'').toLowerCase();
+  const fG=(document.getElementById('fStuGrade')?.value||'').toLowerCase();
+  const fC=(document.getElementById('fStuClass')?.value||'').toLowerCase();
+  const fT=(document.getElementById('fStuTeacher')?.value||'').toLowerCase();
+  const tbody=document.getElementById('studentsTbody'); if(!tbody) return;
+  tbody.innerHTML='';
+  const filtered=d.students.filter(s=>
+    (!fN||s.name.toLowerCase().includes(fN))&&
+    (!fG||(s.grade||'').toLowerCase().includes(fG))&&
+    (!fC||(s.cls||'').toLowerCase().includes(fC))&&
+    (!fT||(s.teacher||'').toLowerCase().includes(fT))
+  );
+  filtered.forEach((s,i)=>{
+    const tr=document.createElement('tr');
+    const mkTd=(val,field,dir)=>{
+      const td=document.createElement('td');
+      td.style.cssText='padding:5px 8px;border:1px solid rgba(255,255,255,.06)';
+      const inp=document.createElement('input'); inp.type='text'; inp.value=val||'';
+      inp.dir=dir||'rtl';
+      inp.style.cssText='background:none;border:none;outline:none;color:var(--txt);font-family:Cairo,sans-serif;font-size:.8rem;width:100%';
+      inp.addEventListener('change',()=>{ s[field]=inp.value.trim(); saveTblData(d); });
+      td.appendChild(inp); return td;
+    };
+    const tdN=document.createElement('td');
+    tdN.style.cssText='padding:5px 8px;border:1px solid rgba(255,255,255,.06);text-align:center;color:var(--txt2)';
+    tdN.textContent=i+1;
+    const tdDel=document.createElement('td');
+    tdDel.style.cssText='padding:4px 6px;border:1px solid rgba(255,255,255,.06);text-align:center';
+    const dBtn=document.createElement('button'); dBtn.textContent='✕';
+    dBtn.style.cssText='background:none;border:none;color:rgba(252,165,165,.5);cursor:pointer;font-size:.9rem';
+    dBtn.onclick=()=>{ const idx=d.students.indexOf(s); if(idx>=0){d.students.splice(idx,1);saveTblData(d);renderStudentsTable();} };
+    tdDel.appendChild(dBtn);
+    // عمود المعلم: قائمة منسدلة بأسماء المعلمين المسجلين
+    const tdTeacher=document.createElement('td');
+    tdTeacher.style.cssText='padding:5px 8px;border:1px solid rgba(255,255,255,.06)';
+    const sel=document.createElement('select');
+    sel.style.cssText='background:rgba(0,0,0,.3);border:none;outline:none;color:var(--txt);font-family:Cairo,sans-serif;font-size:.8rem;width:100%;direction:rtl;border-radius:4px;padding:2px';
+    const emptyOpt=document.createElement('option'); emptyOpt.value=''; emptyOpt.textContent='— اختر —'; sel.appendChild(emptyOpt);
+    (d.teachers||[]).forEach(t=>{
+      const opt=document.createElement('option'); opt.value=t.name; opt.textContent=t.name;
+      if(t.name===s.teacher) opt.selected=true;
+      sel.appendChild(opt);
+    });
+    sel.addEventListener('change',()=>{ s.teacher=sel.value; saveTblData(d); });
+    tdTeacher.appendChild(sel);
+    tr.appendChild(tdN); tr.appendChild(mkTd(s.name,'name','rtl'));
+    tr.appendChild(mkTd(s.grade,'grade','rtl')); tr.appendChild(mkTd(s.cls,'cls','rtl'));
+    tr.appendChild(tdTeacher);
+    tr.appendChild(tdDel); tbody.appendChild(tr);
+  });
+  if(!filtered.length){
+    const tr=document.createElement('tr');
+    tr.innerHTML='<td colspan="6" style="padding:16px;text-align:center;color:var(--txt2);font-style:italic">لا توجد نتائج</td>';
+    tbody.appendChild(tr);
+  }
+}
+
+function addStudentRow(){
+  const d=initTblData();
+  d.students.push({name:'طالب جديد',grade:'',cls:'',teacher:''});
+  saveTblData(d); renderStudentsTable();
+}
+
+function clearStudentFilters(){
+  ['fStuName','fStuGrade','fStuClass','fStuTeacher'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  renderStudentsTable();
+}
+
+function pasteStuLists(){
+  const names=(document.getElementById('stuNamesPaste')?.value||'').trim().split('\n').map(n=>n.trim()).filter(n=>n);
+  const grades=(document.getElementById('stuGradesPaste')?.value||'').trim().split('\n').map(n=>n.trim()).filter(n=>n);
+  const classes=(document.getElementById('stuClassesPaste')?.value||'').trim().split('\n').map(n=>n.trim()).filter(n=>n);
+  if(!names.length){showToast('أدخل أسماء الطلاب على الأقل');return;}
+  const d=initTblData();
+  names.forEach((name,i)=>{
+    d.students.push({name,grade:grades[i]||'',cls:classes[i]||''});
+  });
+  saveTblData(d); renderStudentsTable();
+  ['stuNamesPaste','stuGradesPaste','stuClassesPaste'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  showToast('تم إضافة '+names.length+' طالب ✔');
+}
+
+// ── Auto-init tables when chat tab opens ──
+const _origSetTeacherTab = typeof setTeacherTab==='function' ? setTeacherTab : null;
+function setTeacherTab_extended(tab){
+  if(_origSetTeacherTab) _origSetTeacherTab(tab);
+  if(tab==='chat'){
+    initTblData();
+    renderTeachersTable();
+    renderStudentsTable();
+  }
+}
+// Override setTeacherTab
+if(typeof setTeacherTab === 'function'){
+  window._origSetTeacherTab = setTeacherTab;
+  window.setTeacherTab = function(tab){
+    _origSetTeacherTab(tab);
+    if(tab==='chat'){ initTblData(); renderTeachersTable(); renderStudentsTable(); }
+  };
+}
+</script>
 </body>
 </html>
