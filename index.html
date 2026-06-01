@@ -1062,73 +1062,100 @@ body.mob-mode .lw-cells,body.stu-fs .lw-cells{grid-template-columns:repeat(2,1fr
   <!-- KPIs -->
   <div class="kpi-row" id="kpiRow">
     <div class="kpi blue"><div class="kpi-val" id="kpiTotal">0</div><div class="kpi-lbl">إجمالي الطلاب</div></div>
-    <div class="kpi green"><div class="kpi-val" id="kpiAvg">0%</div><div class="kpi-lbl">متوسط الدرجات</div></div>
-    <div class="kpi green"><div class="kpi-val" id="kpiPass">0</div><div class="kpi-lbl">ناجح (≥60%)</div></div>
-    <div class="kpi red"><div class="kpi-val" id="kpiFail">0</div><div class="kpi-lbl">راسب (&lt;60%)</div></div>
-    <div class="kpi gold"><div class="kpi-val" id="kpiTop">0%</div><div class="kpi-lbl">أعلى درجة</div></div>
-    <div class="kpi teal"><div class="kpi-val" id="kpiOnline">0</div><div class="kpi-lbl">متصل الآن</div></div>
+    <div class="kpi teal"><div class="kpi-val" id="kpiAvg">0%</div><div class="kpi-lbl">النسبة المئوية للطلاب</div></div>
+    <div class="kpi green"><div class="kpi-val" id="kpiExcellent">0</div><div class="kpi-lbl">ممتاز</div></div>
+    <div class="kpi green"><div class="kpi-val" id="kpiVGood">0</div><div class="kpi-lbl">جيد جدًا</div></div>
+    <div class="kpi gold"><div class="kpi-val" id="kpiGood">0</div><div class="kpi-lbl">جيد</div></div>
+    <div class="kpi" style="background:rgba(249,115,22,.12);border:1px solid rgba(249,115,22,.3)"><div class="kpi-val" id="kpiWeak" style="color:#fb923c">0</div><div class="kpi-lbl">ضعيف</div></div>
+    <div class="kpi red"><div class="kpi-val" id="kpiIntervene">0</div><div class="kpi-lbl">تدخل فوري</div></div>
   </div>
 
   <!-- جدول الطلاب (مباشرة بعد الإحصاءات) -->
   <div class="dash-section">
     <div class="dash-title">
       👥 تفاصيل الطلاب
-      <div style="display:flex;gap:6px">
+      <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+        <button class="btn" onclick="openGradeSettings()" style="padding:3px 9px;font-size:.73rem;background:linear-gradient(135deg,#f59e0b,#b45309);color:#fff">⚙️ إعادة تعيين التقييمات</button>
         <button class="btn br" onclick="clearAllResults()" style="padding:3px 9px;font-size:.73rem">مسح النتائج</button>
         <button class="btn bb" onclick="exportResults()" style="padding:3px 9px;font-size:.73rem">تصدير CSV</button>
       </div>
     </div>
 
-    <!-- فلاتر الترشيح -->
-    <div id="filterBar" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;padding:10px 12px;background:rgba(139,92,246,.07);border:1px solid rgba(139,92,246,.18);border-radius:8px;align-items:center">
-      <span style="font-size:.78rem;color:#c4b5fd;font-weight:700;flex-shrink:0">🔍 ترشيح:</span>
-      <input id="filterName" type="text" placeholder="بحث بالاسم..." autocomplete="off"
-        oninput="applyFilters()"
-        style="padding:5px 10px;border-radius:6px;border:1px solid rgba(139,92,246,.3);background:rgba(0,0,0,.35);color:var(--txt);font-family:Cairo,sans-serif;font-size:.78rem;outline:none;direction:rtl;width:130px"/>
-      <select id="filterTeacher" onchange="applyFilters()"
-        style="padding:5px 10px;border-radius:6px;border:1px solid rgba(20,184,166,.35);background:rgba(0,0,0,.35);color:var(--txt);font-family:Cairo,sans-serif;font-size:.78rem;outline:none;direction:rtl">
-        <option value="">كل المعلمين</option>
-      </select>
-      <select id="filterClass" onchange="applyFilters()"
-        style="padding:5px 10px;border-radius:6px;border:1px solid rgba(139,92,246,.3);background:rgba(0,0,0,.35);color:var(--txt);font-family:Cairo,sans-serif;font-size:.78rem;outline:none;direction:rtl">
-        <option value="">كل الفصول</option>
-      </select>
-      <select id="filterModel" onchange="applyFilters()"
-        style="padding:5px 10px;border-radius:6px;border:1px solid rgba(139,92,246,.3);background:rgba(0,0,0,.35);color:var(--txt);font-family:Cairo,sans-serif;font-size:.78rem;outline:none;direction:rtl">
-        <option value="">كل النماذج</option>
-      </select>
-      <select id="filterStatus" onchange="applyFilters()"
-        style="padding:5px 10px;border-radius:6px;border:1px solid rgba(139,92,246,.3);background:rgba(0,0,0,.35);color:var(--txt);font-family:Cairo,sans-serif;font-size:.78rem;outline:none;direction:rtl">
-        <option value="">كل الحالات</option>
-        <option value="online">متصل الآن</option>
-        <option value="offline">غير متصل</option>
-      </select>
-      <select id="filterScore" onchange="applyFilters()"
-        style="padding:5px 10px;border-radius:6px;border:1px solid rgba(139,92,246,.3);background:rgba(0,0,0,.35);color:var(--txt);font-family:Cairo,sans-serif;font-size:.78rem;outline:none;direction:rtl">
-        <option value="">كل الدرجات</option>
-        <option value="high">ممتاز (≥80%)</option>
-        <option value="mid">جيد (60-79%)</option>
-        <option value="low">ضعيف (&lt;60%)</option>
-      </select>
-      <button onclick="resetFilters()" class="btn" style="padding:4px 10px;font-size:.73rem;background:rgba(255,255,255,.08);color:var(--txt2);border:1px solid rgba(255,255,255,.12)">↺ إعادة تعيين</button>
-      <span id="filterCount" style="font-size:.74rem;color:var(--txt2);margin-right:auto"></span>
+    <!-- مربع حواري إعادة تعيين التقييمات -->
+    <div id="gradeSettingsModal" style="display:none;position:fixed;inset:0;z-index:9800;background:rgba(0,0,0,.85);backdrop-filter:blur(8px);align-items:center;justify-content:center">
+      <div style="background:#0f172a;border:1px solid rgba(245,200,66,.4);border-radius:16px;padding:24px;width:min(420px,95vw);display:flex;flex-direction:column;gap:14px;direction:rtl">
+        <div style="font-family:'Amiri',serif;font-size:1.1rem;color:var(--gold)">⚙️ إعادة تعيين حدود التقييمات</div>
+        <div style="font-size:.78rem;color:var(--txt2)">حدد الحد الأدنى لكل تقييم (النسبة المئوية)</div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <label style="font-size:.85rem;color:#4ade80;width:120px;text-align:right">ممتاز ≥</label>
+            <input id="gsExcellent" type="number" min="0" max="100" value="98" style="flex:1;padding:7px 10px;border-radius:7px;border:1px solid rgba(74,222,128,.4);background:rgba(0,0,0,.4);color:var(--txt);font-family:Cairo,sans-serif;font-size:.9rem;outline:none;text-align:center"/>
+            <span style="font-size:.8rem;color:var(--txt2)">%</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <label style="font-size:.85rem;color:#a3e635;width:120px;text-align:right">جيد جدًا ≥</label>
+            <input id="gsVGood" type="number" min="0" max="100" value="90" style="flex:1;padding:7px 10px;border-radius:7px;border:1px solid rgba(163,230,53,.4);background:rgba(0,0,0,.4);color:var(--txt);font-family:Cairo,sans-serif;font-size:.9rem;outline:none;text-align:center"/>
+            <span style="font-size:.8rem;color:var(--txt2)">%</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <label style="font-size:.85rem;color:var(--gold);width:120px;text-align:right">جيد ≥</label>
+            <input id="gsGood" type="number" min="0" max="100" value="80" style="flex:1;padding:7px 10px;border-radius:7px;border:1px solid rgba(245,200,66,.4);background:rgba(0,0,0,.4);color:var(--txt);font-family:Cairo,sans-serif;font-size:.9rem;outline:none;text-align:center"/>
+            <span style="font-size:.8rem;color:var(--txt2)">%</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <label style="font-size:.85rem;color:#fb923c;width:120px;text-align:right">ضعيف ≥</label>
+            <input id="gsWeak" type="number" min="0" max="100" value="75" style="flex:1;padding:7px 10px;border-radius:7px;border:1px solid rgba(249,115,22,.4);background:rgba(0,0,0,.4);color:var(--txt);font-family:Cairo,sans-serif;font-size:.9rem;outline:none;text-align:center"/>
+            <span style="font-size:.8rem;color:var(--txt2)">%</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <label style="font-size:.85rem;color:#f87171;width:120px;text-align:right">تدخل فوري &lt;</label>
+            <input id="gsIntervene" type="number" disabled value="" placeholder="أقل من ضعيف" style="flex:1;padding:7px 10px;border-radius:7px;border:1px solid rgba(239,68,68,.4);background:rgba(0,0,0,.2);color:var(--txt2);font-family:Cairo,sans-serif;font-size:.9rem;outline:none;text-align:center"/>
+            <span style="font-size:.8rem;color:var(--txt2)">%</span>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:4px">
+          <button onclick="applyGradeSettings()" style="flex:1;padding:9px;border-radius:8px;border:none;background:linear-gradient(135deg,#22c55e,#15803d);color:#fff;font-family:Cairo,sans-serif;font-size:.9rem;font-weight:700;cursor:pointer">✔ تطبيق</button>
+          <button onclick="document.getElementById('gradeSettingsModal').style.display='none'" style="flex:1;padding:9px;border-radius:8px;border:none;background:rgba(255,255,255,.08);color:var(--txt2);font-family:Cairo,sans-serif;font-size:.9rem;cursor:pointer">إلغاء</button>
+        </div>
+      </div>
     </div>
 
     <div id="noStudentsDash" class="no-data">لا يوجد طلاب بعد...</div>
-    <table id="dashTable" style="display:none;width:100%;border-collapse:collapse;font-size:.8rem;direction:rtl">
+    <div style="overflow-x:auto;max-height:480px;overflow-y:auto">
+    <table id="dashTable" style="display:none;width:100%;border-collapse:collapse;font-size:.8rem;direction:rtl;min-width:800px">
       <thead>
         <tr>
-          <th style="background:rgba(139,92,246,.2);color:#c4b5fd;padding:6px 8px;border:1px solid rgba(255,255,255,.07);font-family:Cairo,sans-serif">#</th>
-          <th style="background:rgba(139,92,246,.2);color:#c4b5fd;padding:6px 8px;border:1px solid rgba(255,255,255,.07);font-family:Cairo,sans-serif">الاسم</th>
-          <th style="background:rgba(139,92,246,.2);color:#c4b5fd;padding:6px 8px;border:1px solid rgba(255,255,255,.07);font-family:Cairo,sans-serif">الفصل</th>
-          <th style="background:rgba(139,92,246,.2);color:#c4b5fd;padding:6px 8px;border:1px solid rgba(255,255,255,.07);font-family:Cairo,sans-serif">النموذج</th>
-          <th style="background:rgba(139,92,246,.2);color:#c4b5fd;padding:6px 8px;border:1px solid rgba(255,255,255,.07);font-family:Cairo,sans-serif">الدرجة</th>
-          <th style="background:rgba(139,92,246,.2);color:#c4b5fd;padding:6px 8px;border:1px solid rgba(255,255,255,.07);font-family:Cairo,sans-serif">%</th>
-          <th style="background:rgba(139,92,246,.2);color:#c4b5fd;padding:6px 8px;border:1px solid rgba(255,255,255,.07);font-family:Cairo,sans-serif">الحالة</th>
+          <th style="background:rgba(139,92,246,.2);color:#c4b5fd;padding:6px 8px;border:1px solid rgba(255,255,255,.07);font-family:Cairo,sans-serif;white-space:nowrap;position:sticky;top:0;z-index:2">#</th>
+          <th style="background:rgba(139,92,246,.2);color:#c4b5fd;padding:4px 6px;border:1px solid rgba(255,255,255,.07);font-family:Cairo,sans-serif;white-space:nowrap;position:sticky;top:0;z-index:2">
+            <div style="display:flex;flex-direction:column;gap:2px"><span>الصف</span>
+            <input type="text" id="fDashGrade" placeholder="🔍" oninput="applyFilters()" dir="rtl" style="width:100%;padding:2px 5px;border-radius:4px;border:1px solid rgba(139,92,246,.35);background:rgba(0,0,0,.4);color:var(--txt);font-family:Cairo,sans-serif;font-size:.68rem;outline:none;font-weight:400"/></div>
+          </th>
+          <th style="background:rgba(139,92,246,.2);color:#c4b5fd;padding:4px 6px;border:1px solid rgba(255,255,255,.07);font-family:Cairo,sans-serif;white-space:nowrap;position:sticky;top:0;z-index:2">
+            <div style="display:flex;flex-direction:column;gap:2px"><span>الفصل</span>
+            <input type="text" id="fDashClass" placeholder="🔍" oninput="applyFilters()" dir="rtl" style="width:100%;padding:2px 5px;border-radius:4px;border:1px solid rgba(139,92,246,.35);background:rgba(0,0,0,.4);color:var(--txt);font-family:Cairo,sans-serif;font-size:.68rem;outline:none;font-weight:400"/></div>
+          </th>
+          <th style="background:rgba(139,92,246,.2);color:#c4b5fd;padding:4px 6px;border:1px solid rgba(255,255,255,.07);font-family:Cairo,sans-serif;white-space:nowrap;position:sticky;top:0;z-index:2">
+            <div style="display:flex;flex-direction:column;gap:2px"><span>اسم الطالب</span>
+            <input type="text" id="fDashName" placeholder="🔍" oninput="applyFilters()" dir="rtl" style="width:100%;padding:2px 5px;border-radius:4px;border:1px solid rgba(139,92,246,.35);background:rgba(0,0,0,.4);color:var(--txt);font-family:Cairo,sans-serif;font-size:.68rem;outline:none;font-weight:400"/></div>
+          </th>
+          <th style="background:rgba(139,92,246,.2);color:#c4b5fd;padding:4px 6px;border:1px solid rgba(255,255,255,.07);font-family:Cairo,sans-serif;white-space:nowrap;position:sticky;top:0;z-index:2">
+            <div style="display:flex;flex-direction:column;gap:2px"><span>رقم النموذج</span>
+            <input type="text" id="fDashModel" placeholder="🔍" oninput="applyFilters()" dir="rtl" style="width:100%;padding:2px 5px;border-radius:4px;border:1px solid rgba(139,92,246,.35);background:rgba(0,0,0,.4);color:var(--txt);font-family:Cairo,sans-serif;font-size:.68rem;outline:none;font-weight:400"/></div>
+          </th>
+          <th style="background:rgba(139,92,246,.2);color:#c4b5fd;padding:4px 6px;border:1px solid rgba(255,255,255,.07);font-family:Cairo,sans-serif;white-space:nowrap;position:sticky;top:0;z-index:2">
+            <div style="display:flex;flex-direction:column;gap:2px"><span>درجة الطالب</span>
+            <input type="text" id="fDashScore" placeholder="🔍" oninput="applyFilters()" dir="rtl" style="width:100%;padding:2px 5px;border-radius:4px;border:1px solid rgba(139,92,246,.35);background:rgba(0,0,0,.4);color:var(--txt);font-family:Cairo,sans-serif;font-size:.68rem;outline:none;font-weight:400"/></div>
+          </th>
+          <th style="background:rgba(139,92,246,.2);color:#c4b5fd;padding:4px 6px;border:1px solid rgba(255,255,255,.07);font-family:Cairo,sans-serif;white-space:nowrap;position:sticky;top:0;z-index:2">درجة النموذج</th>
+          <th style="background:rgba(139,92,246,.2);color:#c4b5fd;padding:4px 6px;border:1px solid rgba(255,255,255,.07);font-family:Cairo,sans-serif;white-space:nowrap;position:sticky;top:0;z-index:2">
+            <div style="display:flex;flex-direction:column;gap:2px"><span>التقدير</span>
+            <input type="text" id="fDashGradeLabel" placeholder="🔍" oninput="applyFilters()" dir="rtl" style="width:100%;padding:2px 5px;border-radius:4px;border:1px solid rgba(139,92,246,.35);background:rgba(0,0,0,.4);color:var(--txt);font-family:Cairo,sans-serif;font-size:.68rem;outline:none;font-weight:400"/></div>
+          </th>
         </tr>
       </thead>
       <tbody id="dashTbody"></tbody>
     </table>
+    </div>
   </div>
 
   <!-- منحنى النتائج -->
@@ -1137,35 +1164,86 @@ body.mob-mode .lw-cells,body.stu-fs .lw-cells{grid-template-columns:repeat(2,1fr
     <div class="chart-wrap"><div class="bar-chart" id="barChart"></div></div>
   </div>
 
-  <!-- توزيع الدرجات -->
+
+  <!-- توزيع الدرجات — محذوف حسب التعليمات -->
+
+  <!-- مواطن الضعف -->
   <div class="dash-section">
-    <div class="dash-title">🎯 توزيع الدرجات</div>
-    <div class="dist-row">
-      <div class="dist-seg" style="border-color:rgba(74,222,128,.3)">
-        <div class="d-val" id="distA" style="color:#4ade80">0</div>
-        <div class="d-lbl">ممتاز (80-100%)</div>
-      </div>
-      <div class="dist-seg" style="border-color:rgba(245,200,66,.3)">
-        <div class="d-val" id="distB" style="color:var(--gold)">0</div>
-        <div class="d-lbl">جيد (60-79%)</div>
-      </div>
-      <div class="dist-seg" style="border-color:rgba(248,113,113,.3)">
-        <div class="d-val" id="distC" style="color:#f87171">0</div>
-        <div class="d-lbl">ضعيف (&lt;60%)</div>
+    <div class="dash-title">⚠️ مواطن الضعف <span>الأسئلة الأكثر خطأً</span></div>
+    <div id="weaknessArea">
+      <div style="overflow-x:auto;max-height:400px;overflow-y:auto">
+      <table id="weaknessTable" style="display:none;width:100%;border-collapse:collapse;font-size:.8rem;direction:rtl;min-width:600px">
+        <thead>
+          <tr>
+            <th style="background:rgba(239,68,68,.18);color:#fca5a5;padding:5px 8px;border:1px solid rgba(255,255,255,.07);white-space:nowrap;position:sticky;top:0;z-index:2">
+              <div style="display:flex;flex-direction:column;gap:2px"><span>#</span></div>
+            </th>
+            <th style="background:rgba(239,68,68,.18);color:#fca5a5;padding:5px 8px;border:1px solid rgba(255,255,255,.07);white-space:nowrap;position:sticky;top:0;z-index:2">
+              <div style="display:flex;flex-direction:column;gap:2px"><span>السؤال</span>
+              <input type="text" id="fWkQuestion" placeholder="🔍" oninput="renderWeaknessTable()" dir="rtl" style="width:100%;padding:2px 5px;border-radius:4px;border:1px solid rgba(239,68,68,.35);background:rgba(0,0,0,.4);color:var(--txt);font-family:Cairo,sans-serif;font-size:.68rem;outline:none;font-weight:400"/></div>
+            </th>
+            <th style="background:rgba(239,68,68,.18);color:#fca5a5;padding:5px 8px;border:1px solid rgba(255,255,255,.07);white-space:nowrap;position:sticky;top:0;z-index:2">
+              <div style="display:flex;flex-direction:column;gap:2px"><span>عدد الإجابات الخطأ</span>
+              <input type="text" id="fWkErrors" placeholder="🔍" oninput="renderWeaknessTable()" dir="rtl" style="width:100%;padding:2px 5px;border-radius:4px;border:1px solid rgba(239,68,68,.35);background:rgba(0,0,0,.4);color:var(--txt);font-family:Cairo,sans-serif;font-size:.68rem;outline:none;font-weight:400"/></div>
+            </th>
+            <th style="background:rgba(239,68,68,.18);color:#fca5a5;padding:5px 8px;border:1px solid rgba(255,255,255,.07);white-space:nowrap;position:sticky;top:0;z-index:2">
+              <div style="display:flex;flex-direction:column;gap:2px"><span>الفصل الأكثر خطأً</span>
+              <input type="text" id="fWkClass" placeholder="🔍" oninput="renderWeaknessTable()" dir="rtl" style="width:100%;padding:2px 5px;border-radius:4px;border:1px solid rgba(239,68,68,.35);background:rgba(0,0,0,.4);color:var(--txt);font-family:Cairo,sans-serif;font-size:.68rem;outline:none;font-weight:400"/></div>
+            </th>
+          </tr>
+        </thead>
+        <tbody id="weaknessTbody"></tbody>
+      </table>
+      <div id="weaknessNoData" class="no-data">لا توجد بيانات كافية</div>
       </div>
     </div>
   </div>
 
-  <!-- مواطن الضعف -->
+  <!-- تحليل المعلمين -->
   <div class="dash-section">
-    <div class="dash-title">⚠️ مواطن الضعف <span>المطلوبات الأكثر خطأً</span></div>
-    <div id="weaknessArea"><div class="no-data">لا توجد بيانات كافية</div></div>
-  </div>
-
-  <!-- مواطن القوة -->
-  <div class="dash-section">
-    <div class="dash-title">✅ مواطن القوة <span>المطلوبات الأعلى إجابةً</span></div>
-    <div id="strengthArea"><div class="no-data">لا توجد بيانات كافية</div></div>
+    <div class="dash-title">👨‍🏫 تحليل المعلمين</div>
+    <div style="overflow-x:auto;max-height:460px;overflow-y:auto">
+    <table id="teacherAnalysisTable" style="display:none;width:100%;border-collapse:collapse;font-size:.79rem;direction:rtl;min-width:900px">
+      <thead>
+        <tr>
+          <th style="background:rgba(20,184,166,.18);color:#5eead4;padding:5px 8px;border:1px solid rgba(255,255,255,.07);white-space:nowrap;position:sticky;top:0;z-index:2">#</th>
+          <th style="background:rgba(20,184,166,.18);color:#5eead4;padding:5px 8px;border:1px solid rgba(255,255,255,.07);white-space:nowrap;position:sticky;top:0;z-index:2">
+            <div style="display:flex;flex-direction:column;gap:2px"><span>اسم المعلم</span>
+            <input type="text" id="fTaTeacher" placeholder="🔍" oninput="renderTeacherAnalysis()" dir="rtl" style="width:100%;padding:2px 5px;border-radius:4px;border:1px solid rgba(20,184,166,.35);background:rgba(0,0,0,.4);color:var(--txt);font-family:Cairo,sans-serif;font-size:.68rem;outline:none;font-weight:400"/></div>
+          </th>
+          <th style="background:rgba(20,184,166,.18);color:#5eead4;padding:5px 8px;border:1px solid rgba(255,255,255,.07);white-space:nowrap;position:sticky;top:0;z-index:2">
+            <div style="display:flex;flex-direction:column;gap:2px"><span>الصف</span>
+            <input type="text" id="fTaGrade" placeholder="🔍" oninput="renderTeacherAnalysis()" dir="rtl" style="width:100%;padding:2px 5px;border-radius:4px;border:1px solid rgba(20,184,166,.35);background:rgba(0,0,0,.4);color:var(--txt);font-family:Cairo,sans-serif;font-size:.68rem;outline:none;font-weight:400"/></div>
+          </th>
+          <th style="background:rgba(20,184,166,.18);color:#5eead4;padding:5px 8px;border:1px solid rgba(255,255,255,.07);white-space:nowrap;position:sticky;top:0;z-index:2">
+            <div style="display:flex;flex-direction:column;gap:2px"><span>اسم الفصل</span>
+            <input type="text" id="fTaClass" placeholder="🔍" oninput="renderTeacherAnalysis()" dir="rtl" style="width:100%;padding:2px 5px;border-radius:4px;border:1px solid rgba(20,184,166,.35);background:rgba(0,0,0,.4);color:var(--txt);font-family:Cairo,sans-serif;font-size:.68rem;outline:none;font-weight:400"/></div>
+          </th>
+          <th style="background:rgba(20,184,166,.18);color:#5eead4;padding:5px 8px;border:1px solid rgba(255,255,255,.07);white-space:nowrap;position:sticky;top:0;z-index:2">
+            <div style="display:flex;flex-direction:column;gap:2px"><span>رقم النموذج</span>
+            <input type="text" id="fTaModel" placeholder="🔍" oninput="renderTeacherAnalysis()" dir="rtl" style="width:100%;padding:2px 5px;border-radius:4px;border:1px solid rgba(20,184,166,.35);background:rgba(0,0,0,.4);color:var(--txt);font-family:Cairo,sans-serif;font-size:.68rem;outline:none;font-weight:400"/></div>
+          </th>
+          <th style="background:rgba(20,184,166,.18);color:#5eead4;padding:5px 8px;border:1px solid rgba(255,255,255,.07);white-space:nowrap;position:sticky;top:0;z-index:2">عدد الطلاب</th>
+          <th style="background:rgba(20,184,166,.18);color:#5eead4;padding:5px 8px;border:1px solid rgba(255,255,255,.07);white-space:nowrap;position:sticky;top:0;z-index:2">مجموع الدرجات</th>
+          <th style="background:rgba(20,184,166,.18);color:#5eead4;padding:5px 8px;border:1px solid rgba(255,255,255,.07);white-space:nowrap;position:sticky;top:0;z-index:2">نسبة الفصل</th>
+          <th style="background:rgba(20,184,166,.18);color:#5eead4;padding:5px 8px;border:1px solid rgba(255,255,255,.07);white-space:nowrap;position:sticky;top:0;z-index:2">نسبة المعلم</th>
+        </tr>
+      </thead>
+      <tbody id="teacherAnalysisTbody"></tbody>
+    </table>
+    <div id="teacherAnalysisNoData" class="no-data">لا توجد بيانات كافية</div>
+    </div>
+    <!-- مخططات تحليل المعلمين -->
+    <div id="taChartsArea" style="display:none;margin-top:18px;display:flex;flex-direction:column;gap:20px">
+      <div>
+        <div style="font-size:.85rem;color:var(--gold);font-weight:700;margin-bottom:8px">📊 نسب المعلمين (مرتبة تنازلياً)</div>
+        <div id="taTeacherChart" style="display:flex;flex-direction:row;align-items:flex-end;gap:8px;min-height:150px;overflow-x:auto;padding:8px 4px;background:rgba(0,0,0,.2);border-radius:8px"></div>
+      </div>
+      <div>
+        <div style="font-size:.85rem;color:var(--teal);font-weight:700;margin-bottom:8px">📊 نسب الفصول (مرتبة تنازلياً)</div>
+        <div id="taClassChart" style="display:flex;flex-direction:row;align-items:flex-end;gap:8px;min-height:150px;overflow-x:auto;padding:8px 4px;background:rgba(0,0,0,.2);border-radius:8px"></div>
+      </div>
+    </div>
   </div>
 
 </div>
@@ -1267,7 +1345,7 @@ const FB_CONFIG = {
 
 let db = null;
 let stuId = null; // unique ID for this student session
-let stuName = '', stuClass = '';
+let stuName = '', stuClass = '', stuGrade = '';
 let resultsRef = null;
 let fbConnected = false;
 
@@ -1390,7 +1468,8 @@ function pushStudentAnswers(){
   }
 
   const payload = {
-    name:stuName, class:stuClass, modelIdx:activeModel, modelTitle:models[activeModel]&&models[activeModel].title||('نموذج '+(activeModel+1)),
+    name:stuName, class:stuClass, grade:stuGrade||'', teacher:currentTeacherName||'',
+    modelIdx:activeModel, modelTitle:models[activeModel]&&models[activeModel].title||('نموذج '+(activeModel+1)),
     correct, total, pct:total>0?Math.round(correct/total*100):0,
     ts:Date.now(), online:true, details
   };
@@ -1604,71 +1683,60 @@ let _allEntries = [];
 
 function renderDashboard(data){
   _allEntries = Object.values(data).filter(e=>e.name);
-
-  // Populate teacher filter
-  const teacherSel = document.getElementById('filterTeacher');
-  if(teacherSel){
-    const prevTeacher = teacherSel.value;
-    const teacherNames = ['ليس لديّ معلم',...new Set(_allEntries.map(e=>e.teacher).filter(n=>n&&n!=='ليس لديّ معلم'))].sort((a,b)=>a==='ليس لديّ معلم'?-1:b==='ليس لديّ معلم'?1:a.localeCompare(b,'ar'));
-    teacherSel.innerHTML='<option value="">كل المعلمين</option>'+teacherNames.map(n=>`<option value="${n}"${n===prevTeacher?' selected':''}>${n}</option>`).join('');
-  }
-
-  // Populate class filter
-  const classSel = document.getElementById('filterClass');
-  if(classSel){
-    const prevClass = classSel.value;
-    const classNames = [...new Set(_allEntries.map(e=>e.class).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'ar'));
-    classSel.innerHTML = '<option value="">كل الفصول</option>'+classNames.map(c=>`<option value="${c}"${c===prevClass?' selected':''}>${c}</option>`).join('');
-  }
-
-  // Populate model filter
-  const modelSel = document.getElementById('filterModel');
-  if(modelSel){
-    const prevModel = modelSel.value;
-    const modelTitles = [...new Set(_allEntries.map(e=>e.modelTitle).filter(Boolean))].sort();
-    modelSel.innerHTML = '<option value="">كل النماذج</option>'+modelTitles.map(t=>`<option value="${t}"${t===prevModel?' selected':''}>${t}</option>`).join('');
-  }
-
   applyFilters();
 }
 
 function applyFilters(){
-  const nameQ    = (document.getElementById('filterName')?.value||'').trim().toLowerCase();
-  const teacherQ = document.getElementById('filterTeacher')?.value||'';
-  const classQ   = document.getElementById('filterClass')?.value||'';
-  const modelQ   = document.getElementById('filterModel')?.value||'';
-  const statusQ  = document.getElementById('filterStatus')?.value||'';
-  const scoreQ   = document.getElementById('filterScore')?.value||'';
+  // فلترة حسب اسم المعلم الداخل
+  const isMaster = (currentTeacherName===MASTER_NAME || currentTeacherName==='المشرف التربوي');
 
-  const filtered = _allEntries.filter(e=>{
-    if(nameQ    && !(e.name||'').toLowerCase().includes(nameQ)) return false;
-    if(teacherQ && (e.teacher||'')!==teacherQ) return false;
-    if(classQ   && (e.class||'')!==classQ) return false;
-    if(modelQ   && (e.modelTitle||'')!==modelQ) return false;
-    const isOnline = (Date.now()-e.ts)<120000;
-    if(statusQ==='online'  && !isOnline) return false;
-    if(statusQ==='offline' &&  isOnline) return false;
-    const pct = e.pct||0;
-    if(scoreQ==='high' && pct<80) return false;
-    if(scoreQ==='mid'  && (pct<60||pct>=80)) return false;
-    if(scoreQ==='low'  && pct>=60) return false;
+  let filtered = _allEntries.filter(e=>{
+    // حجب نتائج المعلمين الآخرين إلا للمشرف أو الماستر
+    if(!isMaster && (e.teacher||'')!==(currentTeacherName||'')) return false;
     return true;
   });
 
   renderKPIs(filtered);
   renderTable(filtered);
-
-  const cnt = document.getElementById('filterCount');
-  if(cnt){
-    const total = _allEntries.length;
-    cnt.textContent = filtered.length < total ? `يُعرض ${filtered.length} من ${total}` : `${total} طالب`;
-  }
 }
 
 function resetFilters(){
-  ['filterName','filterTeacher','filterClass','filterModel','filterStatus','filterScore']
-    .forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+  ['fDashGrade','fDashClass','fDashName','fDashModel','fDashScore','fDashGradeLabel'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.value='';
+  });
   applyFilters();
+}
+
+// ── Grade thresholds (قابلة للتعديل)
+let _gradeThresholds = {excellent:98, vgood:90, good:80, weak:75};
+
+function getGradeLabel(pct){
+  if(pct>=_gradeThresholds.excellent) return 'ممتاز';
+  if(pct>=_gradeThresholds.vgood) return 'جيد جدًا';
+  if(pct>=_gradeThresholds.good) return 'جيد';
+  if(pct>=_gradeThresholds.weak) return 'ضعيف';
+  return 'تدخل فوري';
+}
+
+function openGradeSettings(){
+  const m=document.getElementById('gradeSettingsModal');
+  if(!m) return;
+  document.getElementById('gsExcellent').value=_gradeThresholds.excellent;
+  document.getElementById('gsVGood').value=_gradeThresholds.vgood;
+  document.getElementById('gsGood').value=_gradeThresholds.good;
+  document.getElementById('gsWeak').value=_gradeThresholds.weak;
+  m.style.display='flex';
+}
+
+function applyGradeSettings(){
+  const e=parseInt(document.getElementById('gsExcellent').value)||98;
+  const v=parseInt(document.getElementById('gsVGood').value)||90;
+  const g=parseInt(document.getElementById('gsGood').value)||80;
+  const w=parseInt(document.getElementById('gsWeak').value)||75;
+  _gradeThresholds={excellent:e,vgood:v,good:g,weak:w};
+  document.getElementById('gradeSettingsModal').style.display='none';
+  applyFilters();
+  showToast('تم تطبيق التقييمات الجديدة ✔');
 }
 
 function renderKPIs(entries){
@@ -1676,36 +1744,36 @@ function renderKPIs(entries){
   document.getElementById('kpiTotal').textContent = n;
   if(!n){
     document.getElementById('kpiAvg').textContent='0%';
-    document.getElementById('kpiPass').textContent='0';
-    document.getElementById('kpiFail').textContent='0';
-    document.getElementById('kpiTop').textContent='0%';
-    document.getElementById('kpiOnline').textContent='0';
-    document.getElementById('distA').textContent='0';
-    document.getElementById('distB').textContent='0';
-    document.getElementById('distC').textContent='0';
+    document.getElementById('kpiExcellent').textContent='0';
+    document.getElementById('kpiVGood').textContent='0';
+    document.getElementById('kpiGood').textContent='0';
+    document.getElementById('kpiWeak').textContent='0';
+    document.getElementById('kpiIntervene').textContent='0';
     document.getElementById('barChart').innerHTML='';
     document.getElementById('chartSubtitle').textContent='';
-    document.getElementById('weaknessArea').innerHTML='<div class="no-data">لا توجد بيانات كافية</div>';
-    document.getElementById('strengthArea').innerHTML='<div class="no-data">لا توجد بيانات كافية</div>';
+    document.getElementById('weaknessNoData') && (document.getElementById('weaknessNoData').style.display='block');
+    document.getElementById('weaknessTable') && (document.getElementById('weaknessTable').style.display='none');
+    document.getElementById('teacherAnalysisNoData') && (document.getElementById('teacherAnalysisNoData').style.display='block');
+    document.getElementById('teacherAnalysisTable') && (document.getElementById('teacherAnalysisTable').style.display='none');
     return;
   }
-  const avg = Math.round(entries.reduce((s,e)=>s+(e.pct||0),0)/n);
-  const pass = entries.filter(e=>(e.pct||0)>=60).length;
-  const fail = n - pass;
-  const top  = Math.max(...entries.map(e=>e.pct||0));
-  const online = entries.filter(e=>(Date.now()-e.ts)<120000).length;
-  const distA = entries.filter(e=>(e.pct||0)>=80).length;
-  const distB = entries.filter(e=>(e.pct||0)>=60&&(e.pct||0)<80).length;
-  const distC = entries.filter(e=>(e.pct||0)<60).length;
+  // نسبة مئوية إجمالية = مجموع درجات الطلاب / مجموع الدرجات الكلية
+  let sumCorrect=0, sumTotal=0;
+  entries.forEach(e=>{ sumCorrect+=e.correct||0; sumTotal+=e.total||0; });
+  const avgPct = sumTotal>0 ? Math.round(sumCorrect/sumTotal*100) : 0;
 
-  document.getElementById('kpiAvg').textContent = avg+'%';
-  document.getElementById('kpiPass').textContent = pass;
-  document.getElementById('kpiFail').textContent = fail;
-  document.getElementById('kpiTop').textContent  = top+'%';
-  document.getElementById('kpiOnline').textContent = online;
-  document.getElementById('distA').textContent = distA;
-  document.getElementById('distB').textContent = distB;
-  document.getElementById('distC').textContent = distC;
+  const excellent = entries.filter(e=>getGradeLabel(e.pct||0)==='ممتاز').length;
+  const vgood     = entries.filter(e=>getGradeLabel(e.pct||0)==='جيد جدًا').length;
+  const good      = entries.filter(e=>getGradeLabel(e.pct||0)==='جيد').length;
+  const weak      = entries.filter(e=>getGradeLabel(e.pct||0)==='ضعيف').length;
+  const intervene = entries.filter(e=>getGradeLabel(e.pct||0)==='تدخل فوري').length;
+
+  document.getElementById('kpiAvg').textContent = avgPct+'%';
+  document.getElementById('kpiExcellent').textContent = excellent;
+  document.getElementById('kpiVGood').textContent = vgood;
+  document.getElementById('kpiGood').textContent = good;
+  document.getElementById('kpiWeak').textContent = weak;
+  document.getElementById('kpiIntervene').textContent = intervene;
 
   // ── Bar chart
   const sorted = [...entries].sort((a,b)=>(b.pct||0)-(a.pct||0));
@@ -1713,7 +1781,8 @@ function renderKPIs(entries){
   chart.innerHTML='';
   sorted.forEach(e=>{
     const pct = e.pct||0;
-    const col = pct>=80?'#4ade80':pct>=60?'#f5c842':'#f87171';
+    const lbl = getGradeLabel(pct);
+    const col = lbl==='ممتاز'?'#4ade80':lbl==='جيد جدًا'?'#a3e635':lbl==='جيد'?'#f5c842':lbl==='ضعيف'?'#fb923c':'#f87171';
     const col2= document.createElement('div'); col2.className='bar-col';
     const bar = document.createElement('div');  bar.className='bar';
     bar.style.cssText=`height:${Math.max(4,pct*1.3)}px;background:${col};`;
@@ -1725,7 +1794,8 @@ function renderKPIs(entries){
   });
   document.getElementById('chartSubtitle').textContent = '('+n+' طالب)';
 
-  analyzeWeaknessStrength(entries);
+  analyzeWeakness(entries);
+  renderTeacherAnalysis();
 }
 
 function renderTable(entries){
@@ -1735,73 +1805,261 @@ function renderTable(entries){
     noStu.style.display='block'; tbl.style.display='none'; return;
   }
   noStu.style.display='none'; tbl.style.display='table';
-  const sorted = [...entries].sort((a,b)=>(b.pct||0)-(a.pct||0));
+
+  // Apply column filters
+  const fGrade=(document.getElementById('fDashGrade')?.value||'').toLowerCase();
+  const fClass=(document.getElementById('fDashClass')?.value||'').toLowerCase();
+  const fName=(document.getElementById('fDashName')?.value||'').toLowerCase();
+  const fModel=(document.getElementById('fDashModel')?.value||'').toLowerCase();
+  const fScore=(document.getElementById('fDashScore')?.value||'').toLowerCase();
+  const fGradeLabel=(document.getElementById('fDashGradeLabel')?.value||'').toLowerCase();
+
+  let filtered=[...entries].filter(e=>{
+    if(fGrade && !(e.grade||'').toLowerCase().includes(fGrade)) return false;
+    if(fClass && !(e.class||'').toLowerCase().includes(fClass)) return false;
+    if(fName && !(e.name||'').toLowerCase().includes(fName)) return false;
+    if(fModel && !(e.modelTitle||'').toLowerCase().includes(fModel)) return false;
+    if(fScore && !(String(e.correct||0)+'/'+String(e.total||0)).includes(fScore)) return false;
+    const lbl=getGradeLabel(e.pct||0);
+    if(fGradeLabel && !lbl.toLowerCase().includes(fGradeLabel)) return false;
+    return true;
+  });
+
+  // Sort by score descending by default
+  filtered.sort((a,b)=>(b.pct||0)-(a.pct||0));
+
   const tbody = document.getElementById('dashTbody');
   tbody.innerHTML='';
-  sorted.forEach((e,i)=>{
+  filtered.forEach((e,i)=>{
     const pct=e.pct||0;
-    const col=pct>=80?'color:#4ade80':pct>=60?'color:var(--gold)':'color:#f87171';
-    const isOnline=(Date.now()-e.ts)<120000;
+    const gradeLabel=getGradeLabel(pct);
+    const isIntervene=gradeLabel==='تدخل فوري';
+    const gradeColor=gradeLabel==='ممتاز'?'#4ade80':gradeLabel==='جيد جدًا'?'#a3e635':gradeLabel==='جيد'?'#f5c842':gradeLabel==='ضعيف'?'#fb923c':'#f87171';
+    const rowStyle=isIntervene?'background:rgba(239,68,68,.12);':'';
     const tr=document.createElement('tr');
+    tr.style.cssText=rowStyle;
+    const modelNum = e.modelIdx!=null ? (e.modelIdx+1) : (e.modelTitle||'-');
     tr.innerHTML=`
-      <td style="padding:5px 8px;border:1px solid rgba(255,255,255,.05);text-align:center">${i+1}</td>
-      <td style="padding:5px 8px;border:1px solid rgba(255,255,255,.05);text-align:right;color:var(--txt);font-weight:600">${e.name||'-'}</td>
-      <td style="padding:5px 8px;border:1px solid rgba(255,255,255,.05);text-align:center;color:var(--txt2)">${e.class||'-'}</td>
-      <td style="padding:5px 8px;border:1px solid rgba(255,255,255,.05);text-align:center;font-size:.72rem;color:var(--txt2)">${e.modelTitle||'-'}</td>
-      <td style="padding:5px 8px;border:1px solid rgba(255,255,255,.05);text-align:center;font-weight:700;${col}">${e.correct||0}/${e.total||0}</td>
-      <td style="padding:5px 8px;border:1px solid rgba(255,255,255,.05);text-align:center;font-weight:700;${col}">${pct}%</td>
-      <td style="padding:5px 8px;border:1px solid rgba(255,255,255,.05);text-align:center">${isOnline?'<span style="color:#4ade80">● متصل</span>':'<span style="color:var(--txt2)">○ غير متصل</span>'}</td>
+      <td style="padding:5px 8px;border:1px solid rgba(255,255,255,.05);text-align:center;${isIntervene?'color:#f87171':''}">${i+1}</td>
+      <td style="padding:5px 8px;border:1px solid rgba(255,255,255,.05);text-align:center;${isIntervene?'color:#f87171':'color:var(--txt2)'}">${e.grade||'-'}</td>
+      <td style="padding:5px 8px;border:1px solid rgba(255,255,255,.05);text-align:center;${isIntervene?'color:#f87171':'color:var(--txt2)'}">${e.class||'-'}</td>
+      <td style="padding:5px 8px;border:1px solid rgba(255,255,255,.05);text-align:right;font-weight:600;${isIntervene?'color:#f87171':'color:var(--txt)'}">${e.name||'-'}</td>
+      <td style="padding:5px 8px;border:1px solid rgba(255,255,255,.05);text-align:center;${isIntervene?'color:#f87171':'color:var(--txt2);font-size:.72rem'}">${modelNum}</td>
+      <td style="padding:5px 8px;border:1px solid rgba(255,255,255,.05);text-align:center;font-weight:700;color:${gradeColor}">${e.correct||0}</td>
+      <td style="padding:5px 8px;border:1px solid rgba(255,255,255,.05);text-align:center;color:var(--txt2)">${e.total||0}</td>
+      <td style="padding:5px 8px;border:1px solid rgba(255,255,255,.05);text-align:center;font-weight:700;color:${gradeColor}">${gradeLabel}</td>
     `;
     tbody.appendChild(tr);
   });
 }
 
-function analyzeWeaknessStrength(entries){
-  // entries should have detailAnswers: [{q, correct, total}]
-  // Aggregate per question label
-  const qMap = {};
+// ── مواطن الضعف — كل الأسئلة من النماذج
+let _weaknessData = []; // [{qKey, qDisplay, errors, errorsByClass:{cls:count}}]
+
+function analyzeWeakness(entries){
+  // تجميع الأخطاء لكل سؤال
+  const qMap = {}; // qKey -> {qDisplay, errors:0, classCounts:{cls:count}}
   entries.forEach(e=>{
     if(!e.details) return;
     Object.entries(e.details).forEach(([q,d])=>{
-      if(!qMap[q]) qMap[q]={q, correct:0, total:0};
-      qMap[q].correct += d.correct||0;
-      qMap[q].total   += d.total||0;
+      const errors = (d.total||0) - (d.correct||0);
+      if(!qMap[q]) qMap[q]={qDisplay:q, errors:0, classCounts:{}};
+      qMap[q].errors += errors;
+      if(errors>0){
+        const cls = e.class||'غير محدد';
+        qMap[q].classCounts[cls] = (qMap[q].classCounts[cls]||0) + errors;
+      }
     });
   });
-  const qList = Object.values(qMap).filter(q=>q.total>0)
-    .map(q=>({...q, pct:Math.round(q.correct/q.total*100)}))
-    .sort((a,b)=>a.pct-b.pct);
 
-  const weakArea = document.getElementById('weaknessArea');
-  const strongArea = document.getElementById('strengthArea');
+  // تحويل المفاتيح إلى نص مقروء لأسئلة LW
+  _weaknessData = Object.values(qMap).map(q=>{
+    let display = q.qDisplay;
+    // استمع واكتب: إظهار الإجابة النموذجية
+    if(display.startsWith('استمع_')){
+      const parts=display.split('_');
+      if(parts.length>=3){
+        const ri=parseInt(parts[1])-1;
+        const ci=parseInt(parts[2])-1;
+        // ابحث عن الإجابة النموذجية في النماذج
+        let ans='';
+        models.forEach(m=>{
+          if(m.lwRows&&m.lwRows[ri]&&m.lwRows[ri].cells&&m.lwRows[ri].cells[ci]){
+            ans=m.lwRows[ri].cells[ci].answer||'';
+          }
+        });
+        display = '🎧 '+display + (ans?' ('+ans+')':'');
+      }
+    }
+    const topCls = Object.entries(q.classCounts).sort((a,b)=>b[1]-a[1])[0]?.[0]||'-';
+    return {qKey:q.qDisplay, qDisplay:display, errors:q.errors, topClass:topCls};
+  }).sort((a,b)=>b.errors-a.errors);
 
-  if(!qList.length){
-    weakArea.innerHTML='<div class="no-data">لا توجد بيانات تحليلية كافية</div>';
-    strongArea.innerHTML='<div class="no-data">لا توجد بيانات تحليلية كافية</div>';
+  renderWeaknessTable();
+}
+
+let _weaknessSortedData = [];
+function renderWeaknessTable(){
+  const tbl=document.getElementById('weaknessTable');
+  const noData=document.getElementById('weaknessNoData');
+  const tbody=document.getElementById('weaknessTbody');
+  if(!tbl||!tbody) return;
+
+  const fQ=(document.getElementById('fWkQuestion')?.value||'').toLowerCase();
+  const fE=(document.getElementById('fWkErrors')?.value||'').toLowerCase();
+  const fC=(document.getElementById('fWkClass')?.value||'').toLowerCase();
+
+  const filtered=_weaknessData.filter(q=>{
+    if(fQ && !q.qDisplay.toLowerCase().includes(fQ)) return false;
+    if(fE && !String(q.errors).includes(fE)) return false;
+    if(fC && !q.topClass.toLowerCase().includes(fC)) return false;
+    return true;
+  });
+
+  if(!filtered.length){
+    tbl.style.display='none'; noData.style.display='block'; return;
+  }
+  tbl.style.display='table'; noData.style.display='none';
+  tbody.innerHTML='';
+  filtered.forEach((q,i)=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td style="padding:5px 8px;border:1px solid rgba(255,255,255,.05);text-align:center;color:var(--txt2)">${i+1}</td>
+      <td style="padding:5px 8px;border:1px solid rgba(255,255,255,.05);text-align:right;color:var(--txt);font-weight:600">${q.qDisplay}</td>
+      <td style="padding:5px 8px;border:1px solid rgba(255,255,255,.05);text-align:center;color:#f87171;font-weight:700">${q.errors}</td>
+      <td style="padding:5px 8px;border:1px solid rgba(255,255,255,.05);text-align:center;color:var(--gold)">${q.topClass}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+// ── تحليل المعلمين
+function renderTeacherAnalysis(){
+  const tbl=document.getElementById('teacherAnalysisTable');
+  const noData=document.getElementById('teacherAnalysisNoData');
+  const tbody=document.getElementById('teacherAnalysisTbody');
+  if(!tbl||!tbody) return;
+
+  const isMaster=(currentTeacherName===MASTER_NAME||currentTeacherName==='المشرف التربوي');
+  let sourceEntries = isMaster ? _allEntries : _allEntries.filter(e=>(e.teacher||'')===(currentTeacherName||''));
+
+  // فلاتر الأعمدة
+  const fT=(document.getElementById('fTaTeacher')?.value||'').toLowerCase();
+  const fG=(document.getElementById('fTaGrade')?.value||'').toLowerCase();
+  const fC=(document.getElementById('fTaClass')?.value||'').toLowerCase();
+  const fM=(document.getElementById('fTaModel')?.value||'').toLowerCase();
+
+  // تجميع: key = teacher+grade+class+modelTitle
+  const groupMap = {};
+  sourceEntries.forEach(e=>{
+    const teacher=e.teacher||'-';
+    const grade=e.grade||'-';
+    const cls=e.class||'-';
+    const modelTitle=e.modelTitle||'-';
+    const modelIdx=e.modelIdx!=null?e.modelIdx+1:'-';
+    const key=teacher+'|||'+grade+'|||'+cls+'|||'+modelTitle;
+    if(!groupMap[key]) groupMap[key]={teacher,grade,cls,modelTitle,modelNum:modelIdx,students:[],sumCorrect:0,sumTotal:0};
+    groupMap[key].students.push(e);
+    groupMap[key].sumCorrect+=e.correct||0;
+    groupMap[key].sumTotal+=e.total||0;
+  });
+
+  let rows=Object.values(groupMap).filter(g=>{
+    if(fT && !g.teacher.toLowerCase().includes(fT)) return false;
+    if(fG && !g.grade.toLowerCase().includes(fG)) return false;
+    if(fC && !g.cls.toLowerCase().includes(fC)) return false;
+    if(fM && !g.modelTitle.toLowerCase().includes(fM)) return false;
+    return true;
+  });
+
+  if(!rows.length){
+    tbl.style.display='none'; noData.style.display='block';
+    renderTeacherCharts([]);
     return;
   }
+  tbl.style.display='table'; noData.style.display='none';
 
-  // Weakest 5
-  const weak = qList.slice(0,5);
-  weakArea.innerHTML='<table class="w-table"><thead><tr><th>المطلوب</th><th>نسبة الإجابة الصحيحة</th><th>عدد الصح</th><th>الإجمالي</th></tr></thead><tbody>'
-    + weak.map(q=>`<tr>
-      <td style="text-align:right;color:var(--txt);font-weight:600">${q.q}</td>
-      <td><span class="w-bar" style="width:${Math.max(4,q.pct)}px"></span>${q.pct}%</td>
-      <td style="text-align:center">${q.correct}</td>
-      <td style="text-align:center">${q.total}</td>
-    </tr>`).join('')
-    +'</tbody></table>';
+  // حساب نسب الفصول والمعلمين
+  rows.forEach(g=>{
+    const modelTotal = g.sumTotal; // مجموع الدرجات الكلية للنموذج = عدد الطلاب × درجة الفرد
+    // نسبة الفصل = (مجموع درجات الطلاب × 100) / (عدد الطلاب × درجة كلية للفرد)
+    // درجة الفرد = g.sumTotal / g.students.length إذا متساوية، أو نستخدم total لكل طالب
+    const stuCount=g.students.length;
+    // مجموع الدرجات الكلية للنموذج (كل طالب بالدرجة الكلية الخاصة به)
+    let totalMaxSum=g.students.reduce((s,e)=>s+(e.total||0),0);
+    g.classPct = totalMaxSum>0 ? Math.round(g.sumCorrect*100/totalMaxSum) : 0;
+    // نسبة المعلم = متوسط نسبة جميع طلاب هذا المعلم في هذا النموذج عبر كل الفصول
+    const teacherStudents=sourceEntries.filter(e=>(e.teacher||'-')===g.teacher&&(e.modelTitle||'-')===g.modelTitle);
+    const tSumCorrect=teacherStudents.reduce((s,e)=>s+(e.correct||0),0);
+    const tSumTotal=teacherStudents.reduce((s,e)=>s+(e.total||0),0);
+    g.teacherPct = tSumTotal>0 ? Math.round(tSumCorrect*100/tSumTotal) : 0;
+  });
 
-  // Strongest 5
-  const strong = [...qList].reverse().slice(0,5);
-  strongArea.innerHTML='<table class="s-table"><thead><tr><th>المطلوب</th><th>نسبة الإجابة الصحيحة</th><th>عدد الصح</th><th>الإجمالي</th></tr></thead><tbody>'
-    + strong.map(q=>`<tr>
-      <td style="text-align:right;color:var(--txt);font-weight:600">${q.q}</td>
-      <td><span class="s-bar" style="width:${Math.max(4,q.pct)}px"></span>${q.pct}%</td>
-      <td style="text-align:center">${q.correct}</td>
-      <td style="text-align:center">${q.total}</td>
-    </tr>`).join('')
-    +'</tbody></table>';
+  tbody.innerHTML='';
+  rows.forEach((g,i)=>{
+    const clsColor=g.classPct>=_gradeThresholds.excellent?'#4ade80':g.classPct>=_gradeThresholds.vgood?'#a3e635':g.classPct>=_gradeThresholds.good?'#f5c842':g.classPct>=_gradeThresholds.weak?'#fb923c':'#f87171';
+    const tColor=g.teacherPct>=_gradeThresholds.excellent?'#4ade80':g.teacherPct>=_gradeThresholds.vgood?'#a3e635':g.teacherPct>=_gradeThresholds.good?'#f5c842':g.teacherPct>=_gradeThresholds.weak?'#fb923c':'#f87171';
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td style="padding:5px 8px;border:1px solid rgba(255,255,255,.05);text-align:center;color:var(--txt2)">${i+1}</td>
+      <td style="padding:5px 8px;border:1px solid rgba(255,255,255,.05);text-align:right;color:var(--txt);font-weight:600">${g.teacher}</td>
+      <td style="padding:5px 8px;border:1px solid rgba(255,255,255,.05);text-align:center;color:var(--txt2)">${g.grade}</td>
+      <td style="padding:5px 8px;border:1px solid rgba(255,255,255,.05);text-align:center;color:var(--txt2)">${g.cls}</td>
+      <td style="padding:5px 8px;border:1px solid rgba(255,255,255,.05);text-align:center;color:var(--txt2);font-size:.72rem">${g.modelTitle}</td>
+      <td style="padding:5px 8px;border:1px solid rgba(255,255,255,.05);text-align:center;color:var(--teal)">${g.students.length}</td>
+      <td style="padding:5px 8px;border:1px solid rgba(255,255,255,.05);text-align:center;color:var(--gold)">${g.sumCorrect}</td>
+      <td style="padding:5px 8px;border:1px solid rgba(255,255,255,.05);text-align:center;font-weight:700;color:${clsColor}">${g.classPct}%</td>
+      <td style="padding:5px 8px;border:1px solid rgba(255,255,255,.05);text-align:center;font-weight:700;color:${tColor}">${g.teacherPct}%</td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  renderTeacherCharts(rows);
+}
+
+function renderTeacherCharts(rows){
+  const chartsArea=document.getElementById('taChartsArea');
+  const tChart=document.getElementById('taTeacherChart');
+  const cChart=document.getElementById('taClassChart');
+  if(!tChart||!cChart) return;
+
+  if(!rows.length){ if(chartsArea) chartsArea.style.display='none'; return; }
+  if(chartsArea) chartsArea.style.display='flex';
+
+  // مخطط المعلمين: تجميع حسب المعلم
+  const teacherMap={};
+  rows.forEach(g=>{
+    if(!teacherMap[g.teacher]) teacherMap[g.teacher]=[];
+    teacherMap[g.teacher].push(g.teacherPct);
+  });
+  const teacherAvgs=Object.entries(teacherMap).map(([name,vals])=>({name,pct:Math.round(vals.reduce((s,v)=>s+v,0)/vals.length)}))
+    .sort((a,b)=>b.pct-a.pct);
+
+  tChart.innerHTML='';
+  const maxT=Math.max(...teacherAvgs.map(t=>t.pct),1);
+  teacherAvgs.forEach(t=>{
+    const col=t.pct>=_gradeThresholds.excellent?'#4ade80':t.pct>=_gradeThresholds.vgood?'#a3e635':t.pct>=_gradeThresholds.good?'#f5c842':t.pct>=_gradeThresholds.weak?'#fb923c':'#f87171';
+    const wrap=document.createElement('div'); wrap.style.cssText='display:flex;flex-direction:column;align-items:center;gap:3px;min-width:50px';
+    const pctLbl=document.createElement('div'); pctLbl.style.cssText='font-size:.7rem;color:'+col+';font-weight:700'; pctLbl.textContent=t.pct+'%';
+    const bar=document.createElement('div'); bar.style.cssText='width:32px;border-radius:4px 4px 0 0;background:'+col+';height:'+Math.max(8,t.pct/maxT*120)+'px';
+    const namLbl=document.createElement('div'); namLbl.style.cssText='font-size:.64rem;color:var(--txt2);text-align:center;word-break:break-all;max-width:60px'; namLbl.textContent=t.name;
+    wrap.appendChild(pctLbl); wrap.appendChild(bar); wrap.appendChild(namLbl);
+    tChart.appendChild(wrap);
+  });
+
+  // مخطط الفصول
+  const classSorted=[...rows].sort((a,b)=>b.classPct-a.classPct);
+  cChart.innerHTML='';
+  const maxC=Math.max(...classSorted.map(r=>r.classPct),1);
+  classSorted.forEach(r=>{
+    const col=r.classPct>=_gradeThresholds.excellent?'#4ade80':r.classPct>=_gradeThresholds.vgood?'#a3e635':r.classPct>=_gradeThresholds.good?'#f5c842':r.classPct>=_gradeThresholds.weak?'#fb923c':'#f87171';
+    const wrap=document.createElement('div'); wrap.style.cssText='display:flex;flex-direction:column;align-items:center;gap:3px;min-width:50px';
+    const pctLbl=document.createElement('div'); pctLbl.style.cssText='font-size:.7rem;color:'+col+';font-weight:700'; pctLbl.textContent=r.classPct+'%';
+    const bar=document.createElement('div'); bar.style.cssText='width:32px;border-radius:4px 4px 0 0;background:'+col+';height:'+Math.max(8,r.classPct/maxC*120)+'px';
+    const namLbl=document.createElement('div'); namLbl.style.cssText='font-size:.64rem;color:var(--txt2);text-align:center;word-break:break-all;max-width:60px'; namLbl.textContent=(r.grade+'\n'+r.cls);
+    wrap.appendChild(pctLbl); wrap.appendChild(bar); wrap.appendChild(namLbl);
+    cChart.appendChild(wrap);
+  });
 }
 
 function exportResults(){
@@ -4066,86 +4324,152 @@ function setLoginRole(role){
     btn.style.color = r===role ? '#fff' : 'var(--txt2)';
     btn.style.boxShadow = r===role ? '0 2px 8px rgba(0,0,0,.3)' : 'none';
   });
-  const nameInp         = document.getElementById('loginName');
-  const teacherUserWrap = document.getElementById('loginTeacherUserWrap');
-  const classInp        = document.getElementById('loginClass');
-  const passInp         = document.getElementById('loginPass');
+  const stuF=document.getElementById('stuLoginFields');
+  const tchF=document.getElementById('teacherLoginFields');
   if(role==='student'){
-    nameInp.style.display='block'; nameInp.placeholder='الاسم الكامل';
-    if(teacherUserWrap) teacherUserWrap.style.display='none';
-    if(classInp) classInp.style.display='block';
-    if(passInp)  passInp.style.display='none';
+    if(stuF) stuF.style.display='flex';
+    if(tchF) tchF.style.display='none';
+    setTimeout(()=>document.getElementById('loginGradeInp')?.focus(),100);
   } else {
-    nameInp.style.display='none';
-    if(teacherUserWrap) teacherUserWrap.style.display='block';
-    if(classInp) classInp.style.display='none';
-    if(passInp)  passInp.style.display='block';
-    renderTeacherLoginDropdown(getTeachers());
+    if(stuF) stuF.style.display='none';
+    if(tchF) tchF.style.display='flex';
+    renderTeacherLoginDropdown(getLmsData().teachers);
+    setTimeout(()=>document.getElementById('loginTeacherUserInp')?.focus(),100);
   }
 }
 
-function populateTeacherDropdown(){
-  const sel = document.getElementById('loginTeacher');
-  if(!sel) return;
-  sel.innerHTML='<option value="none">ليس لديّ معلم</option>';
-  getTeachers().forEach(t=>{
-    const opt=document.createElement('option'); opt.value=t.username; opt.textContent=t.name;
-    sel.appendChild(opt);
-  });
-}
-
+const MASTER_NAME = 'الأستاذ أبوذكري';
+let _loginNewStuMode = false;
 let _selectedTeacherLogin = null;
-function renderTeacherLoginDropdown(teachers){
-  const dd = document.getElementById('teacherLoginDropdown');
-  if(!dd) return;
+
+function getLmsData(){
+  try{
+    const d=JSON.parse(localStorage.getItem(TBL_KEY)||'{"teachers":[],"students":[]}');
+    if(!d.teachers) d.teachers=[];
+    if(!d.students) d.students=[];
+    // normalise pass→password
+    d.teachers.forEach(t=>{ if(t.pass!=null&&t.password==null) t.password=t.pass; });
+    return d;
+  }catch(e){return{teachers:[],students:[]};}
+}
+
+function showLoginDD(field){
+  ['loginGradeDD','loginClassDD','loginStuTeacherDD','loginNameDD','teacherLoginDropdown'].forEach(id=>{
+    const d=document.getElementById(id); if(d) d.style.display='none';
+  });
+  renderLoginDD(field);
+}
+function filterLoginDD(field){ renderLoginDD(field); }
+
+function renderLoginDD(field){
+  const d=getLmsData();
+  const map={grade:'loginGradeDD',cls:'loginClassDD',stuTeacher:'loginStuTeacherDD',name:'loginNameDD'};
+  const imap={grade:'loginGradeInp',cls:'loginClassInp',stuTeacher:'loginStuTeacherInp',name:'loginNameInp'};
+  const dd=document.getElementById(map[field]);
+  const inp=document.getElementById(imap[field]);
+  if(!dd||!inp) return;
+  const q=(inp.value||'').toLowerCase();
+  let items=[];
+  if(field==='grade')      items=[...new Set(d.students.map(s=>s.grade).filter(Boolean))].sort();
+  else if(field==='cls')   items=[...new Set(d.students.map(s=>s.cls).filter(Boolean))].sort();
+  else if(field==='stuTeacher') items=[MASTER_NAME,...(d.teachers||[]).map(t=>t.name).filter(Boolean)];
+  else if(field==='name')  items=(d.students||[]).map(s=>s.name).filter(Boolean);
+  const filtered=q?items.filter(v=>v.toLowerCase().includes(q)):items;
   dd.innerHTML='';
-  if(!teachers.length){
-    dd.innerHTML='<div style="padding:8px 12px;color:var(--txt2);font-size:.82rem">لا يوجد معلمون مسجلون</div>';
-    dd.style.display='block'; return;
-  }
-  teachers.forEach(t=>{
+  if(!filtered.length){ dd.style.display='none'; return; }
+  filtered.forEach(v=>{
     const opt=document.createElement('div');
     opt.style.cssText='padding:8px 12px;cursor:pointer;font-family:Cairo,sans-serif;font-size:.85rem;color:var(--txt);direction:rtl;transition:background .15s';
-    opt.textContent=t.name;
-    opt.onmouseover=()=>opt.style.background='rgba(139,92,246,.25)';
+    opt.textContent=v;
+    opt.onmouseover=()=>opt.style.background='rgba(20,184,166,.2)';
     opt.onmouseout=()=>opt.style.background='';
-    opt.onmousedown=()=>{
-      _selectedTeacherLogin=t;
-      document.getElementById('loginTeacherUserInp').value=t.name;
-      dd.style.display='none';
+    opt.onmousedown=(e)=>{
+      e.preventDefault(); inp.value=v; dd.style.display='none';
     };
     dd.appendChild(opt);
   });
   dd.style.display='block';
 }
-function showTeacherLoginDropdown(){ renderTeacherLoginDropdown(getTeachers()); }
-function filterTeacherLoginList(){
-  const q=(document.getElementById('loginTeacherUserInp').value||'').toLowerCase();
-  const filtered=getTeachers().filter(t=>t.name.toLowerCase().includes(q)||t.username.toLowerCase().includes(q));
-  _selectedTeacherLogin=null; renderTeacherLoginDropdown(filtered);
-}
+
 document.addEventListener('click',e=>{
-  if(!e.target.closest('#loginTeacherUserWrap')){
-    const dd=document.getElementById('teacherLoginDropdown'); if(dd) dd.style.display='none';
-  }
+  ['loginGradeDD','loginClassDD','loginStuTeacherDD','loginNameDD','teacherLoginDropdown'].forEach(id=>{
+    const el=document.getElementById(id);
+    const inpIds={loginGradeDD:'loginGradeInp',loginClassDD:'loginClassInp',loginStuTeacherDD:'loginStuTeacherInp',loginNameDD:'loginNameInp',teacherLoginDropdown:'loginTeacherUserInp'};
+    if(el && !e.target.closest('#'+id) && e.target.id!==inpIds[id]) el.style.display='none';
+  });
 });
 
-function doLogin(){
-  const err = document.getElementById('loginErr');
-  err.style.display='none';
-  if(_loginRole==='teacher'){
-    if(!_selectedTeacherLogin){ err.textContent='⚠️ اختر معلماً من القائمة'; err.style.display='block'; return; }
-    const pass = (document.getElementById('loginPass')?.value||'').trim();
-    if(pass!==_selectedTeacherLogin.password){ err.textContent='❌ كلمة المرور غير صحيحة'; err.style.display='block'; return; }
-    document.getElementById('loginOverlay').style.display='none';
-    enterTeacher(_selectedTeacherLogin);
+function toggleNewStudent(){
+  _loginNewStuMode=!_loginNewStuMode;
+  const inp=document.getElementById('loginNameInp');
+  const dd=document.getElementById('loginNameDD');
+  const hint=document.getElementById('newStuHint');
+  const btn=document.getElementById('newStuBtn');
+  if(_loginNewStuMode){
+    inp.value=''; inp.placeholder='✏️ اكتب اسمك الكامل';
+    inp.removeAttribute('oninput'); inp.removeAttribute('onfocus');
+    inp.oninput=null; inp.onfocus=null;
+    if(dd) dd.style.display='none';
+    if(hint) hint.style.display='block';
+    if(btn){ btn.style.background='rgba(239,68,68,.15)'; btn.textContent='إلغاء'; }
   } else {
-    const name = (document.getElementById('loginName')?.value||'').trim();
-    const cls  = (document.getElementById('loginClass')?.value||'').trim();
-    if(!name){ err.textContent='⚠️ أدخل اسمك الكامل'; err.style.display='block'; return; }
-    if(!cls){ err.textContent='⚠️ أدخل الفصل'; err.style.display='block'; return; }
+    inp.placeholder='👦 الاسم...';
+    inp.oninput=()=>filterLoginDD('name');
+    inp.onfocus=()=>showLoginDD('name');
+    if(hint) hint.style.display='none';
+    if(btn){ btn.style.background='rgba(245,200,66,.1)'; btn.textContent='طالب جديد'; }
+  }
+}
+
+function renderTeacherLoginDropdown(teachers){
+  const dd=document.getElementById('teacherLoginDropdown'); if(!dd) return;
+  dd.innerHTML='';
+  const all=[{name:MASTER_NAME,password:MASTER_NAME},...(teachers||[])];
+  const q=(document.getElementById('loginTeacherUserInp')?.value||'').toLowerCase();
+  const filtered=q?all.filter(t=>t.name.toLowerCase().includes(q)):all;
+  if(!filtered.length){ dd.style.display='none'; return; }
+  filtered.forEach(t=>{
+    const opt=document.createElement('div');
+    opt.style.cssText='padding:8px 12px;cursor:pointer;font-family:Cairo,sans-serif;font-size:.85rem;color:var(--txt);direction:rtl;transition:background .15s';
+    opt.textContent=t.name;
+    opt.onmouseover=()=>opt.style.background='rgba(139,92,246,.25)';
+    opt.onmouseout=()=>opt.style.background='';
+    opt.onmousedown=(e)=>{ e.preventDefault(); _selectedTeacherLogin=t; document.getElementById('loginTeacherUserInp').value=t.name; dd.style.display='none'; };
+    dd.appendChild(opt);
+  });
+  dd.style.display='block';
+}
+function showTeacherLoginDropdown(){ renderTeacherLoginDropdown(getLmsData().teachers); }
+function filterTeacherLoginList(){ _selectedTeacherLogin=null; renderTeacherLoginDropdown(getLmsData().teachers); }
+
+function populateTeacherDropdown(){}
+
+function doLogin(){
+  const err=document.getElementById('loginErr'); err.style.display='none';
+  const d=getLmsData();
+  if(_loginRole==='teacher'){
+    const selectedT=_selectedTeacherLogin;
+    const pass=(document.getElementById('loginPass')?.value||'').trim();
+    if(!selectedT){ err.textContent='⚠️ اختر اسم المعلم'; err.style.display='block'; return; }
+    const isMaster=selectedT.name===MASTER_NAME||pass===MASTER_NAME;
+    if(!isMaster&&pass!==selectedT.password){ err.textContent='❌ كلمة المرور غير صحيحة'; err.style.display='block'; return; }
     document.getElementById('loginOverlay').style.display='none';
-    stuName=name; stuClass=cls; currentTeacherName='';
+    enterTeacher(selectedT);
+  } else {
+    const nameInp=document.getElementById('loginNameInp');
+    const name=(nameInp?.value||'').trim();
+    const grade=(document.getElementById('loginGradeInp')?.value||'').trim();
+    const cls=(document.getElementById('loginClassInp')?.value||'').trim();
+    const teacher=(document.getElementById('loginStuTeacherInp')?.value||'').trim();
+    if(!name){ err.textContent='⚠️ أدخل الاسم'; err.style.display='block'; return; }
+    if(!grade){ err.textContent='⚠️ اختر الصف'; err.style.display='block'; return; }
+    if(!cls){ err.textContent='⚠️ اختر الفصل'; err.style.display='block'; return; }
+    if(_loginNewStuMode){
+      const exists=d.students.find(s=>s.name===name&&s.grade===grade&&s.cls===cls);
+      if(!exists){ d.students.push({name,grade,cls,teacher:teacher||''}); saveTblData(d); renderStudentsTable(); }
+    }
+    document.getElementById('loginOverlay').style.display='none';
+    stuName=name; stuClass=cls; stuGrade=grade||''; currentTeacherName=teacher||'';
     stuId='stu_'+name.replace(/\s+/g,'_')+'_'+cls.replace(/\s+/g,'_')+'_'+Date.now().toString(36);
     enterStudent();
   }
@@ -4196,7 +4520,7 @@ function enterStudent(){
   setMode('s');
   if(fbConnected && db){
     db.ref('sessions/'+SESSION_ID+'/students/'+stuId).set({
-      name:stuName, class:stuClass, teacher:currentTeacherName,
+      name:stuName, class:stuClass, grade:stuGrade||'', teacher:currentTeacherName,
       correct:0, total:0, pct:0, ts:Date.now(), online:true
     });
     setupPresence();
@@ -4345,32 +4669,56 @@ window.addEventListener('DOMContentLoaded',()=>{
 
 <!-- ═══ UNIFIED LOGIN OVERLAY ═══ -->
 <div id="loginOverlay" style="position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.92);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center">
-  <div style="background:#0f172a;border:1px solid rgba(139,92,246,.4);border-radius:18px;padding:28px 24px;width:min(380px,94vw);display:flex;flex-direction:column;gap:14px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.6)">
+  <div style="background:#0f172a;border:1px solid rgba(139,92,246,.4);border-radius:18px;padding:28px 24px;width:min(400px,96vw);display:flex;flex-direction:column;gap:12px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.6)">
     <div style="font-family:'Amiri',serif;font-size:1.4rem;color:var(--gold);margin-bottom:4px">🌿 مستخرج المهارات اللغوية</div>
     <div style="display:flex;background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.1);border-radius:40px;padding:3px;gap:2px">
       <button id="loginRoleTeacher" onclick="setLoginRole('teacher')" style="flex:1;padding:6px;border-radius:40px;border:none;font-family:'Cairo',sans-serif;font-size:.75rem;font-weight:700;cursor:pointer;transition:all .2s;color:var(--txt2);background:transparent">🎓 المعلم</button>
       <button id="loginRoleStudent" onclick="setLoginRole('student')" style="flex:1;padding:6px;border-radius:40px;border:none;font-family:'Cairo',sans-serif;font-size:.75rem;font-weight:700;cursor:pointer;transition:all .2s;color:#fff;background:linear-gradient(135deg,var(--teal),var(--teal2));box-shadow:0 2px 8px rgba(20,184,166,.4)">👦 الطالب</button>
     </div>
-    <!-- Fields -->
-    <input id="loginName" type="text" placeholder="الاسم الكامل" autocomplete="off"
-      style="padding:10px 14px;border-radius:8px;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.4);color:var(--txt);font-family:'Cairo',sans-serif;font-size:.9rem;outline:none;direction:rtl;width:100%"
-      onkeydown="if(event.key==='Enter')doLogin()"/>
-    <!-- Teacher username (teacher role) — searchable dropdown -->
-    <div id="loginTeacherUserWrap" style="display:none;position:relative">
-      <input id="loginTeacherUserInp" type="text" placeholder="ابحث باسم المعلم..." autocomplete="off"
-        oninput="filterTeacherLoginList()"
-        onfocus="showTeacherLoginDropdown()"
-        style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid rgba(139,92,246,.4);background:rgba(0,0,0,.4);color:var(--txt);font-family:'Cairo',sans-serif;font-size:.9rem;outline:none;direction:rtl"/>
-      <div id="teacherLoginDropdown" style="display:none;position:absolute;top:100%;right:0;left:0;background:#1e1b4b;border:1px solid rgba(139,92,246,.4);border-radius:8px;z-index:9010;max-height:160px;overflow-y:auto;box-shadow:0 6px 20px rgba(0,0,0,.5);margin-top:2px"></div>
+    <!-- STUDENT FIELDS -->
+    <div id="stuLoginFields" style="display:flex;flex-direction:column;gap:10px">
+      <!-- الصف -->
+      <div style="position:relative">
+        <input id="loginGradeInp" type="text" placeholder="🎓 الصف..." autocomplete="off" oninput="filterLoginDD('grade')" onfocus="showLoginDD('grade')"
+          style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid rgba(20,184,166,.35);background:rgba(0,0,0,.4);color:var(--txt);font-family:'Cairo',sans-serif;font-size:.9rem;outline:none;direction:rtl"/>
+        <div id="loginGradeDD" style="display:none;position:absolute;top:100%;right:0;left:0;background:#0f2027;border:1px solid rgba(20,184,166,.4);border-radius:8px;z-index:9020;max-height:150px;overflow-y:auto;margin-top:2px;box-shadow:0 6px 20px rgba(0,0,0,.6)"></div>
+      </div>
+      <!-- الفصل -->
+      <div style="position:relative">
+        <input id="loginClassInp" type="text" placeholder="📚 الفصل..." autocomplete="off" oninput="filterLoginDD('cls')" onfocus="showLoginDD('cls')"
+          style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid rgba(20,184,166,.35);background:rgba(0,0,0,.4);color:var(--txt);font-family:'Cairo',sans-serif;font-size:.9rem;outline:none;direction:rtl"/>
+        <div id="loginClassDD" style="display:none;position:absolute;top:100%;right:0;left:0;background:#0f2027;border:1px solid rgba(20,184,166,.4);border-radius:8px;z-index:9020;max-height:150px;overflow-y:auto;margin-top:2px;box-shadow:0 6px 20px rgba(0,0,0,.6)"></div>
+      </div>
+      <!-- المعلم (طالب) -->
+      <div style="position:relative">
+        <input id="loginStuTeacherInp" type="text" placeholder="👨‍🏫 المعلم..." autocomplete="off" oninput="filterLoginDD('stuTeacher')" onfocus="showLoginDD('stuTeacher')"
+          style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid rgba(20,184,166,.35);background:rgba(0,0,0,.4);color:var(--txt);font-family:'Cairo',sans-serif;font-size:.9rem;outline:none;direction:rtl"/>
+        <div id="loginStuTeacherDD" style="display:none;position:absolute;top:100%;right:0;left:0;background:#0f2027;border:1px solid rgba(20,184,166,.4);border-radius:8px;z-index:9020;max-height:150px;overflow-y:auto;margin-top:2px;box-shadow:0 6px 20px rgba(0,0,0,.6)"></div>
+      </div>
+      <!-- الاسم -->
+      <div style="display:flex;gap:6px;align-items:center">
+        <div style="position:relative;flex:1">
+          <input id="loginNameInp" type="text" placeholder="👦 الاسم..." autocomplete="off" oninput="filterLoginDD('name')" onfocus="showLoginDD('name')"
+            style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid rgba(20,184,166,.35);background:rgba(0,0,0,.4);color:var(--txt);font-family:'Cairo',sans-serif;font-size:.9rem;outline:none;direction:rtl"
+            onkeydown="if(event.key==='Enter')doLogin()"/>
+          <div id="loginNameDD" style="display:none;position:absolute;top:100%;right:0;left:0;background:#0f2027;border:1px solid rgba(20,184,166,.4);border-radius:8px;z-index:9020;max-height:150px;overflow-y:auto;margin-top:2px;box-shadow:0 6px 20px rgba(0,0,0,.6)"></div>
+        </div>
+        <button onclick="toggleNewStudent()" id="newStuBtn" style="padding:9px 10px;border-radius:8px;border:1px solid rgba(245,200,66,.35);background:rgba(245,200,66,.1);color:var(--gold);font-family:'Cairo',sans-serif;font-size:.74rem;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0">طالب جديد</button>
+      </div>
+      <div id="newStuHint" style="display:none;font-size:.73rem;color:rgba(245,200,66,.7);text-align:right;margin-top:-6px">✏️ اكتب اسمك — ستُضاف بياناتك تلقائياً للسجل</div>
     </div>
-    <!-- Class field (student only) -->
-    <input id="loginClass" type="text" placeholder="الفصل (مثال: خامس أ)" autocomplete="off"
-      style="padding:10px 14px;border-radius:8px;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.4);color:var(--txt);font-family:'Cairo',sans-serif;font-size:.9rem;outline:none;direction:rtl;width:100%;display:none"
-      onkeydown="if(event.key==='Enter')doLogin()"/>
-    <!-- Password for teacher only -->
-    <input id="loginPass" type="password" placeholder="كلمة المرور" autocomplete="off"
-      style="padding:10px 14px;border-radius:8px;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.4);color:var(--txt);font-family:'Cairo',sans-serif;font-size:.9rem;text-align:center;outline:none;letter-spacing:3px;direction:ltr;width:100%;display:none"
-      onkeydown="if(event.key==='Enter')doLogin()"/>
+    <!-- TEACHER FIELDS -->
+    <div id="teacherLoginFields" style="display:none;flex-direction:column;gap:10px">
+      <div style="position:relative">
+        <input id="loginTeacherUserInp" type="text" placeholder="🔍 ابحث باسم المعلم..." autocomplete="off" oninput="filterTeacherLoginList()" onfocus="showTeacherLoginDropdown()"
+          style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid rgba(139,92,246,.4);background:rgba(0,0,0,.4);color:var(--txt);font-family:'Cairo',sans-serif;font-size:.9rem;outline:none;direction:rtl"
+          onkeydown="if(event.key==='Enter')document.getElementById('loginPass').focus()"/>
+        <div id="teacherLoginDropdown" style="display:none;position:absolute;top:100%;right:0;left:0;background:#1e1b4b;border:1px solid rgba(139,92,246,.4);border-radius:8px;z-index:9010;max-height:160px;overflow-y:auto;box-shadow:0 6px 20px rgba(0,0,0,.5);margin-top:2px"></div>
+      </div>
+      <input id="loginPass" type="password" placeholder="كلمة المرور" autocomplete="off"
+        style="padding:10px 14px;border-radius:8px;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.4);color:var(--txt);font-family:'Cairo',sans-serif;font-size:.9rem;text-align:center;outline:none;letter-spacing:3px;direction:ltr;width:100%"
+        onkeydown="if(event.key==='Enter')doLogin()"/>
+    </div>
     <div id="loginErr" style="display:none;color:#f87171;font-size:.8rem">❌ بيانات غير صحيحة</div>
     <button onclick="doLogin()" style="padding:11px;border-radius:8px;border:none;background:linear-gradient(135deg,#22c55e,#15803d);color:#fff;font-family:'Cairo',sans-serif;font-size:.95rem;font-weight:700;cursor:pointer">دخول ✏️</button>
   </div>
