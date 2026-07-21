@@ -4597,7 +4597,7 @@ function buildTermGradeTable(term, results){
       missing++; return "—";
     });
     const pct = Math.round(sum/grandTotal*100);
-    html += `<tr><td style="${stickyStart2}">${student}</td><td style="${stickyStart}">${info.grade}</td><td>${info.cls}</td>${cells.map(c=>`<td>${c}</td>`).join("")}<td>${missing}</td><td>${sum}</td><td>${tierLabel(pct)} (${pct}%)</td></tr>`;
+    html += `<tr><td>${student}</td><td>${info.grade}</td><td>${info.cls}</td>${cells.map(c=>`<td>${c}</td>`).join("")}<td>${missing}</td><td>${sum}</td><td>${tierLabel(pct)} (${pct}%)</td></tr>`;
     prevGrade = info.grade; prevCls = info.cls;
     if(i===studentEntries.length-1){
       const classGroup = studentEntries.filter(([,inf])=>inf.grade===prevGrade && inf.cls===prevCls);
