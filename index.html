@@ -2,6 +2,9 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>منصة أنت المستقبل</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -105,8 +108,13 @@
   /* generic tables */
   table.data{ border-collapse:collapse; width:100%; font-size:13.5px; }
   table.data th, table.data td{ border:1px solid #d8d8d8; padding:8px 10px; text-align:right; overflow:hidden; }
-  /* بند 10: عمود "م" (الرقم المسلسل) هو دائمًا العمود الأول، نجعل عرضه مناسبًا لحجم الرقم فقط */
-  table.data th:first-child, table.data td:first-child{ width:34px; min-width:34px; max-width:44px; text-align:center; padding-left:4px; padding-right:4px; white-space:nowrap; }
+  /* بند 5 و8 (تصحيح): كانت هذه القاعدة تُطبَّق سابقًا على "أول عمود في أي جدول" بلا شرط،
+     فكانت تُقيّد أعمدة ليست رقمًا مسلسلًا إطلاقًا (مثل عمود "الطالب" في جدول درجات الطلاب،
+     أو "الفصل الدراسي" في درجاتي وترتيبي، أو "السؤال" في التحديات) بعرض أقصى 44px فتمنعها
+     من التوسّع مهما حاول المستخدم سحبها. الآن تُطبَّق فقط على عمود يحمل صراحةً الصنف
+     col-serial (يُضاف تلقائيًا فقط عندما يكون رأس العمود الأول هو "م" فعلًا)، وبقية
+     الأعمدة تتوسع وتضيق بحرية كاملة حسب سحب المستخدم. */
+  table.data th.col-serial, table.data td.col-serial{ width:34px; min-width:34px; text-align:center; padding-left:4px; padding-right:4px; white-space:nowrap; }
   table.data td .c-pass, table.data td > div{ max-width:100%; }
   table.data th{ background:var(--soft); position:sticky; top:0; }
   .table-wrap{ overflow:auto; border:1px solid #d8d8d8; border-radius:8px; max-height:60vh; }
@@ -249,9 +257,9 @@
   .cf-coldel{ cursor:pointer; color:var(--danger); font-weight:900; margin-right:4px; }
   .cf-rowdel, .gz-rowdel{ cursor:pointer; color:var(--danger); font-weight:900; }
 
-  .match-cols{ display:flex; justify-content:space-between; gap:40px; position:relative; }
-  .match-col{ display:flex; flex-direction:column; gap:10px; width:45%; }
-  .match-card{ border:1.5px solid var(--ink); border-radius:8px; padding:8px 10px; background:#fff; position:relative; font-size:13px; }
+  .match-cols{ display:flex; justify-content:space-between; gap:24px; position:relative; }
+  .match-col{ display:flex; flex-direction:column; gap:10px; width:47%; min-width:0; align-items:flex-start; }
+  .match-card{ border:1.5px solid var(--ink); border-radius:8px; padding:8px 14px; background:#fff; position:relative; font-size:13px; width:fit-content; max-width:100%; box-sizing:border-box; }
   .dot{ width:12px; height:12px; border-radius:50%; background:var(--accent); position:absolute; top:50%; margin-top:-6px; cursor:crosshair; }
   .dot.right{ left:-6px; } .dot.left{ right:-6px; }
   svg.connect-svg{ position:absolute; inset:0; width:100%; height:100%; pointer-events:none; }
@@ -302,8 +310,9 @@
     .workshop{ min-height:70vh; }
     .roles{ grid-template-columns:repeat(2,1fr); }
     .options-grid{ grid-template-columns:1fr; }
-    .match-cols{ flex-direction:column; gap:14px; }
-    .match-col{ width:100%; }
+    .match-cols{ gap:10px; }
+    .match-col{ width:47%; }
+    .match-card{ font-size:12px; padding:6px 9px; }
   }
   @media (max-width: 560px){
     .topbar{ flex-direction:column; align-items:flex-start; gap:6px; }
@@ -329,6 +338,7 @@
   .topbar .who{ font-size:14.5px !important; }
 </style>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
@@ -522,54 +532,89 @@ function sanitizeLoadedModels(){
   (DB.models||[]).forEach(m=>{ m.blocks = []; });
   migrateSubjectsIfNeeded();
 }
-async function initStorage(){
-  // الأولوية 1: Firebase (يعمل من أي مكان: ملف منزّل، استضافة خاصة، أو حتى Artifact)
+
+// بند 11 — إصلاح جذري لمصيبة "فقدان النماذج والبيانات عند تحديث الصفحة":
+// السبب الحقيقي لم يكن غياب الحفظ نفسه، بل أمران خفيّان معًا:
+//  1) لا يوجد أي تسجيل دخول (Authentication) إلى Firebase في هذا الملف إطلاقًا. قواعد أمان
+//     Firebase الافتراضية لمعظم المشاريع تمنع الكتابة (write) بلا مستخدم مُسجَّل (auth != null)
+//     حتى لو سمحت بالقراءة (read) للجميع. فكانت كل عملية حفظ سحابية تفشل بصمت (catch فقط
+//     console.error، ولا شيء يظهر للمستخدم)، بينما تبقى النسخة المحلية (localStorage) هي فقط
+//     الصحيحة والمحدَّثة على ذلك الجهاز تحديدًا.
+//  2) initStorage() كانت تثق بنسخة Firebase السحابية دائمًا وبلا قيد وشرط بمجرد نجاح قراءتها
+//     (حتى لو كانت فارغة أو قديمة بسبب فشل الكتابة أعلاه)، وتتجاهل النسخة المحلية الأحدث كليًا
+//     (return مبكرة بعد نجاح القراءة السحابية). فكانت كل عملية "تحديث للصفحة" تستبدل عمل
+//     المستخدم الصحيح المحفوظ محليًا بنسخة سحابية قديمة/فارغة — أي "ضياع كل شيء" كما وُصف تمامًا.
+// الإصلاح: (أ) تسجيل دخول مجهول (Anonymous Auth) تلقائيًا قبل أي وصول لقاعدة البيانات، حتى
+// تعمل الكتابة فعليًا مع قواعد الأمان الشائعة. (ب) مقارنة الطابع الزمني (updatedAt) بين النسخة
+// المحلية والنسخة السحابية عند كل تحميل، واعتماد الأحدث منهما فعليًا مهما كان مصدرها — بدل
+// افتراض تفوّق السحابة دومًا. (ج) في حال كانت المحلية هي الأحدث (أي أن آخر حفظة سحابية فشلت)،
+// تُرفع فورًا للسحابة لتصحيح الانحراف تلقائيًا ومنع تكرار المشكلة لاحقًا على أجهزة أخرى.
+async function ensureFirebaseAuth(){
+  try{
+    if(typeof firebase === "undefined" || !firebase.auth) return;
+    if(firebase.auth().currentUser) return;
+    await firebase.auth().signInAnonymously();
+  }catch(e){ console.error("تعذّر تسجيل الدخول المجهول إلى Firebase (قد تفشل الكتابة السحابية بسبب قواعد الأمان):", e); }
+}
+
+function readLocalSnapshotRaw(){
+  try{ return localStorage.getItem("platform-db-local"); }catch(e){ return null; }
+}
+
+// بند 1 (هذه الجولة) — إصلاح جذري لبطء الفتح (كان يتجاوز الدقيقة أحيانًا): السبب أن
+// الصفحة كانت تنتظر اكتمال تنزيل قاعدة البيانات كاملة من Firebase (طلب شبكة واحد ضخم
+// يحوي كل النماذج/النتائج/المرفقات) قبل السماح بأي تفاعل. الحل: تطبيق النسخة المحلية
+// (localStorage) فورًا ومتزامنًا (بلا أي انتظار شبكة، جاهزة خلال أجزاء من الثانية)، والسماح
+// بتسجيل الدخول فورًا عليها، بينما تستمر مزامنة Firebase في الخلفية بصمت. إن وصلت نسخة
+// سحابية أحدث لاحقًا (بحسب updatedAt)، تُدمَج تلقائيًا ويُعاد رسم الشاشة الحالية إن لزم،
+// دون أي حجب أو انتظار من المستخدم.
+function applyLocalSnapshotInstantly(){
+  const localRaw = readLocalSnapshotRaw();
+  let localSaved = null;
+  try{ if(localRaw) localSaved = JSON.parse(localRaw); }catch(e){}
+  if(localSaved){
+    Object.keys(localSaved).forEach(k=>{ DB[k]=localSaved[k]; });
+    lastLocalSnapshot = localRaw;
+  }
+  sanitizeLoadedModels();
+  storageReady = true;
+}
+
+async function syncFromCloudInBackground(){
+  let cloudSaved = null, cloudRaw = null, cloudSource = null; // cloudSource: "firebase" | "artifact"
   if(firebaseConfigured() && typeof firebase !== "undefined"){
     try{
       firebase.initializeApp(FIREBASE_CONFIG);
       firebaseDB = firebase.database();
+      await ensureFirebaseAuth();
       const snap = await firebaseDB.ref("platform-db").get();
-      if(snap.exists()){
-        const saved = snap.val();
-        Object.keys(saved).forEach(k=>{ DB[k]=saved[k]; });
-        lastSavedSnapshot = JSON.stringify(saved);
-      }
-      sanitizeLoadedModels();
-      storageReady = true;
-      return;
+      if(snap.exists()){ cloudSaved = snap.val(); cloudRaw = JSON.stringify(cloudSaved); cloudSource = "firebase"; }
     }catch(e){ console.error("تعذّر الاتصال بـ Firebase:", e); }
   }
-  // الأولوية 2 (احتياطي): تخزين الـ Artifact داخل Claude.ai فقط
-  try{
-    if(typeof window.storage !== "undefined"){
-      const res = await window.storage.get("platform-db", true);
-      if(res && res.value){
-        const saved = JSON.parse(res.value);
-        Object.keys(saved).forEach(k=>{ DB[k]=saved[k]; });
-        lastSavedSnapshot = res.value;
+  if(cloudSource===null){
+    try{
+      if(typeof window.storage !== "undefined"){
+        const res = await window.storage.get("platform-db", true);
+        if(res && res.value){ cloudSaved = JSON.parse(res.value); cloudRaw = res.value; cloudSource = "artifact"; }
       }
-      sanitizeLoadedModels();
-      storageReady = true;
-      return;
-    }
-  }catch(e){ /* لا يوجد تخزين Artifact متاح، ننتقل للاحتياطي الأخير */ }
-  // الأولوية 3 (احتياطي أخير): localStorage — يعمل في أي متصفح عادي بلا أي
-  // إعداد مسبق، وهو ما كان مفقودًا تمامًا سابقًا (لا Firebase ولا Artifact
-  // = لا حفظ إطلاقًا). يُحفظ محليًا على هذا الجهاز/المتصفح تحديدًا فقط،
-  // ولا يُشارك تلقائيًا بين أجهزة مختلفة (لذلك يبقى إعداد Firebase هو
-  // الحل الوحيد للمشاركة الفعلية بين المعلم والمشرف والمنسق والطالب من
-  // أجهزة مختلفة).
-  try{
-    const raw = localStorage.getItem("platform-db-local");
-    if(raw){
-      const saved = JSON.parse(raw);
-      Object.keys(saved).forEach(k=>{ DB[k]=saved[k]; });
-      lastSavedSnapshot = raw;
-      lastLocalSnapshot = raw;
-    }
+    }catch(e){ /* لا يوجد تخزين Artifact متاح */ }
+  }
+
+  const cloudTs = (cloudSaved && cloudSaved.updatedAt) || 0;
+  if(cloudSaved && cloudTs > (DB.updatedAt||0) && saveTimer===null && !saveInFlight){
+    // نتجنّب استبدال أي تعديل يجريه المستخدم الآن محليًا ولم يُحفظ بعد (saveTimer/saveInFlight)
+    Object.keys(cloudSaved).forEach(k=>{ DB[k]=cloudSaved[k]; });
     sanitizeLoadedModels();
-    storageReady = true;
-  }catch(e){ /* حتى localStorage غير متاح (وضع تصفح خاص جدًا) — سنعمل بذاكرة الجلسة فقط */ }
+    lastSavedSnapshot = cloudRaw;
+    persistLocalNow();
+    // إعادة رسم الشاشة الحالية إن كان المستخدم مسجَّلًا دخوله بالفعل خلال فترة المزامنة
+    try{ if(typeof refreshCurrentScreen === "function") refreshCurrentScreen(); }catch(e){}
+  } else if(!cloudSaved && cloudSource){
+    // لا توجد نسخة سحابية بعد (أول تشغيل) — نرفع نسختنا المحلية الحالية لتأسيسها
+    lastSavedSnapshot = "";
+    persistDBNow();
+  }
+  attachRealtimeSync();
 }
 
 /* ================================================================
@@ -604,6 +649,16 @@ function persistLocalNow(){
   }catch(e){ console.error("فشل الحفظ المحلي الفوري:", e); return JSON.stringify(DB); }
 }
 
+let syncWarningShown = false;
+function showSyncWarning(){
+  if(syncWarningShown || !session) return; // لا نزعج المستخدم قبل الدخول، ومرة واحدة فقط بالجلسة
+  syncWarningShown = true;
+  const bar = document.createElement("div");
+  bar.textContent = "⚠️ تعذّر رفع آخر تعديلاتك إلى قاعدة البيانات السحابية. بياناتك محفوظة بأمان على هذا الجهاز فقط حاليًا حتى تُستعاد المزامنة.";
+  bar.style.cssText = "position:fixed; top:0; left:0; right:0; z-index:99999; background:#fff3cd; color:#7a5b00; text-align:center; padding:8px 12px; font-size:13px; font-weight:700; border-bottom:2px solid #f0d67a;";
+  document.body.appendChild(bar);
+}
+
 async function persistDBNow(){
   // التنفيذ الفعلي لمزامنة السحابة (Firebase أو تخزين الـ Artifact)؛ النسخة
   // المحلية تُكتب فورًا ومنفصلة عبر persistLocalNow() بلا انتظار هذه الدالة.
@@ -612,12 +667,13 @@ async function persistDBNow(){
   saveInFlight = true;
   try{
     if(firebaseDB){
+      await ensureFirebaseAuth();
       await firebaseDB.ref("platform-db").set(JSON.parse(snapshot));
     } else if(typeof window.storage !== "undefined"){
       await window.storage.set("platform-db", snapshot, true);
     }
     lastSavedSnapshot = snapshot;
-  }catch(e){ console.error("فشل الحفظ السحابي (تم الاحتفاظ بنسخة محلية):", e); }
+  }catch(e){ console.error("فشل الحفظ السحابي (تم الاحتفاظ بنسخة محلية):", e); showSyncWarning(); }
   finally{ saveInFlight = false; }
 }
 
@@ -625,6 +681,9 @@ function saveDB(){
   // الحفظ المحلي فوري دائمًا (بلا أي مخاطرة بالفقدان)، وتبقى مزامنة السحابة
   // فقط مؤجّلة قليلًا لتجميع التعديلات المتتالية السريعة (أثناء الكتابة مثلًا)
   // وتقليل عدد الكتابات السحابية دون أي تأثير على أمان النسخة المحلية.
+  // طابع زمني على كل حفظة فعلية، يُستخدم عند initStorage() للمفاضلة بين النسخة
+  // المحلية والسحابية واعتماد الأحدث منهما فعليًا (بدل افتراض تفوّق السحابة دومًا).
+  DB.updatedAt = Date.now();
   persistLocalNow();
   clearTimeout(saveTimer);
   saveTimer = setTimeout(()=>{ saveTimer=null; persistDBNow(); }, 400);
@@ -655,27 +714,26 @@ function attachRealtimeSync(){
     if(saveTimer || saveInFlight) return;
     if(typeof activeModel !== "undefined" && activeModel) return;
     const saved = snap.val();
+    if(((saved && saved.updatedAt) || 0) < (DB.updatedAt||0)) return; // وارد أقدم من نسختنا الحالية — تجاهله
     Object.keys(saved).forEach(k=>{ DB[k]=saved[k]; });
     sanitizeLoadedModels();
     lastSavedSnapshot = incoming;
   });
 }
 
-initStorage().then(()=>{
-  attachRealtimeSync();
+// بند 7: فتح المنصة فورًا دون أي انتظار — نزيل شاشة "جارِ الاتصال بقاعدة
+// البيانات" فورًا ولا ننتظر استجابة Firebase قبل عرض الواجهة. تحميل
+// البيانات (initStorage) يستمر في الخلفية، وعند اكتماله نحدّث فقط
+// القوائم/الشاشات المعروضة حاليًا إن وُجدت، دون أي حجب أو تجميد للصفحة.
+(function removeStorageOverlayImmediately(){
   const overlay = document.getElementById("storageLoadingOverlay");
   if(overlay) overlay.remove();
-  tryRestoreSession();
-}).catch(err=>{
-  // شبكة أمان: أي خطأ غير متوقع أثناء الإقلاع (مثل خطأ إملائي في إعدادات
-  // Firebase) لم يعد يُجمّد الموقع للأبد على شاشة "جارِ الاتصال بقاعدة
-  // البيانات" — بل نستمر بالعمل محليًا فقط ونُبلغ في الـ Console للمطوّر.
-  console.error("تعذّر إقلاع طبقة التخزين:", err);
-  const overlay = document.getElementById("storageLoadingOverlay");
-  if(overlay) overlay.remove();
-  try{ tryRestoreSession(); }catch(e2){ console.error(e2); }
+})();
+Promise.resolve().then(()=>{
+  applyLocalSnapshotInstantly();
+  try{ tryRestoreSession(); }catch(e){ console.error(e); }
+  syncFromCloudInBackground();
 });
-setTimeout(()=>{ const o=document.getElementById("storageLoadingOverlay"); if(o) o.remove(); }, 8000);
 let currentRole = null;
 let session = null;
 
@@ -716,6 +774,7 @@ roleBtns.forEach(btn=>{
 
 document.getElementById("loginBtn").addEventListener("click", ()=>{
   clearMsg();
+  if(!storageReady){ showMsg("جارِ تحميل بياناتك المحفوظة، من فضلك انتظر لحظة ثم أعد المحاولة.", "err"); return; }
   if(!currentRole){ showMsg("من فضلك اختر صفتك أولًا.", "err"); return; }
   if(currentRole==="admin" && DB.admins.length===0){ openOverlay("setupOverlay"); return; }
   const username = usernameSelect.value, password = passwordInput.value;
@@ -958,7 +1017,6 @@ const NAV = {
   coordinator: [
     ["forms","النماذج التعليمية"],
     ["analysis","تحليل النتائج"],
-    ["essaygrading","تصحيح المقالي"],
     ["challenges","تحليل التحديات"],
     ["attachments","المرفقات"],
     ["tasksSent","التكليفات المرسلة"],
@@ -1682,15 +1740,15 @@ function fillBetweenSame(rows, field){
   });
   saveDB();
 }
-function tableHTML(headers, rows){
-  return `<div class="table-wrap"><table class="data">
+function tableHTML(headers, rows, tableId){
+  return `<div class="table-wrap"><table class="data"${tableId?` id="${tableId}"`:""}>
     <thead><tr>${headers.map(h=>`<th>${h}</th>`).join("")}</tr></thead>
     <tbody>${rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join("")}</tr>`).join("") || `<tr><td colspan="${headers.length}" class="empty-note">لا توجد بيانات بعد</td></tr>`}</tbody>
   </table></div>`;
 }
 
 /* جدول قابل للبحث والترشيح لكل عمود — يُستخدم في كل النوافذ عدا واجهة الطالب */
-function renderSearchableTable(container, headers, rows){
+function renderSearchableTable(container, headers, rows, onClearAll){
   // بند 10: كل خلية بحث أعلى الجدول أصبحت قائمة منسدلة قابلة للبحث (input + datalist)
   // تعرض القيم الفريدة الموجودة فعليًا في ذلك العمود، مع إبقاء إمكانية الكتابة الحرة للبحث الجزئي.
   const uniqueColValues = headers.map((h,i)=> [...new Set(rows.map(r=>r[i]).filter(v=>v!==undefined && v!==null && v!==""))]);
@@ -1708,6 +1766,9 @@ function renderSearchableTable(container, headers, rows){
     </table>
     </div>`;
   const tbody = container.querySelector("tbody");
+  // ربط زر حذف جميع بيانات الجدول (سلة 🗑) بمصدر البيانات الفعلي إن زوّدنا المستدعي بدالة onClearAll،
+  // حتى يكون الحذف حذفًا حقيقيًا ودائمًا (DB + saveDB) وليس مجرد تفريغ بصري للصفوف.
+  if(typeof onClearAll === "function") container.querySelector("table")._clearAllHandler = onClearAll;
   const filters = {};
   function draw(){
     const filtered = rows.filter(r=>Object.entries(filters).every(([col,val])=>!val || String(r[col]).toLowerCase().includes(val.toLowerCase())));
@@ -3255,7 +3316,7 @@ function buildMatchBlock(savedPairs, savedHint){
       <button class="chip-btn mt-delright">➖ حذف بطاقة (يمين)</button>
       <button class="chip-btn mt-addleft">➕ إضافة بطاقة (يسار)</button>
       <button class="chip-btn mt-delleft">➖ حذف بطاقة (يسار)</button>
-      <button class="chip-btn mt-shuffleleft">🔀 خلط بطاقات اليسار</button>
+      <button class="chip-btn mt-autoconnect">🔗 التوصيل الآلي</button>
     </div>
     <div class="match-cols">
       <svg class="connect-svg"></svg>
@@ -3272,7 +3333,7 @@ function buildMatchBlock(savedPairs, savedHint){
   function makeCard(container, side){
     const card = document.createElement("div");
     card.className="match-card"; card.dataset.side=side;
-    card.innerHTML = `<input type="text" placeholder="بطاقة" style="border:none;width:88%;"><span class="dot ${side}"></span>`;
+    card.innerHTML = `<input type="text" placeholder="بطاقة" style="border:none; width:110px; max-width:100%;"><span class="dot ${side}"></span>`;
     const dot = card.querySelector(".dot");
     dot.addEventListener("click", ()=>{
       if(!pending){ pending = {card, side}; dot.style.background="var(--danger)"; }
@@ -3334,19 +3395,23 @@ function buildMatchBlock(savedPairs, savedHint){
   body.querySelector(".mt-addleft").addEventListener("click", ()=>makeCard(left,"left"));
   body.querySelector(".mt-delright").addEventListener("click", ()=>removeLastCard(right));
   body.querySelector(".mt-delleft").addEventListener("click", ()=>removeLastCard(left));
-  // بند 5: خلط بطاقات العمود الأيسر عشوائيًا مع الحفاظ على خطوط التوصيل.
-  // بما أن الوصلات (connections) تُخزَّن كمراجع مباشرة لعناصر DOM (وليس كفهارس)،
-  // فإن مجرد إعادة ترتيب عناصر DOM داخل العمود الأيسر (بدون لمس مصفوفة connections)
-  // يكفي للحفاظ على كل خط متصل بنفس البطاقة، وتُعاد رسم الخطوط تلقائيًا حسب
-  // الموضع الجديد لكل بطاقة عبر drawLines().
-  body.querySelector(".mt-shuffleleft").addEventListener("click", ()=>{
-    const cards = [...left.querySelectorAll(".match-card")];
-    if(cards.length<2) return;
-    for(let i=cards.length-1;i>0;i--){
-      const j = Math.floor(Math.random()*(i+1));
-      [cards[i],cards[j]] = [cards[j],cards[i]];
+  // بند جديد: "التوصيل الآلي" — يوصل كل بطاقة في العمود الأيمن بالبطاقة التي تقابلها
+  // بنفس الترتيب في العمود الأيسر (البطاقة رقم 1 يمين مع رقم 1 يسار، وهكذا)، بدل
+  // اضطرار المعلم للنقر يدويًا على كل نقطتين. لا يمس ترتيب ظهور البطاقات نفسها —
+  // فترتيب المعلم هنا هو فقط "دفتر الإجابة الصحيحة"؛ عند حل الطالب يُعرض العمود
+  // الأيسر مبعثرًا تلقائيًا بالفعل (انظر renderSolveView) بصرف النظر عن هذا الترتيب.
+  body.querySelector(".mt-autoconnect").addEventListener("click", ()=>{
+    const rightCards = [...right.querySelectorAll(".match-card")];
+    const leftCards = [...left.querySelectorAll(".match-card")];
+    connections = [];
+    [...right.querySelectorAll(".dot"), ...left.querySelectorAll(".dot")].forEach(d=>d.style.background="");
+    const n = Math.min(rightCards.length, leftCards.length);
+    for(let i=0;i<n;i++){
+      const rCard = rightCards[i], lCard = leftCards[i];
+      if(!rCard.querySelector("input").value.trim() || !lCard.querySelector("input").value.trim()) continue;
+      connections.push({a:rCard, b:lCard});
     }
-    cards.forEach(c=>left.appendChild(c));
+    if(!connections.length){ alert("اكتب نص البطاقات المتقابلة أولًا (بنفس الترتيب في العمودين) ثم اضغط التوصيل الآلي."); return; }
     drawLines();
   });
   new ResizeObserver(drawLines).observe(body);
@@ -3489,27 +3554,43 @@ function buildMindmapBlock(savedItems, savedConnections){
     // فلا يعود بالإمكان أن يضغط المعلم "لتحريك" الصندوق فيصيب نص البطاقة بالخطأ
     // فيُفرَّغ (لأنه نص افتراضي) وينكمش الصندوق. الأيقونات داخل الشريط (تلميح/لون/حذف)
     // توقف انتشار الحدث بنفسها فلا تبدأ سحبًا أيضًا.
+    // بند جديد: دعم اللمس (Touch) بجانب الفأرة — كانت الصناديق (وبطاقتا التعريف والعنوان
+    // معهما لأنهما من نفس الدالة) غير قابلة للسحب إطلاقًا على الأجهزة اللوحية والهواتف
+    // لأن كل الأحداث كانت مرتبطة بـ mousedown/mousemove/mouseup فقط بلا أي مكافئ لمسي.
     const handle = b.querySelector(".mb-handle");
-    handle.addEventListener("mousedown", e=>{
+    function pointOf(e){
+      if(e.touches && e.touches.length) return {x:e.touches[0].clientX, y:e.touches[0].clientY};
+      if(e.changedTouches && e.changedTouches.length) return {x:e.changedTouches[0].clientX, y:e.changedTouches[0].clientY};
+      return {x:e.clientX, y:e.clientY};
+    }
+    function dragStart(e){
       if(e.target.closest(".mb-del") || e.target.closest(".bulb") || e.target.closest(".mb-color-slot")) return;
-      isDown=true; ox=e.offsetX; oy=e.offsetY;
-      const bx = b.getBoundingClientRect(), hx = handle.getBoundingClientRect();
-      ox += (hx.left - bx.left); oy += (hx.top - bx.top);
-      // نثبّت العرض والارتفاع الحاليين المعروضين فعليًا قبل بدء السحب حتى لا ينكمش
-      // الصندوق أثناء التحريك (كان يعاد حساب الحجم من الصفر مع كل تحريك).
+      isDown=true;
+      const p = pointOf(e);
+      const hx = handle.getBoundingClientRect();
+      ox = p.x - hx.left; oy = p.y - hx.top;
       const r = b.getBoundingClientRect();
       b.style.width = r.width+"px";
       b.style.height = r.height+"px";
-    });
-    document.addEventListener("mousemove", e=>{
-      if(isDown){
-        const r=area.getBoundingClientRect();
-        b.style.left=(e.clientX-r.left-ox)+"px"; b.style.top=(e.clientY-r.top-oy)+"px";
-        drawLines();
-        updateAreaSize();
-      }
-    });
-    document.addEventListener("mouseup", ()=>isDown=false);
+      if(e.type==="touchstart") e.preventDefault();
+    }
+    function dragMove(e){
+      if(!isDown) return;
+      const p = pointOf(e);
+      const r=area.getBoundingClientRect();
+      b.style.left=(p.x-r.left-ox)+"px"; b.style.top=(p.y-r.top-oy)+"px";
+      drawLines();
+      updateAreaSize();
+      if(e.type==="touchmove") e.preventDefault();
+    }
+    function dragEnd(){ isDown=false; }
+    handle.addEventListener("mousedown", dragStart);
+    handle.addEventListener("touchstart", dragStart, {passive:false});
+    document.addEventListener("mousemove", dragMove);
+    document.addEventListener("touchmove", dragMove, {passive:false});
+    document.addEventListener("mouseup", dragEnd);
+    document.addEventListener("touchend", dragEnd);
+    document.addEventListener("touchcancel", dragEnd);
     b.querySelector(".dot").addEventListener("click",(ev)=>{
       ev.stopPropagation();
       if(!pending){ pending=b; }
@@ -3943,9 +4024,13 @@ function renderSolveView(view, model, forceRetry, justSubmitted){
     area.querySelectorAll(".mm-drop, .gr-drop-row, .classify-cell-solve").forEach(el=>el.style.pointerEvents="none");
     document.getElementById("solveSubmit").style.display="none";
     document.getElementById("solveMsg").className="msg show ok";
+    // الأسئلة المقالية لا تُصحَّح آليًا أبدًا؛ إن كانت من ضمن أسئلة هذا النموذج ولم يصحّحها
+    // المعلم بعد، نوضّح للطالب أن درجته الظاهرة الآن مؤقتة (لا تشمل درجة المقالي بعد).
+    const hasPendingEssay = (already.pendingEssays||[]).some(e=>e.points===null);
+    const pendingNote = hasPendingEssay ? ' <span style="color:var(--accent);">(الدرجة مؤقتة — بانتظار تصحيح المعلم للسؤال المقالي)</span>' : '';
     document.getElementById("solveMsg").innerHTML = justSubmitted
-      ? `تم الإرسال بنجاح — درجتك: ${already.score} من ${already.total}. <button class="chip-btn" id="solveRetryBtn" style="margin-right:10px;">إعادة الحل</button>`
-      : `سبق أن حللت هذا النموذج — درجتك: ${already.score} من ${already.total}. <button class="chip-btn" id="solveRetryBtn" style="margin-right:10px;">إعادة الحل</button>`;
+      ? `تم الإرسال بنجاح — درجتك: ${already.score} من ${already.total}.${pendingNote} <button class="chip-btn" id="solveRetryBtn" style="margin-right:10px;">إعادة الحل</button>`
+      : `سبق أن حللت هذا النموذج — درجتك: ${already.score} من ${already.total}.${pendingNote} <button class="chip-btn" id="solveRetryBtn" style="margin-right:10px;">إعادة الحل</button>`;
     document.getElementById("solveRetryBtn").addEventListener("click", ()=>renderSolveView(view, model, true));
     return;
   }
@@ -4062,7 +4147,7 @@ function renderSolveView(view, model, forceRetry, justSubmitted){
       function makeCard(container, side, text){
         const card = document.createElement("div");
         card.className="match-card"; card.dataset.side=side;
-        card.innerHTML = `<span style="display:inline-block; min-width:120px;">${text}</span><span class="dot ${side}"></span>`;
+        card.innerHTML = `<span style="display:inline-block;">${text}</span><span class="dot ${side}"></span>`;
         const dot = card.querySelector(".dot");
         dot.addEventListener("click", ()=>{
           if(!pending){ pending = {dot, side, text}; dot.style.background="var(--danger)"; }
@@ -4102,11 +4187,13 @@ function renderSolveView(view, model, forceRetry, justSubmitted){
         td.addEventListener("dragover", e=>e.preventDefault());
         td.addEventListener("drop", ()=>{
           if(!dragEl) return;
-          const text = dragEl.textContent.trim();
+          const originalCard = dragEl; // نُثبّت مرجع البطاقة الأصلية في البنك الآن، لأن dragEl متغيّر مشترك
+          // سيتغيّر لاحقًا عند سحب أي بطاقة أخرى، فلا يصلح الاعتماد عليه وقت الضغط للتراجع.
+          const text = originalCard.textContent.trim();
           answers[idx].set(text, Number(td.dataset.col));
-          dragEl.style.pointerEvents="none"; dragEl.style.opacity=".4";
-          const placed = dragEl.cloneNode(true); placed.draggable=false; placed.style.opacity="1"; placed.style.pointerEvents="auto"; placed.style.cursor="pointer";
-          placed.addEventListener("click", ()=>{ placed.remove(); answers[idx].delete(text); dragEl.style.pointerEvents=""; dragEl.style.opacity="1"; checkAllAnswered(); });
+          originalCard.style.pointerEvents="none"; originalCard.style.opacity=".4";
+          const placed = originalCard.cloneNode(true); placed.draggable=false; placed.style.opacity="1"; placed.style.pointerEvents="auto"; placed.style.cursor="pointer";
+          placed.addEventListener("click", ()=>{ placed.remove(); answers[idx].delete(text); originalCard.style.pointerEvents=""; originalCard.style.opacity="1"; checkAllAnswered(); });
           td.appendChild(placed);
           checkAllAnswered();
         });
@@ -4389,7 +4476,7 @@ function renderSolveView(view, model, forceRetry, justSubmitted){
         if(q.type==="match") return s + (q.pairs?q.pairs.length:0);
         if(q.type==="classify") return s + (q.items?q.items.length:0);
         if(q.type==="mindmap") return s + (q.items?q.items.filter(it=>!it.isLabel).length:0);
-        if(q.type==="spellchoice") return s + (q.correct?q.correct.size:0);
+        if(q.type==="spellchoice") return s + (q.correct?(q.correct.size!==undefined?q.correct.size:q.correct.length):0);
         return s + 1;
       }, 0), date:new Date().toLocaleDateString("ar-EG"), details, pendingEssays
     };
@@ -4502,7 +4589,7 @@ function visibleResultsFor(role){
     if(!grades.length || !classes.length || !subjects.length) return [];
     // بند 7: نتيجة مرئية فقط إذا كانت ضمن الصف *و* الفصل *و* المادة المسندة معًا،
     // حتى لا يطّلع معلم على نتائج طلابه في مادة أخرى يشترك في تدريس فصلهم فيها زميل له.
-    return DB.results.filter(r=>grades.includes(r.grade) && r.cls!=null && classes.includes(String(r.cls)) && r.subject && subjects.includes(r.subject));
+    return DB.results.filter(r=>grades.includes(r.grade) && r.cls!=null && classes.includes(String(r.cls)) && (!r.subject || subjects.includes(r.subject)));
   }
   return DB.results;
 }
@@ -4563,7 +4650,7 @@ function buildTermGradeTable(term, results){
   // لأنها كانت تفترض عرضًا محددًا مسبقًا لا يطابق العرض الفعلي فتتراكب الأعمدة فوق بعضها عند
   // تغيّر العرض؛ الأعمدة الآن أعمدة عادية قابلة للتوسيع/التضييق بحرية كبقية أعمدة الجدول،
   // مع عرض ابتدائي مريح يمنع تزاحم النص.
-  let html = `<div class="table-wrap"><table class="data"><thead><tr>
+  let html = `<div class="table-wrap"><table class="data" id="termGradeTable"><thead><tr>
     <th style="min-width:120px;">الطالب</th><th style="min-width:70px;">الصف</th><th style="min-width:60px;">الفصل</th>${modelNums.map(n=>`<th>نموذج ${n}</th>`).join("")}<th>نماذج لم تحل</th><th>المجموع التحصيلي</th><th>التقدير العام</th></tr></thead><tbody>`;
   html += `<tr style="background:#fdf6e3; font-weight:700;"><td colspan="3">الدرجة الكلية لكل نموذج</td>${modelNums.map(n=>`<td>${modelTotals[n]}</td>`).join("")}<td>—</td><td>${grandTotal}</td><td>—</td></tr>`;
 
@@ -4801,7 +4888,18 @@ function renderAnalysisWindow(view, role){
       results.map(r=>{
         const st = DB.students.find(s=>s.username===r.studentUsername);
         return [r.studentUsername, r.term, r.grade, r.subject||"—", st?(st.cls||"—"):"—", r.modelNumber, r.score, r.total, Math.round(r.score/r.total*100)+"%", r.date];
-      }));
+      }),
+      // حذف حقيقي ودائم: يحذف بالضبط النتائج المعروضة حاليًا (بعد تطبيق كل الترشيحات وصلاحية الدور)
+      // من DB.results نفسها عبر id، ثم saveDB()، ثم إعادة رسم كل عناصر النافذة المعتمدة عليها
+      // (الجدول، الجدول الفصلي، المخططان)، وليس مجرد تفريغ الصفوف من الشاشة.
+      ()=>{
+        if(!results.length){ alert("لا توجد بيانات لحذفها ضمن الترشيح الحالي."); return; }
+        if(!confirm(`سيتم حذف ${results.length} نتيجة نهائيًا من قاعدة البيانات. هل أنت متأكد؟`)) return;
+        const idsToDelete = new Set(results.map(r=>r.id));
+        DB.results = (DB.results||[]).filter(r=>!idsToDelete.has(r.id));
+        saveDB();
+        refreshModelFilterOptions(); redraw(); redrawTermTable(); redrawChart1(); redrawChart2();
+      });
   }
 
   function refreshModelFilterOptions(){
@@ -4816,7 +4914,21 @@ function renderAnalysisWindow(view, role){
   function redrawTermTable(){
     const terms=["الفصل الأول","الفصل الثاني","الفصل الثالث"];
     const activeIdx = ["termTab1","termTab2","termTab3"].findIndex(id=>document.getElementById(id).classList.contains("accent"));
-    document.getElementById("termTableWrap").innerHTML = buildTermGradeTable(terms[activeIdx<0?0:activeIdx], subjectScopedResults());
+    const term = terms[activeIdx<0?0:activeIdx];
+    const scoped = subjectScopedResults();
+    document.getElementById("termTableWrap").innerHTML = buildTermGradeTable(term, scoped);
+    // حذف حقيقي ودائم: يحذف بالضبط نتائج هذا الفصل الدراسي (ضمن نطاق ترشيح المادة الحالي وصلاحية
+    // الدور) من DB.results عبر id، ثم saveDB()، ثم إعادة رسم كل عناصر النافذة المعتمدة عليها.
+    const termTable = document.getElementById("termGradeTable");
+    if(termTable) termTable._clearAllHandler = ()=>{
+      const rows = scoped.filter(r=>r.term===term);
+      if(!rows.length){ alert("لا توجد بيانات لحذفها لهذا الفصل الدراسي."); return; }
+      if(!confirm(`سيتم حذف ${rows.length} نتيجة نهائيًا من قاعدة البيانات. هل أنت متأكد؟`)) return;
+      const idsToDelete = new Set(rows.map(r=>r.id));
+      DB.results = (DB.results||[]).filter(r=>!idsToDelete.has(r.id));
+      saveDB();
+      refreshModelFilterOptions(); redraw(); redrawTermTable(); redrawChart1(); redrawChart2();
+    };
   }
   ["filTerm","filGrade","filSubject"].forEach(id=>document.getElementById(id).addEventListener("change", ()=>{ refreshModelFilterOptions(); redraw(); redrawTermTable(); redrawChart1(); redrawChart2(); }));
   ["filClass","filModel"].forEach(id=>document.getElementById(id).addEventListener("change", redraw));
@@ -4930,6 +5042,7 @@ function renderChallengesWindow(view, role){
     <div id="chTableWrap"></div>
   `;
   let currentRows = [];
+  let currentFilteredResults = [];
   function redraw(){
     const fTerm = document.getElementById("chFilTerm").value;
     const fGrade = document.getElementById("chFilGrade").value;
@@ -4946,6 +5059,7 @@ function renderChallengesWindow(view, role){
       if(fModelId && r.modelId!==fModelId) return false;
       return true;
     });
+    currentFilteredResults = filtered;
     const wrongCount = {};
     const typeOf = {};
     filtered.forEach(r=>r.details.forEach(d=>{
@@ -4956,7 +5070,19 @@ function renderChallengesWindow(view, role){
     }));
     currentRows = Object.entries(wrongCount).sort((a,b)=>b[1]-a[1])
       .map(([q,c],i)=>[i+1, typeOf[q]||"—", q, c]);
-    document.getElementById("chTableWrap").innerHTML = tableHTML(["م","نوع السؤال","السؤال","عدد مرات الخطأ"], currentRows);
+    document.getElementById("chTableWrap").innerHTML = tableHTML(["م","نوع السؤال","السؤال","عدد مرات الخطأ"], currentRows, "chTable");
+    // حذف حقيقي ودائم: يحذف نتائج الطلاب (DB.results) التي بُني منها تحليل التحديات المعروض
+    // حاليًا (ضمن نطاق الترشيح المطبَّق وصلاحية الدور)، ثم saveDB() وإعادة رسم الجدول،
+    // وليس مجرد تفريغ الصفوف بصريًا.
+    const chTable = document.getElementById("chTable");
+    if(chTable) chTable._clearAllHandler = ()=>{
+      if(!currentFilteredResults.length){ alert("لا توجد بيانات لحذفها ضمن الترشيح الحالي."); return; }
+      if(!confirm(`سيتم حذف ${currentFilteredResults.length} نتيجة نهائيًا من قاعدة البيانات (وهي مصدر بيانات هذا التحليل). هل أنت متأكد؟`)) return;
+      const idsToDelete = new Set(currentFilteredResults.map(r=>r.id));
+      DB.results = (DB.results||[]).filter(r=>!idsToDelete.has(r.id));
+      saveDB();
+      redraw();
+    };
   }
   ["chFilTerm","chFilGrade","chFilSubject","chFilClass","chFilStudent","chFilModel"].forEach(id=>{
     document.getElementById(id).addEventListener("change", redraw);
@@ -5129,10 +5255,18 @@ function drawAttachSendTable(wrap, role){
       <table class="data" id="atkTable"><thead><tr>${headers.map(h=>`<th>${h}</th>`).join("")}</tr></thead><tbody></tbody></table>
     </div>`;
   const tbody = wrap.querySelector("#atkTable tbody");
+  const atkTableEl = wrap.querySelector("#atkTable");
 
   function mine(){
     return (DB.attachTasks||[]).map((a,i)=>({a,i})).filter(x=>x.a.senderRole===role && x.a.senderName===senderName);
   }
+  // حذف كل مرفقات هذا المرسل فقط (وليس مرفقات بقية المستخدمين) بالاعتماد على id، مع حفظ فعلي
+  atkTableEl._clearAllHandler = ()=>{
+    const idsToDelete = new Set(mine().map(({a})=>a.id));
+    if(!idsToDelete.size){ alert("لا توجد مرفقات لحذفها."); return; }
+    DB.attachTasks = (DB.attachTasks||[]).filter(a=>!idsToDelete.has(a.id));
+    saveDB(); draw();
+  };
   function draw(){
     const rows = mine();
     tbody.innerHTML = "";
@@ -5298,7 +5432,19 @@ function drawAttachInboxTable(wrap, role){
       <table class="data" id="atkInboxTable"><thead><tr>${headers.map(h=>`<th>${h}</th>`).join("")}</tr></thead><tbody></tbody></table>
     </div>`;
   const tbody = wrap.querySelector("#atkInboxTable tbody");
-  function mine(){ return (DB.attachTasks||[]).filter(a=>attachMatchesRecipient(a, role, user)); }
+  const atkInboxTableEl = wrap.querySelector("#atkInboxTable");
+  function mine(){ return (DB.attachTasks||[]).filter(a=>attachMatchesRecipient(a, role, user) && !(a.hiddenFor||[]).includes(user.username)); }
+  // حذف حقيقي ودائم من صندوق وارد هذا المستخدم تحديدًا: لا يحذف المرفق من DB نهائيًا (لأنه قد
+  // يكون مُرسلًا لعدة مستلمين كصف/فصل كامل، أو ما زال المرسِل بحاجة لرؤيته في "المرسلة")، بل
+  // يُسجَّل اسم المستخدم في hiddenFor ويُحفظ بـ saveDB()، فلا يعود يظهر له بعد الآن حتى بعد
+  // إعادة التحميل — بخلاف الحذف البصري المؤقت القديم.
+  atkInboxTableEl._clearAllHandler = ()=>{
+    const rows = mine();
+    if(!rows.length){ alert("لا توجد مرفقات لحذفها."); return; }
+    if(!confirm(`سيتم حذف ${rows.length} مرفقًا من صندوق واردك نهائيًا. هل أنت متأكد؟`)) return;
+    rows.forEach(a=>{ a.hiddenFor = a.hiddenFor || []; if(!a.hiddenFor.includes(user.username)) a.hiddenFor.push(user.username); });
+    saveDB(); draw();
+  };
   function draw(){
     const rows = mine();
     tbody.innerHTML = "";
@@ -5377,12 +5523,13 @@ function renderStudentAttachmentsWindow(view){
 /* ============================================================
    ===== وحدة "المراسلات الإدارية" (بين المعلم/المنسق/المشرف العام) =====
    ============================================================ */
-const CORR_ROLE_OPTIONS = ["مشرف عام","منسق","معلم"];
-const CORR_ROLE_TO_SESSION_ROLE = {"مشرف عام":"admin","منسق":"coordinator","معلم":"teacher"};
+const CORR_ROLE_OPTIONS = ["مشرف عام","منسق","معلم","منسقين","معلمين"];
+const CORR_ROLE_TO_SESSION_ROLE = {"مشرف عام":"admin","منسق":"coordinator","معلم":"teacher","منسقين":"coordinator","معلمين":"teacher"};
 function optionsForCorrRole(assignedRole){
   if(assignedRole==="مشرف عام") return (DB.admins||[]).map(a=>a.username);
   if(assignedRole==="منسق") return (DB.coordinators||[]).map(c=>c.username);
   if(assignedRole==="معلم") return (DB.teachers||[]).map(t=>t.username);
+  if(assignedRole==="منسقين" || assignedRole==="معلمين") return ALL_GRADES.slice();
   return [];
 }
 /* تحديد ما إذا كان المستخدم الحالي هو المستقبل المقصود لهذه المراسلة */
@@ -5390,6 +5537,12 @@ function corrMatchesRecipient(c, role, user){
   if(!c.sent) return false;
   const targetSessionRole = CORR_ROLE_TO_SESSION_ROLE[c.assignedRole];
   if(targetSessionRole!==role) return false;
+  if(c.assignedRole==="منسقين" || c.assignedRole==="معلمين"){
+    const list = c.assignedRole==="منسقين" ? DB.coordinators : DB.teachers;
+    const fresh = (list||[]).find(x=>x.username===user.username) || user;
+    const grades = fresh.grades || [];
+    return grades.includes(c.assignedName);
+  }
   return c.assignedName===user.username;
 }
 function drawCorrOutgoingTable(wrap, role){
@@ -5409,9 +5562,17 @@ function drawCorrOutgoingTable(wrap, role){
       <table class="data" id="corkTable"><thead><tr>${headers.map(h=>`<th>${h}</th>`).join("")}</tr></thead><tbody></tbody></table>
     </div>`;
   const tbody = wrap.querySelector("#corkTable tbody");
+  const corkTableEl = wrap.querySelector("#corkTable");
   function mine(){
     return (DB.correspondence||[]).map((c,i)=>({c,i})).filter(x=>x.c.senderRole===role && x.c.senderName===senderName);
   }
+  // حذف كل مراسلات هذا المرسل فقط (وليس مراسلات بقية المستخدمين) بالاعتماد على id، مع حفظ فعلي
+  corkTableEl._clearAllHandler = ()=>{
+    const idsToDelete = new Set(mine().map(({c})=>c.id));
+    if(!idsToDelete.size){ alert("لا توجد مراسلات لحذفها."); return; }
+    DB.correspondence = (DB.correspondence||[]).filter(c=>!idsToDelete.has(c.id));
+    saveDB(); draw();
+  };
   function draw(){
     const rows = mine();
     tbody.innerHTML = "";
@@ -5498,7 +5659,17 @@ function drawCorrInboxTable(wrap, role){
       <table class="data" id="corkInboxTable"><thead><tr>${headers.map(h=>`<th>${h}</th>`).join("")}</tr></thead><tbody></tbody></table>
     </div>`;
   const tbody = wrap.querySelector("#corkInboxTable tbody");
-  function mine(){ return (DB.correspondence||[]).filter(c=>corrMatchesRecipient(c, role, user)); }
+  const corkInboxTableEl = wrap.querySelector("#corkInboxTable");
+  function mine(){ return (DB.correspondence||[]).filter(c=>corrMatchesRecipient(c, role, user) && !(c.hiddenFor||[]).includes(user.username)); }
+  // حذف حقيقي ودائم من صندوق وارد هذا المستخدم فقط (لا يمس نسخة المرسِل ولا بقية المستلمين
+  // في حال كانت المراسلة موجّهة لصف/فصل كامل)، عبر hiddenFor + saveDB().
+  corkInboxTableEl._clearAllHandler = ()=>{
+    const rows = mine();
+    if(!rows.length){ alert("لا توجد مراسلات لحذفها."); return; }
+    if(!confirm(`سيتم حذف ${rows.length} مراسلة من صندوق واردك نهائيًا. هل أنت متأكد؟`)) return;
+    rows.forEach(c=>{ c.hiddenFor = c.hiddenFor || []; if(!c.hiddenFor.includes(user.username)) c.hiddenFor.push(user.username); });
+    saveDB(); draw();
+  };
   function draw(){
     const rows = mine();
     tbody.innerHTML = "";
@@ -5578,8 +5749,8 @@ function taskMatchesRecipient(t, role, user){
   if(!t.sent) return false;
   if(role==="student"){
     if(t.assignedRole==="طالب") return t.assignedName===user.username;
-    if(t.assignedRole==="فصل") return user.cls===t.assignedName;
-    if(t.assignedRole==="صف") return user.grade===t.assignedName; // بند 30: كل الفصول في هذا الصف
+    if(t.assignedRole==="فصل") return String(user.cls)===String(t.assignedName);
+    if(t.assignedRole==="صف") return String(user.grade)===String(t.assignedName); // بند 30: كل الفصول في هذا الصف
     return false;
   }
   if(role==="teacher"){
@@ -5588,7 +5759,8 @@ function taskMatchesRecipient(t, role, user){
       const fresh = DB.teachers.find(x=>x.username===user.username) || user;
       const grades = fresh.grades || [];
       if(!grades.includes(t.assignedName)) return false;
-      return !t.subject || t.subject==="كل المواد" || fresh.subject===t.subject || fresh.subject==="كل المواد";
+      const freshSubjects = (fresh.subjects && fresh.subjects.length) ? fresh.subjects : (fresh.subject ? [fresh.subject] : []);
+      return !t.subject || t.subject==="كل المواد" || freshSubjects.includes(t.subject) || freshSubjects.includes("كل المواد");
     }
     return false;
   }
@@ -5598,7 +5770,8 @@ function taskMatchesRecipient(t, role, user){
       const fresh = DB.coordinators.find(x=>x.username===user.username) || user;
       const grades = fresh.grades || [];
       if(!grades.includes(t.assignedName)) return false;
-      return !t.subject || t.subject==="كل المواد" || fresh.subject===t.subject || fresh.subject==="كل المواد";
+      const freshSubjects = (fresh.subjects && fresh.subjects.length) ? fresh.subjects : (fresh.subject ? [fresh.subject] : []);
+      return !t.subject || t.subject==="كل المواد" || freshSubjects.includes(t.subject) || freshSubjects.includes("كل المواد");
     }
     return false;
   }
@@ -5671,10 +5844,21 @@ function drawTasksCreateTable(wrap, role){
       <table class="data" id="tkCreateTable"><thead><tr>${headers.map(h=>`<th>${h}</th>`).join("")}</tr></thead><tbody></tbody></table>
     </div>`;
   const tbody = wrap.querySelector("#tkCreateTable tbody");
+  const tkCreateTableEl = wrap.querySelector("#tkCreateTable");
 
   function myTasks(){
     return (DB.tasks||[]).map((t,i)=>({t,i})).filter(x=>x.t.senderRole===role && x.t.senderName===senderName);
   }
+  // نفس منطق زر "🗑 حذف جميع التكليفات" المخصص أدناه، مرتبط أيضًا بزر السلة العام في شريط
+  // الجدول المصغّر، حذفًا حقيقيًا بالمعرّف id مع saveDB().
+  tkCreateTableEl._clearAllHandler = ()=>{
+    const rows = myTasks();
+    if(!rows.length){ alert("لا توجد تكليفات لحذفها."); return; }
+    if(!confirm(`هل تريد حذف جميع التكليفات (${rows.length}) نهائيًا؟ لا يمكن التراجع عن هذا الإجراء.`)) return;
+    const idsToDelete = new Set(rows.map(({t})=>t.id));
+    DB.tasks = (DB.tasks||[]).filter(t=>!idsToDelete.has(t.id));
+    saveDB(); draw();
+  };
 
   function draw(){
     const rows = myTasks();
@@ -5827,10 +6011,20 @@ function drawTasksInboxTable(wrap, role){
       <table class="data" id="tkInboxTable"><thead><tr>${headers.map(h=>`<th>${h}</th>`).join("")}</tr></thead><tbody></tbody></table>
     </div>`;
   const tbody = wrap.querySelector("#tkInboxTable tbody");
+  const tkInboxTableEl = wrap.querySelector("#tkInboxTable");
 
   function myInboxTasks(){
-    return (DB.tasks||[]).map((t,i)=>({t,i})).filter(x=>taskMatchesRecipient(x.t, role, user));
+    return (DB.tasks||[]).map((t,i)=>({t,i})).filter(x=>taskMatchesRecipient(x.t, role, user) && !(x.t.hiddenFor||[]).includes(user.username));
   }
+  // حذف حقيقي ودائم من صندوق وارد هذا المستخدم فقط (لا يمس نسخة المرسِل في "التكليفات الصادرة"
+  // ولا بقية المستلمين إن كانت المهمة موجّهة لصف/فصل كامل)، عبر hiddenFor + saveDB().
+  tkInboxTableEl._clearAllHandler = ()=>{
+    const rows = myInboxTasks();
+    if(!rows.length){ alert("لا توجد تكليفات لحذفها."); return; }
+    if(!confirm(`سيتم حذف ${rows.length} تكليفًا من صندوق واردك نهائيًا. هل أنت متأكد؟`)) return;
+    rows.forEach(({t})=>{ t.hiddenFor = t.hiddenFor || []; if(!t.hiddenFor.includes(user.username)) t.hiddenFor.push(user.username); });
+    saveDB(); draw();
+  };
 
   function draw(){
     const rows = myInboxTasks();
@@ -5940,20 +6134,23 @@ function addMiniTableToolbar(table){
   exportBtn.className="icon-btn"; exportBtn.style.cssText="width:24px;height:24px;font-size:12px;padding:0;";
   exportBtn.addEventListener("click",(e)=>{ e.stopPropagation(); genericExportTable(table); });
   // زر حذف جميع بيانات الجدول (سلة 🗑) بعد الموافقة على رسالة تحذير
-  const clearBtn = document.createElement("button");
-  clearBtn.type="button"; clearBtn.title="حذف جميع بيانات الجدول"; clearBtn.textContent="🗑️";
-  clearBtn.className="icon-btn danger"; clearBtn.style.cssText="width:24px;height:24px;font-size:12px;padding:0;";
-  clearBtn.addEventListener("click",(e)=>{
-    e.stopPropagation();
-    if(!confirm("تحذير: سيتم حذف جميع البيانات الموجودة داخل هذا الجدول نهائيًا. هل أنت متأكد من المتابعة؟")) return;
-    if(typeof table._clearAllHandler === "function"){
+  // ملاحظة مهمة: هذا الزر لا يُضاف إطلاقًا إلا إذا كان للجدول _clearAllHandler حقيقي مرتبط
+  // بمصدر البيانات الفعلي (DB.* + saveDB). قديمًا كان الزر يظهر على كل الجداول، وإن لم يوجد
+  // handler كان يكتفي بتفريغ الصفوف بصريًا (tbody.innerHTML = "") دون لمس DB، فتعود
+  // البيانات فور إعادة رسم الجدول أو إعادة تحميل الصفحة — وهو ما كان يبدو للمستخدم حذفًا وهميًا.
+  // الآن: بلا handler حقيقي = بلا زر حذف من الأساس، بدل حذف مزيّف.
+  if(typeof table._clearAllHandler === "function"){
+    const clearBtn = document.createElement("button");
+    clearBtn.type="button"; clearBtn.title="حذف جميع بيانات الجدول"; clearBtn.textContent="🗑️";
+    clearBtn.className="icon-btn danger"; clearBtn.style.cssText="width:24px;height:24px;font-size:12px;padding:0;";
+    clearBtn.addEventListener("click",(e)=>{
+      e.stopPropagation();
+      if(!confirm("تحذير: سيتم حذف جميع البيانات الموجودة داخل هذا الجدول نهائيًا. هل أنت متأكد من المتابعة؟")) return;
       table._clearAllHandler();
-    } else {
-      const tb = table.querySelector("tbody");
-      if(tb) tb.innerHTML = "";
-    }
-  });
-  bar.appendChild(fsBtn); bar.appendChild(printBtn); bar.appendChild(exportBtn); bar.appendChild(clearBtn);
+    });
+    bar.appendChild(clearBtn);
+  }
+  bar.appendChild(fsBtn); bar.appendChild(printBtn); bar.appendChild(exportBtn);
   container.appendChild(bar); container.appendChild(tableWrap);
 }
 /* بند 7: إتاحة تغيير حجم جميع أعمدة الجداول (سحب حافة رأس العمود) في كل الجداول ذات الفئة data */
@@ -5963,6 +6160,30 @@ function addMiniTableToolbar(table){
 /* بند 8: تضييق كل عمود يحتوي فقط على زر حذف (سلة 🗑) في كل صفوفه، ليصبح بعرض الرمز
    بالضبط، في جميع الجداول وجميع الواجهات؛ لا يمس أي عمود تُشارك فيه أزرار أخرى (مثل
    أعمدة "حذف / إرسال" التي تحوي أكثر من زر). */
+/* بند 5 و8: نضع صنف col-serial فقط على العمود الأول إذا كان رأسه "م" فعلًا (رقم مسلسل حقيقي)،
+   حتى لا يُقيَّد بالعرض الصغير أي عمود آخر (مثل "الطالب" أو "الفصل الدراسي" أو "السؤال").
+   بند 6: عمود "عدد مرات الخطأ" يأخذ عرضًا افتراضيًا يساوي 2سم (~76px) عند أول ظهور له فقط
+   (إن لم يوجد عرض محفوظ مسبقًا من تعديل المستخدم)، ويبقى بعد ذلك قابلًا للتوسيع والتضييق
+   بحرية بالسحب تمامًا كبقية الأعمدة. */
+function applyNamedColumnDefaults(table){
+  const headRow = table.querySelector("thead tr:first-child");
+  if(!headRow) return;
+  const ths = [...headRow.children];
+  const bodyRows = [...table.querySelectorAll("tbody tr")];
+  ths.forEach((th,ci)=>{
+    const label = (th.textContent||"").replace(/\s+/g,"").trim();
+    const isSerial = ci===0 && label==="م";
+    const cells = [th, ...bodyRows.map(tr=>tr.children[ci]).filter(Boolean)];
+    if(isSerial){
+      cells.forEach(c=>c.classList.add("col-serial"));
+    } else {
+      cells.forEach(c=>c.classList.remove("col-serial"));
+      if(label==="عددمراتالخطأ" && !th.style.width && !th.dataset.userResized){
+        th.style.width = "76px"; // ≈ 2 سم، قيمة ابتدائية فقط وقابلة للتغيير بالسحب لاحقًا
+      }
+    }
+  });
+}
 function narrowDangerColumns(table){
   const headRow = table.querySelector("thead tr:first-child");
   if(!headRow) return;
@@ -6114,11 +6335,12 @@ function enableColumnResize(table){
     grip.addEventListener("click", e=>e.stopPropagation());
   });
   narrowDangerColumns(table);
+  applyNamedColumnDefaults(table);
   // بند 8: خلايا العمود تُعاد بناؤها من الصفر عند كل تحديث لمحتوى الجدول (tbody)، فنراقب ذلك
   // ونعيد تطبيق التضييق تلقائيًا في كل مرة حتى لا يفقد العمود تضييقه بعد أول تحديث للبيانات
   const tbodyEl = table.querySelector("tbody");
   if(tbodyEl){
-    new MutationObserver(()=>narrowDangerColumns(table)).observe(tbodyEl, {childList:true, subtree:true});
+    new MutationObserver(()=>{ narrowDangerColumns(table); applyNamedColumnDefaults(table); }).observe(tbodyEl, {childList:true, subtree:true});
   }
 }
 function scanForResizableTables(root){
